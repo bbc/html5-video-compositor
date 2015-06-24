@@ -12,6 +12,7 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 
 ```
 var compositor = new VideoCompositor(canvas);
+
 var playlist = {
     "tracks":{
         "1":[{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
@@ -24,7 +25,13 @@ compositor.play();
 
 ```
 
+## Video Encoding
 
+You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
+
+```
+avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
+```
 
 ## Build
 
