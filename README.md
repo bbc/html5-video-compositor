@@ -8,7 +8,15 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 
 
 
-## Development
+## API
+
+```
+var compositor = new VideoCompositor(canvas);
+```
+
+
+
+## Build
 
 This project uses npm to manage dependencies. To start development in the root of the project run:
 
@@ -20,4 +28,9 @@ Once this has completed you can build the source files by running:
 
 ```
 npm run build
+```
+
+To auto-recompile the project on source change run:
+```
+npm run watch
 ```
