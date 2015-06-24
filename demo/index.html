@@ -4,11 +4,13 @@
     <title>BBC R&ampD Video Compositor</title>
 </head>
 <body>
-<script type="text/javascript" src="../dist/videocompositor.js"></script>
-<script type="text/javascript">
-    window.onload = function () {
-        var videoCompositor = new VideoCompositor();
-    };
-</script>
+    <script type="text/javascript" src="../dist/videocompositor.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var canvas = document.getElementById('player-canvas');
+            var videoCompositor = new VideoCompositor(canvas);
+        };
+    </script>
+    <canvas id="player-canvas"></canvas>
 </body>
 </html>

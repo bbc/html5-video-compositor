@@ -12,6 +12,16 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 
 ```
 var compositor = new VideoCompositor(canvas);
+var playlist = {
+    "tracks":{
+        "1":[{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
+        "2":[                        {type:"image", start:2.5, duration:5, src:"image.png"}],
+    }
+}
+
+compositor.setPlaylist(playlist);
+compositor.play();
+
 ```
 
 
