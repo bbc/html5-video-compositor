@@ -43,14 +43,14 @@ This provides access to the current playlist. Content can be added/removed to th
 #### VideoCompositor.setPlaylist()
 Sets a playlist to be played by the videocompositor engine. The passed playlist is run through the playlist validator to make sure it's ok.
 
-'''
+```
 var playlist = {
     "tracks":[
         [{type:"video", start:0, duration:5, src:"video1.mp4"}],
     ]
 }
 VideoCompositor.setPlaylist(playlist)
-'''
+```
 
 #### VideoCompositor.play()
 Starts playing the current playlist. Stop will ba called once the end of the playlist has been reached.
