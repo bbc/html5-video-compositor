@@ -29,19 +29,19 @@ compositor.play();
 
 ```
 
-### Properites of VideoCompositor Instances
+### Properties of VideoCompositor Instances
 
 #### VideoCompositor.currentTime
 The current playhead position through the currently playing playlist. This can be set to seek to a given position in a playlist. Seeking is experimental and may break if seeking into some media sources.
 
 #### VideoCompositor.playlist
-This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behaviour. Dynamically modified playlists aren't reparsed automatically by the internal playlist validator so either do this manually, or cross your fingers.
+This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behavior. Dynamically modified playlists aren't re-parsed automatically by the internal playlist validator so either do this manually, or cross your fingers.
 
 
 ### Methods of VideoCompositor Instances
 
 #### VideoCompositor.setPlaylist()
-Sets a playlist to be played by the videocompositor engine. The passed playlist is run through the playlist validator to make sure it's ok.
+Sets a playlist to be played by the videocompositor engine. The passed playlist is run through the playlist validator to make sure it's OK.
 
 ```
 var playlist = {
@@ -53,7 +53,7 @@ VideoCompositor.setPlaylist(playlist)
 ```
 
 #### VideoCompositor.play()
-Starts playing the current playlist. Stop will ba called once the end of the playlist has been reached.
+Starts playing the current playlist. Stop will be called once the end of the playlist has been reached.
 
 #### VideoCompositor.pause()
 Pauses the currently playing content.
@@ -62,7 +62,7 @@ Pauses the currently playing content.
 Pauses the currently playing content and sets the currentTime to 0
 
 #### VideoCompositor.seek()
-Seeks to the given time in the playlist. 
+Seeks to the given time in the playlist. A convenience function for setting the currentTime property.
 ```
 videocompositor.seek(10);
 ```
