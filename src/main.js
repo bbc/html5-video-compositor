@@ -27,33 +27,21 @@ update();
 class VideoCompositor {
     constructor(canvas){
         console.log("Hello VideoCompositor");
-        this.canvas = canvas;
-        this.ctx = canvas.getContext('webgl');
-        this.playing = false;
+        this._canvas = canvas;
+        this._ctx = this._canvas.getContext('webgl');
+        this._playing = false;
+        this._mediaSources = [];
 
-        this.mediaSources = [];
         this.playlist = undefined;
         this.currentTime = 0;
         registerUpdateable(this);
     }
 
-    play(){
-        this.playing = true;
+    set currentTime(currentTime){
+        console.log("Seeking to", currentTime);
     }
-
-    stop(){
-        this.playing = false;
-        for (let i = 0; i < this.mediaSources.length; i++) {
-            this.mediaSources[i].stop();
-        };
-    }
-
-    seek(time){
-        this.currentTime = time;
-    }
-
-
-    setPlaylist(playlist){
+    
+    set playlist(playlist){
         // Playlist 
         // 
         // var playlist = {
@@ -63,8 +51,27 @@ class VideoCompositor {
         //      }
         // }
         //
-        this.playlist = playlist;
+        //this.playlist = playlist;
+        console.log(playlist);
     }
+
+    play(){
+        this._playing = true;
+    }
+
+    pause() {
+        this._playing = false;
+        for (let i = 0; i < this._mediaSources.length; i++) {
+            this._mediaSources[i].pause();
+        };
+    }
+
+    stop(){
+        this.pause();
+        this.currentTime = 0;
+    }
+
+
 
     _getPlaylistStatusAtTime(playlist, playhead){
         let toPlay = [];
@@ -122,7 +129,7 @@ class VideoCompositor {
     }
 
     update(dt){
-        if (this.playlist === undefined || this.playing === false) return;
+        if (this.playlist === undefined || this._playing === false) return;
         this.currentTime += dt;
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this.playlist, this.currentTime);
         //console.log(toPlay, currentlyPlaying, finishedPlaying);

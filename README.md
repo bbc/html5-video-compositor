@@ -6,6 +6,12 @@ This is an experimental video composition engine which can play edit decision li
 
 In video editing terms an EDL defines the points at which to cut and assemble video sources. VideoCompositor uses a simple JSON based EDL to describe how to cut and assemble HTML5 video sources, images, and WebGL contexts, it also provides a framework for performing shader based compositing operations (i.e cross-fades, green-screen).
 
+## Video Encoding
+You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
+
+```
+avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
+```
 
 ## VideoCompositor API
 
@@ -15,15 +21,14 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 //Instantiating a video compositor
 var compositor = new VideoCompositor(canvas);
 
-var playlist = {
+//Setting a playlist
+compositor.playlist = {
     "tracks":[
         [{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
         [                        {type:"image", start:2.5, duration:5, src:"image.png"}]
     ]
-}
+};
 
-//Setting a playlist
-compositor.setPlaylist(playlist);
 //Playing the set playlist
 compositor.play();
 
@@ -35,22 +40,19 @@ compositor.play();
 The current playhead position through the currently playing playlist. This can be set to seek to a given position in a playlist. Seeking is experimental and may break if seeking into some media sources.
 
 #### VideoCompositor.playlist
-This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behavior. Dynamically modified playlists aren't re-parsed automatically by the internal playlist validator so either do this manually, or cross your fingers.
-
-
-### Methods of VideoCompositor Instances
-
-#### VideoCompositor.setPlaylist()
-Sets a playlist to be played by the videocompositor engine. The passed playlist is run through the playlist validator to make sure it's OK.
+This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behavior. The set playlist is run through the playlist validator to make sure it's OK.
 
 ```
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4"}],
+        [{type:"video", start:0, duration:5, src:"video1.mp4"}]
     ]
-}
-VideoCompositor.setPlaylist(playlist)
+};
+VideoCompositor.playlist = playlist;
 ```
+
+
+### Methods of VideoCompositor Instances
 
 #### VideoCompositor.play()
 Starts playing the current playlist. Stop will be called once the end of the playlist has been reached.
@@ -61,20 +63,6 @@ Pauses the currently playing content.
 #### VideoCompositor.stop()
 Pauses the currently playing content and sets the currentTime to 0
 
-#### VideoCompositor.seek()
-Seeks to the given time in the playlist. A convenience function for setting the currentTime property.
-```
-videocompositor.seek(10);
-```
-
-
-## Video Encoding
-
-You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
-
-```
-avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
-```
 
 ## Build
 

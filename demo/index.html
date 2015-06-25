@@ -20,7 +20,7 @@
             var duration = videoCompositor._calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             console.log(videoCompositor._getPlaylistStatusAtTime(playlist, 3));
-            videoCompositor.setPlaylist(playlist);
+            videoCompositor.playlist = playlist;
             videoCompositor.play();
         };
     </script>

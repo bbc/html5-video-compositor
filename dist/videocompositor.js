@@ -95,11 +95,11 @@ var VideoCompositor =
 	        _classCallCheck(this, VideoCompositor);
 
 	        console.log("Hello VideoCompositor");
-	        this.canvas = canvas;
-	        this.ctx = canvas.getContext("webgl");
-	        this.playing = false;
+	        this._canvas = canvas;
+	        this._ctx = this._canvas.getContext("webgl");
+	        this._playing = false;
+	        this._mediaSources = [];
 
-	        this.mediaSources = [];
 	        this.playlist = undefined;
 	        this.currentTime = 0;
 	        registerUpdateable(this);
@@ -108,34 +108,21 @@ var VideoCompositor =
 	    _createClass(VideoCompositor, [{
 	        key: "play",
 	        value: function play() {
-	            this.playing = true;
+	            this._playing = true;
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            this._playing = false;
+	            for (var i = 0; i < this._mediaSources.length; i++) {
+	                this._mediaSources[i].pause();
+	            };
 	        }
 	    }, {
 	        key: "stop",
 	        value: function stop() {
-	            this.playing = false;
-	            for (var i = 0; i < this.mediaSources.length; i++) {
-	                this.mediaSources[i].stop();
-	            };
-	        }
-	    }, {
-	        key: "seek",
-	        value: function seek(time) {
-	            this.currentTime = time;
-	        }
-	    }, {
-	        key: "setPlaylist",
-	        value: function setPlaylist(playlist) {
-	            // Playlist
-	            //
-	            // var playlist = {
-	            //      "tracks":{
-	            //          "1":[{type:"video", start:0, duration:5, src:"video1.mp4", uuid:"1"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4", uuid:"3"}],
-	            //          "2":[                        {type:"image", start:2.5, duration:5, src:"image.png", uuid:"2"}],
-	            //      }
-	            // }
-	            //
-	            this.playlist = playlist;
+	            this.pause();
+	            this.currentTime = 0;
 	        }
 	    }, {
 	        key: "_getPlaylistStatusAtTime",
@@ -198,7 +185,7 @@ var VideoCompositor =
 	    }, {
 	        key: "update",
 	        value: function update(dt) {
-	            if (this.playlist === undefined || this.playing === false) return;
+	            if (this.playlist === undefined || this._playing === false) return;
 	            this.currentTime += dt;
 
 	            var _getPlaylistStatusAtTime2 = this._getPlaylistStatusAtTime(this.playlist, this.currentTime);
@@ -210,6 +197,26 @@ var VideoCompositor =
 	            var toPlay = _getPlaylistStatusAtTime22[0];
 	            var currentlyPlaying = _getPlaylistStatusAtTime22[1];
 	            var finishedPlaying = _getPlaylistStatusAtTime22[2];
+	        }
+	    }, {
+	        key: "currentTime",
+	        set: function set(currentTime) {
+	            console.log("Seeking to", currentTime);
+	        }
+	    }, {
+	        key: "playlist",
+	        set: function set(playlist) {
+	            // Playlist
+	            //
+	            // var playlist = {
+	            //      "tracks":{
+	            //          "1":[{type:"video", start:0, duration:5, src:"video1.mp4", uuid:"1"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4", uuid:"3"}],
+	            //          "2":[                        {type:"image", start:2.5, duration:5, src:"image.png", uuid:"2"}],
+	            //      }
+	            // }
+	            //
+	            //this.playlist = playlist;
+	            console.log(playlist);
 	        }
 	    }]);
 
