@@ -1,6 +1,35 @@
 # HTML5-Video-Compositor
 A shader based video composition engine for the browser.
 
+```
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+    <script type="text/javascript" src="../dist/videocompositor.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            var canvas = document.getElementById('player-canvas');
+            var videoCompositor = new VideoCompositor(canvas);
+
+            videoCompositor.playlist = {
+                "tracks":[
+                    [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"},                            {type:"video", start:7.5, duration:5, src:"video2.mp4", id:"3"}],
+                    [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+                ]
+            };
+            
+            videoCompositor.play();
+        };
+    </script>
+    <canvas id="player-canvas"></canvas>
+</body>
+</html>
+
+```
+
+
+
 ## Introduction
 This is an experimental video composition engine which can play edit decision lists in the browser. Content can be dynamically appended to the EDL as it's playing to create interactive and responsive content.
 
@@ -24,8 +53,8 @@ var compositor = new VideoCompositor(canvas);
 //Setting a playlist
 compositor.playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
-        [                        {type:"image", start:2.5, duration:5, src:"image.png"}]
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"},                             {type:"video", start:7.5, duration:5, src:"video2.mp4", id:"3"}],
+        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
     ]
 };
 
@@ -45,7 +74,7 @@ This provides access to the current playlist. Content can be added/removed to th
 ```
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4"}]
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
     ]
 };
 VideoCompositor.playlist = playlist;
