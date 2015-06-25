@@ -21,9 +21,10 @@
             console.log("Playlist Duration", duration);
             console.log(videoCompositor._getPlaylistStatusAtTime(playlist, 3));
             videoCompositor.playlist = playlist;
-            videoCompositor.play();
 
 
+
+            videoCompositor.currentTime = 2;
 
             var visualisationCanvas = document.getElementById("visualisation-canvas");
             visualisationCanvas.height = 50;

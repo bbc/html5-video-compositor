@@ -67,7 +67,7 @@ compositor.play();
 This section outlines out how you can expect the VideoCompositor to behave when given various playlist configurations.
 
 #### Overlapping Tracks
-In the absence of any shaders if you have two simultaneously playing tracks, the lowest numbered track will have priority. When the VideoCompositor plays a playlist it decides priority of media sources based on the position of the media sources track in the the "tracks" array (i.e, playlist.tracks[0] has priority over playlist.tracks[1]). 
+In the absence of any shaders if you have two simultaneously playing tracks, the lowest numbered track will have priority. When the VideoCompositor plays a playlist it decides priority of mediaSource based on the position of the mediaSourceReferences track in the the "tracks" array (i.e, playlist.tracks[0] has priority over playlist.tracks[1]). 
 
 
 In the following situation video1 will be displayed for it's full duration, after it finishes video2 will be shown for its final 2 seconds.

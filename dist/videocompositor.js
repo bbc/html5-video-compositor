@@ -97,10 +97,11 @@ var VideoCompositor =
 	        this._canvas = canvas;
 	        this._ctx = this._canvas.getContext("webgl");
 	        this._playing = false;
-	        this._mediaSources = [];
+	        this._mediaSources = new Map();
+	        this._mediaSourcePreloadNumber = 1; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+	        this._playlist = undefined;
 
-	        this.playlist;
-	        this.currentTime = 0;
+	        this._currentTime = 0;
 	        this.duration = 0;
 	        registerUpdateable(this);
 	    }
@@ -114,15 +115,15 @@ var VideoCompositor =
 	        key: "pause",
 	        value: function pause() {
 	            this._playing = false;
-	            for (var i = 0; i < this._mediaSources.length; i++) {
-	                this._mediaSources[i].pause();
-	            };
+	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
+	                value.pause();
+	            });
 	        }
 	    }, {
 	        key: "stop",
 	        value: function stop() {
 	            this.pause();
-	            this.currentTime = 0;
+	            this._currentTime = 0;
 	        }
 	    }, {
 	        key: "_getPlaylistStatusAtTime",
@@ -146,7 +147,7 @@ var VideoCompositor =
 	                        currentlyPlaying.push(segment);
 	                        continue;
 	                    }
-	                    if (playhead < segment.start) {
+	                    if (playhead <= segment.start) {
 	                        toPlay.push(segment);
 	                        continue;
 	                    }
@@ -156,40 +157,79 @@ var VideoCompositor =
 	            return [toPlay, currentlyPlaying, finishedPlaying];
 	        }
 	    }, {
+	        key: "_sortMediaSourcesByStartTime",
+	        value: function _sortMediaSourcesByStartTime(mediaSources) {
+	            mediaSources.sort(function (a, b) {
+	                return a.start - b.start;
+	            });
+	            return mediaSources;
+	        }
+	    }, {
+	        key: "_loadMediaSource",
+	        value: function _loadMediaSource(mediaSourceReference) {
+	            switch (mediaSourceReference.type) {
+	                case "video":
+	                    var video = new _sourcesVideoJs2["default"](mediaSourceReference);
+	                    video.load();
+	                    this._mediaSources.set(mediaSourceReference.id, video);
+	                    break;
+	                case "image":
+	                    var image = new _sourcesImageJs2["default"](mediaSourceReference);
+	                    image.load();
+	                    this._mediaSources.set(mediaSourceReference.id, image);
+	                    break;
+	                case "canvas":
+	                    var canvas = new _sourcesCanvasJs2["default"](mediaSourceReference);
+	                    canvas.load();
+	                    this._mediaSources.set(mediaSourceReference.id, canvas);
+	                    break;
+	                default:
+	                    throw { "error": 2, "msg": "mediaSourceReference " + mediaSourceReference.id + " has unrecognized type " + mediaSourceReference.type, toString: function toString() {
+	                            console.log(this.msg);
+	                        } };
+	                    break;
+	            }
+	        }
+	    }, {
 	        key: "update",
 	        value: function update(dt) {
-	            if (this.playlist === undefined || this._playing === false) return;
-	            this.currentTime += dt;
+	            if (this._playlist === undefined || this._playing === false) return;
 
-	            var _getPlaylistStatusAtTime2 = this._getPlaylistStatusAtTime(this.playlist, this.currentTime);
-
-	            //console.log(toPlay, currentlyPlaying, finishedPlaying);
+	            var _getPlaylistStatusAtTime2 = this._getPlaylistStatusAtTime(this._playlist, this._currentTime);
 
 	            var _getPlaylistStatusAtTime22 = _slicedToArray(_getPlaylistStatusAtTime2, 3);
 
 	            var toPlay = _getPlaylistStatusAtTime22[0];
 	            var currentlyPlaying = _getPlaylistStatusAtTime22[1];
 	            var finishedPlaying = _getPlaylistStatusAtTime22[2];
+
+	            toPlay = this._sortMediaSourcesByStartTime(toPlay);
+
+	            //preload mediaSources
+	            for (var i = 0; i < this._mediaSourcePreloadNumber; i++) {
+	                if (i === toPlay.length) break;
+	                if (this._mediaSources.has(toPlay[i].id) === false) {
+	                    this._loadMediaSource(toPlay[i]);
+	                }
+	            };
+
+	            this._currentTime += dt;
 	        }
 	    }, {
 	        key: "currentTime",
 	        set: function set(currentTime) {
 	            console.log("Seeking to", currentTime);
+	            this._currentTime = currentTime;
+	        },
+	        get: function get() {
+	            return this._currentTime;
 	        }
 	    }, {
 	        key: "playlist",
 	        set: function set(playlist) {
-	            // Playlist
-	            //
-	            // var playlist = {
-	            //      "tracks":{
-	            //          "1":[{type:"video", start:0, duration:5, src:"video1.mp4", uuid:"1"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4", uuid:"3"}],
-	            //          "2":[                        {type:"image", start:2.5, duration:5, src:"image.png", uuid:"2"}],
-	            //      }
-	            // }
-	            //
 	            VideoCompositor.validatePlaylist(playlist);
 	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
+	            this._playlist = playlist;
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
@@ -247,6 +287,12 @@ var VideoCompositor =
 	                    if (mediaSource.type === undefined) throw { "error": 2, "msg": "mediaSource " + mediaSource.id + " in track " + i + " is missing a type property", toString: function toString() {
 	                            console.log(this.msg);
 	                        } };
+	                    if (mediaSource.src != undefined && mediaSource.element != undefined) throw { "error": 2, "msg": "mediaSource " + mediaSource.id + " in track " + i + " has both a src and element, it must have one or the other", toString: function toString() {
+	                            console.log(this.msg);
+	                        } };
+	                    if (mediaSource.src === undefined && mediaSource.element === undefined) throw { "error": 2, "msg": "mediaSource " + mediaSource.id + " in track " + i + " has neither a src or an element, it must have one or the other", toString: function toString() {
+	                            console.log(this.msg);
+	                        } };
 	                }
 	            }
 
@@ -254,7 +300,6 @@ var VideoCompositor =
 	            for (var i = 0; i < playlist.tracks.length; i++) {
 	                var track = playlist.tracks[i];
 	                var time = 0;
-
 	                for (var j = 0; j < track.length; j++) {
 	                    var mediaSource = track[j];
 	                    if (mediaSource.start < time) {
@@ -312,7 +357,6 @@ var VideoCompositor =
 	                    var msX = mediaSource.start * pixelsPerSecond;
 	                    var msY = trackHeight * i;
 	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type];
-	                    console.log(msX, msY, msW, msH);
 	                    ctx.fillRect(msX, msY, msW, msH);
 	                    ctx.fill();
 	                };
@@ -425,6 +469,11 @@ var VideoCompositor =
 	        key: "isReady",
 	        value: function isReady() {
 	            return this.ready;
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            console.log("Loading", this.id);
 	        }
 	    }, {
 	        key: "destroy",

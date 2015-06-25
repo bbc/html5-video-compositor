@@ -21,6 +21,9 @@ class Wrapper {
     isReady(){
         return this.ready;
     }
+    load(){
+        console.log("Loading", this.id);
+    }
     destroy(){
         //this.texture.destroy();
     }
