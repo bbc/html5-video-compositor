@@ -1,7 +1,7 @@
 # HTML5-Video-Compositor
 A shader based video composition engine for the browser.
 
-```
+```html
 <!DOCTYPE html>
 <html>
 <head></head>
@@ -18,7 +18,7 @@ A shader based video composition engine for the browser.
                     [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
                 ]
             };
-            
+
             videoCompositor.play();
         };
     </script>
@@ -38,7 +38,7 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 ## Video Encoding
 You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
 
-```
+```bash
 avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 ```
 
@@ -46,7 +46,7 @@ avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 
 ### Syntax
 
-```
+```javascript
 //Instantiating a video compositor
 var compositor = new VideoCompositor(canvas);
 
@@ -71,7 +71,7 @@ The current playhead position through the currently playing playlist. This can b
 #### VideoCompositor.playlist
 This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behavior. The set playlist is run through the playlist validator to make sure it's OK.
 
-```
+```javascript
 var playlist = {
     "tracks":[
         [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
@@ -97,17 +97,17 @@ Pauses the currently playing content and sets the currentTime to 0
 
 This project uses npm to manage dependencies. To build the compositor, in the root of the project run:
 
-```
+```bash
 npm install
 ```
 
 Once this has completed you can build the source files by running:
 
-```
+```bash
 npm run build
 ```
 
 To auto-recompile the project on source change run:
-```
+```bash
 npm run watch
 ```
