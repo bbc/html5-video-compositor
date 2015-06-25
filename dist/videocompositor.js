@@ -188,7 +188,6 @@ var VideoCompositor =
 	            //      }
 	            // }
 	            //
-	            //this.playlist = playlist;
 	            VideoCompositor.validatePlaylist(playlist);
 	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
 	        }

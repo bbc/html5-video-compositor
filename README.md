@@ -63,6 +63,37 @@ compositor.play();
 
 ```
 
+### Basic Rendering Behaviors
+This section outlines out how you can expect the VideoCompositor to behave when given various playlist configurations.
+
+#### Overlapping Tracks
+In the absence of any shaders if you have two simultaneously playing tracks, the lowest numbered track will have priority. When the VideoCompositor plays a playlist it decides priority of media sources based on the position of the media sources track in the the "tracks" array (i.e, playlist.tracks[0] has priority over playlist.tracks[1]). 
+
+
+In the following situation video1 will be displayed for it's full duration, after it finishes video2 will be shown for its final 2 seconds.
+```JavaScript
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"video1"}],
+        [                     {type:"video", start:2, duration:5, src:"video2.mp4", id:"video2"}]
+    ]
+};
+```
+
+In the following situation video2 will be shown for 2 seconds, then video1 will be shown from it's start for it's full duration.
+```JavaScript
+var playlist = {
+    "tracks":[
+        [                       {type:"video", start:2, duration:5, src:"video1.mp4", id:"video1"}],
+        [{type:"video", start:0, duration:5, src:"video2.mp4", id:"video2"}]
+    ]
+};
+```
+
+#### Audio
+The VideoCompositor does not handle audio rendering. If two video's have audio and overlap both audio tracks will be played simultaneously regardless of the priority of the tracks the videos belong to. If you need proper audio rendering it's recommended to use the WebAudio API.
+
+
 ### Properties of VideoCompositor Instances
 
 #### VideoCompositor.currentTime
