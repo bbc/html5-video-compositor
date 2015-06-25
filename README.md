@@ -7,10 +7,12 @@ This is an experimental video composition engine which can play edit decision li
 In video editing terms an EDL defines the points at which to cut and assemble video sources. VideoCompositor uses a simple JSON based EDL to describe how to cut and assemble HTML5 video sources, images, and WebGL contexts, it also provides a framework for performing shader based compositing operations (i.e cross-fades, green-screen).
 
 
+## VideoCompositor API
 
-## API
+### Syntax
 
 ```
+//Instantiating a video compositor
 var compositor = new VideoCompositor(canvas);
 
 var playlist = {
@@ -20,10 +22,51 @@ var playlist = {
     ]
 }
 
+//Setting a playlist
 compositor.setPlaylist(playlist);
+//Playing the set playlist
 compositor.play();
 
 ```
+
+### Properites of VideoCompositor Instances
+
+#### VideoCompositor.currentTime
+The current playhead position through the currently playing playlist. This can be set to seek to a given position in a playlist. Seeking is experimental and may break if seeking into some media sources.
+
+#### VideoCompositor.playlist
+This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behaviour. Dynamically modified playlists aren't reparsed automatically by the internal playlist validator so either do this manually, or cross your fingers.
+
+
+### Methods of VideoCompositor Instances
+
+#### VideoCompositor.setPlaylist()
+Sets a playlist to be played by the videocompositor engine. The passed playlist is run through the playlist validator to make sure it's ok.
+
+'''
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4"}],
+    ]
+}
+VideoCompositor.setPlaylist(playlist)
+'''
+
+#### VideoCompositor.play()
+Starts playing the current playlist. Stop will ba called once the end of the playlist has been reached.
+
+#### VideoCompositor.pause()
+Pauses the currently playing content.
+
+#### VideoCompositor.stop()
+Pauses the currently playing content and sets the currentTime to 0
+
+#### VideoCompositor.seek()
+Seeks to the given time in the playlist. 
+```
+videocompositor.seek(10);
+```
+
 
 ## Video Encoding
 
