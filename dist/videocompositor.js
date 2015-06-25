@@ -222,12 +222,13 @@ var VideoCompositor =
 	        key: "validatePlaylist",
 	        value: function validatePlaylist(playlist) {
 	            /* 
-	             This function validates a passed playlist, making sure it matches a 
+	                 This function validates a passed playlist, making sure it matches a 
 	            number of properties a playlist must have to be OK.
-	             * Error 1. The playlist media sources have all the expected properties.
+	            
+	            * Error 1. The playlist media sources have all the expected properties.
 	            * Error 2. Media sources in single track are sequential.
 	            * Error 3. Media sources in single track don't overlap
-	            */
+	             */
 
 	            //Error 1. The playlist media sources have all the expected properties.
 	            for (var i = 0; i < playlist.tracks.length; i++) {
@@ -249,7 +250,7 @@ var VideoCompositor =
 	                }
 	            }
 
-	            // Error 2. references in single track are sequential.
+	            // Error 2. Media sources in single track are sequential.
 	            for (var i = 0; i < playlist.tracks.length; i++) {
 	                var track = playlist.tracks[i];
 	                var time = 0;
@@ -265,25 +266,23 @@ var VideoCompositor =
 	                }
 	            }
 
-	            // Error 3. Sources  in single track don't overlap.
-	            for (key in playlist.tracks) {
-	                if (key === undefined) continue;
-	                var prev_ref = undefined;
-	                for (index in playlist.tracks[key]) {
-	                    ref = playlist.tracks[key][index];
-	                    if (prev_ref === undefined) {
-	                        prev_ref = ref;continue;
+	            //Error 3. Media sources in single track don't overlap
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                var previousMediaSource = undefined;
+	                for (var j = 0; j < track.length; j++) {
+	                    var mediaSource = track[j];
+	                    if (previousMediaSource === undefined) {
+	                        previousMediaSource = mediaSource;
+	                        continue;
 	                    }
-
-	                    prev_end = prev_ref.start + playlist.sources[prev_ref.source_id].duration;
-	                    prev_end = Math.round(prev_end * playlist.sources[prev_ref.source_id].framerate) / playlist.sources[prev_ref.source_id].framerate;
-	                    current_start = ref.start;
-	                    if (prev_end > current_start) {
-	                        throw { "error": 2, "msg": "Track ref overlap. Ref " + prev_ref.source_id + " " + prev_end + " in track " + key + " finishes after Ref " + ref.source_id + " " + current_start + " starts.", toString: function toString() {
+	                    var previousEnd = previousMediaSource.start + previousMediaSource.duration;
+	                    var currentStart = mediaSource.start;
+	                    if (previousEnd > currentStart) {
+	                        throw { "error": 2, "msg": "Track mediaSource overlap. mediaSource " + previousMediaSource.id + " in track " + i + " finishes after mediaSource " + mediaSource.id + " starts.", toString: function toString() {
 	                                console.log(this.msg);
 	                            } };
 	                    }
-	                    prev_ref = ref;
 	                }
 	            }
 	        }

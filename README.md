@@ -6,7 +6,7 @@ A shader based video composition engine for the browser.
 <html>
 <head></head>
 <body>
-    <script type="text/javascript" src="../dist/videocompositor.js"></script>
+    <script type="text/javascript" src="videocompositor.js"></script>
     <script type="text/javascript">
         window.onload = function () {
             var canvas = document.getElementById('player-canvas');

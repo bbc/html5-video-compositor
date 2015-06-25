@@ -139,62 +139,61 @@ class VideoCompositor {
     static validatePlaylist(playlist){
         /* 
     
-    This function validates a passed playlist, making sure it matches a 
-    number of properties a playlist must have to be OK.
-    
-    * Error 1. The playlist media sources have all the expected properties.
-    * Error 2. Media sources in single track are sequential.
-    * Error 3. Media sources in single track don't overlap
+        This function validates a passed playlist, making sure it matches a 
+        number of properties a playlist must have to be OK.
+        
+        * Error 1. The playlist media sources have all the expected properties.
+        * Error 2. Media sources in single track are sequential.
+        * Error 3. Media sources in single track don't overlap
 
-    */
-
-
-    //Error 1. The playlist media sources have all the expected properties.
-    for (let i = 0; i < playlist.tracks.length; i++) {
-        let track = playlist.tracks[i]
-        for (let j = 0; j < track.length; j++) {
-            let mediaSource = track[j];
-            if (mediaSource.id === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a id property", toString:function(){console.log(this.msg);}};
-            if (mediaSource.start === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a start property", toString:function(){console.log(this.msg);}};
-            if (mediaSource.duration === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a duration property", toString:function(){console.log(this.msg);}};
-            if (mediaSource.type === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a type property", toString:function(){console.log(this.msg);}};
-        }
-    }
+        */
 
 
-    // Error 2. references in single track are sequential.
-    for (let i = 0; i < playlist.tracks.length; i++) {
-        let track = playlist.tracks[i]
-        let time = 0;
-
-        for (let j = 0; j < track.length; j++) {
-            let mediaSource = track[j];
-            if (mediaSource.start < time){
-                throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" starts before previous mediaSource", toString:function(){console.log(this.msg);}};
+        //Error 1. The playlist media sources have all the expected properties.
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            let track = playlist.tracks[i]
+            for (let j = 0; j < track.length; j++) {
+                let mediaSource = track[j];
+                if (mediaSource.id === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a id property", toString:function(){console.log(this.msg);}};
+                if (mediaSource.start === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a start property", toString:function(){console.log(this.msg);}};
+                if (mediaSource.duration === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a duration property", toString:function(){console.log(this.msg);}};
+                if (mediaSource.type === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a type property", toString:function(){console.log(this.msg);}};
             }
-            time = mediaSource.start;
         }
-    }        
 
-    // Error 3. Sources  in single track don't overlap.
-    for (key in playlist.tracks){
-        if (key === undefined)continue;
-        var prev_ref = undefined;
-        for (index in playlist.tracks[key]){
-            ref = playlist.tracks[key][index];
-            if (prev_ref === undefined) {prev_ref = ref; continue;}
 
-            prev_end = prev_ref.start + playlist.sources[prev_ref.source_id].duration;
-            prev_end = Math.round(prev_end * playlist.sources[prev_ref.source_id].framerate) / playlist.sources[prev_ref.source_id].framerate;
-            current_start = ref.start;
-            if (prev_end > current_start){
-                throw {"error":2,"msg":"Track ref overlap. Ref "+prev_ref.source_id+" "+prev_end+" in track " +key+" finishes after Ref " + ref.source_id +" "+current_start+" starts.", toString:function(){console.log(this.msg);}};
+        // Error 2. Media sources in single track are sequential.
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            let track = playlist.tracks[i]
+            let time = 0;
+
+            for (let j = 0; j < track.length; j++) {
+                let mediaSource = track[j];
+                if (mediaSource.start < time){
+                    throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" starts before previous mediaSource", toString:function(){console.log(this.msg);}};
+                }
+                time = mediaSource.start;
             }
-            prev_ref = ref;
+        }        
+
+        //Error 3. Media sources in single track don't overlap
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            let track = playlist.tracks[i]
+            let previousMediaSource = undefined;
+            for (let j = 0; j < track.length; j++) {
+                let mediaSource = track[j];
+                if (previousMediaSource === undefined){
+                    previousMediaSource = mediaSource;
+                    continue;
+                }
+                let previousEnd = previousMediaSource.start + previousMediaSource.duration;
+                let currentStart = mediaSource.start;
+                if (previousEnd > currentStart){
+                    throw {"error":2,"msg":"Track mediaSource overlap. mediaSource "+previousMediaSource.id+" in track " +i+" finishes after mediaSource " + mediaSource.id +" starts.", toString:function(){console.log(this.msg);}};
+                }
+            }
         }
     }
-    }
-
 }
 
 export default VideoCompositor;
