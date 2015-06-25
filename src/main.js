@@ -103,7 +103,16 @@ class VideoCompositor {
         return [toPlay, currentlyPlaying, finishedPlaying];
     }
 
-    _calculateTrackDuration(track){
+
+    update(dt){
+        if (this.playlist === undefined || this._playing === false) return;
+        this.currentTime += dt;
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this.playlist, this.currentTime);
+        //console.log(toPlay, currentlyPlaying, finishedPlaying);
+
+    }
+
+    static calculateTrackDuration(track){
         let maxPlayheadPosition = 0;
         for (let j = 0; j < track.length; j++) {
             let playheadPosition = track[j].start + track[j].duration;
@@ -114,12 +123,12 @@ class VideoCompositor {
         return maxPlayheadPosition;
     }
 
-    _calculatePlaylistDuration(playlist){
+    static calculatePlaylistDuration(playlist){
         let maxTrackDuration = 0;
 
         for(let i = 0; i < playlist.tracks.length; i++){
             let track = playlist.tracks[i];
-            let trackDuration = this._calculateTrackDuration(track);
+            let trackDuration = VideoCompositor.calculateTrackDuration(track);
             if (trackDuration > maxTrackDuration){
                 maxTrackDuration = trackDuration;
             }
@@ -128,24 +137,15 @@ class VideoCompositor {
         return maxTrackDuration;
     }
 
-    update(dt){
-        if (this.playlist === undefined || this._playing === false) return;
-        this.currentTime += dt;
-        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this.playlist, this.currentTime);
-        //console.log(toPlay, currentlyPlaying, finishedPlaying);
-
-    }
 
     static validatePlaylist(playlist){
-        /* 
-    
+        /*     
         This function validates a passed playlist, making sure it matches a 
         number of properties a playlist must have to be OK.
         
         * Error 1. The playlist media sources have all the expected properties.
         * Error 2. Media sources in single track are sequential.
         * Error 3. Media sources in single track don't overlap
-
         */
 
 
@@ -193,6 +193,10 @@ class VideoCompositor {
                 }
             }
         }
+    }
+
+    static renderPlaylist(){
+
     }
 }
 

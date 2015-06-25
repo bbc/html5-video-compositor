@@ -93,6 +93,45 @@ Pauses the currently playing content.
 Pauses the currently playing content and sets the currentTime to 0
 
 
+### Methods of the VideoCompositor Constructor
+
+#### VideoCompositor.validatePlaylist()
+Takes a playlist and validates it for a range of common errors.
+```JavaScript
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+    ]    
+};
+VideoCompositor.validatePlaylist(playlist);
+```
+
+#### VideoCompositor.renderPlaylist()
+Accepts a playlist and a canvas element and renders a simple representation of the playlist to the canvas.
+```JavaScript
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+    ]    
+};
+var canvas = document.getElementById('canvas-id')
+VideoCompositor.renderPlaylist(playlist, canvas);
+```
+
+#### VideoCompositor.calculatePlaylistDuration()
+Accepts a playlist and calculates the duration of it.
+```JavaScript
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+    ]    
+};
+var duration = VideoCompositor.calculatePlaylistDuration(playlist);
+console.log("Playlist duration", duration);
+```
+
+
+
 ## Build
 
 This project uses npm to manage dependencies. To build the compositor, in the root of the project run:

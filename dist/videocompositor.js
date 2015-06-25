@@ -156,33 +156,6 @@ var VideoCompositor =
 	            return [toPlay, currentlyPlaying, finishedPlaying];
 	        }
 	    }, {
-	        key: "_calculateTrackDuration",
-	        value: function _calculateTrackDuration(track) {
-	            var maxPlayheadPosition = 0;
-	            for (var j = 0; j < track.length; j++) {
-	                var playheadPosition = track[j].start + track[j].duration;
-	                if (playheadPosition > maxPlayheadPosition) {
-	                    maxPlayheadPosition = playheadPosition;
-	                }
-	            };
-	            return maxPlayheadPosition;
-	        }
-	    }, {
-	        key: "_calculatePlaylistDuration",
-	        value: function _calculatePlaylistDuration(playlist) {
-	            var maxTrackDuration = 0;
-
-	            for (var i = 0; i < playlist.tracks.length; i++) {
-	                var track = playlist.tracks[i];
-	                var trackDuration = this._calculateTrackDuration(track);
-	                if (trackDuration > maxTrackDuration) {
-	                    maxTrackDuration = trackDuration;
-	                }
-	            }
-
-	            return maxTrackDuration;
-	        }
-	    }, {
 	        key: "update",
 	        value: function update(dt) {
 	            if (this.playlist === undefined || this._playing === false) return;
@@ -219,16 +192,43 @@ var VideoCompositor =
 	            VideoCompositor.validatePlaylist(playlist);
 	        }
 	    }], [{
+	        key: "calculateTrackDuration",
+	        value: function calculateTrackDuration(track) {
+	            var maxPlayheadPosition = 0;
+	            for (var j = 0; j < track.length; j++) {
+	                var playheadPosition = track[j].start + track[j].duration;
+	                if (playheadPosition > maxPlayheadPosition) {
+	                    maxPlayheadPosition = playheadPosition;
+	                }
+	            };
+	            return maxPlayheadPosition;
+	        }
+	    }, {
+	        key: "calculatePlaylistDuration",
+	        value: function calculatePlaylistDuration(playlist) {
+	            var maxTrackDuration = 0;
+
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                var trackDuration = VideoCompositor.calculateTrackDuration(track);
+	                if (trackDuration > maxTrackDuration) {
+	                    maxTrackDuration = trackDuration;
+	                }
+	            }
+
+	            return maxTrackDuration;
+	        }
+	    }, {
 	        key: "validatePlaylist",
 	        value: function validatePlaylist(playlist) {
-	            /* 
-	                 This function validates a passed playlist, making sure it matches a 
+	            /*     
+	            This function validates a passed playlist, making sure it matches a 
 	            number of properties a playlist must have to be OK.
 	            
 	            * Error 1. The playlist media sources have all the expected properties.
 	            * Error 2. Media sources in single track are sequential.
 	            * Error 3. Media sources in single track don't overlap
-	             */
+	            */
 
 	            //Error 1. The playlist media sources have all the expected properties.
 	            for (var i = 0; i < playlist.tracks.length; i++) {
@@ -286,6 +286,9 @@ var VideoCompositor =
 	                }
 	            }
 	        }
+	    }, {
+	        key: "renderPlaylist",
+	        value: function renderPlaylist() {}
 	    }]);
 
 	    return VideoCompositor;
