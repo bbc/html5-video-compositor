@@ -94,7 +94,6 @@ var VideoCompositor =
 	    function VideoCompositor(canvas) {
 	        _classCallCheck(this, VideoCompositor);
 
-	        console.log("Hello VideoCompositor");
 	        this._canvas = canvas;
 	        this._ctx = this._canvas.getContext("webgl");
 	        this._playing = false;
@@ -102,6 +101,7 @@ var VideoCompositor =
 
 	        this.playlist;
 	        this.currentTime = 0;
+	        this.duration = 0;
 	        registerUpdateable(this);
 	    }
 
@@ -190,6 +190,7 @@ var VideoCompositor =
 	            //
 	            //this.playlist = playlist;
 	            VideoCompositor.validatePlaylist(playlist);
+	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
@@ -288,7 +289,36 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "renderPlaylist",
-	        value: function renderPlaylist() {}
+	        value: function renderPlaylist(playlist, canvas) {
+	            var ctx = canvas.getContext("2d");
+	            var w = canvas.width;
+	            var h = canvas.height;
+	            var trackHeight = h / playlist.tracks.length;
+	            var playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
+	            var pixelsPerSecond = w / playlistDuration;
+	            var mediaSourceStyle = {
+	                "video": "#a5a",
+	                "image": "#5aa",
+	                "canvas": "#aa5"
+	            };
+
+	            ctx.clearRect(0, 0, w, h);
+	            ctx.fillStyle = "#999";
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                for (var j = 0; j < track.length; j++) {
+	                    var mediaSource = track[j];
+	                    var msW = mediaSource.duration * pixelsPerSecond;
+	                    var msH = trackHeight;
+	                    var msX = mediaSource.start * pixelsPerSecond;
+	                    var msY = trackHeight * i;
+	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type];
+	                    console.log(msX, msY, msW, msH);
+	                    ctx.fillRect(msX, msY, msW, msH);
+	                    ctx.fill();
+	                };
+	            };
+	        }
 	    }]);
 
 	    return VideoCompositor;

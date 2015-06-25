@@ -26,7 +26,6 @@ update();
 
 class VideoCompositor {
     constructor(canvas){
-        console.log("Hello VideoCompositor");
         this._canvas = canvas;
         this._ctx = this._canvas.getContext('webgl');
         this._playing = false;
@@ -34,6 +33,7 @@ class VideoCompositor {
 
         this.playlist;
         this.currentTime = 0;
+        this.duration = 0;
         registerUpdateable(this);
     }
 
@@ -53,6 +53,7 @@ class VideoCompositor {
         //
         //this.playlist = playlist;
         VideoCompositor.validatePlaylist(playlist);
+        this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
     }
 
     play(){
@@ -70,8 +71,6 @@ class VideoCompositor {
         this.pause();
         this.currentTime = 0;
     }
-
-
 
     _getPlaylistStatusAtTime(playlist, playhead){
         let toPlay = [];
@@ -103,7 +102,6 @@ class VideoCompositor {
         return [toPlay, currentlyPlaying, finishedPlaying];
     }
 
-
     update(dt){
         if (this.playlist === undefined || this._playing === false) return;
         this.currentTime += dt;
@@ -111,6 +109,7 @@ class VideoCompositor {
         //console.log(toPlay, currentlyPlaying, finishedPlaying);
 
     }
+
 
     static calculateTrackDuration(track){
         let maxPlayheadPosition = 0;
@@ -136,7 +135,6 @@ class VideoCompositor {
 
         return maxTrackDuration;
     }
-
 
     static validatePlaylist(playlist){
         /*     
@@ -195,8 +193,36 @@ class VideoCompositor {
         }
     }
 
-    static renderPlaylist(){
+    static renderPlaylist(playlist, canvas){
+        let ctx = canvas.getContext('2d');
+        let w = canvas.width;
+        let h = canvas.height;
+        let trackHeight = h / playlist.tracks.length;
+        let playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
+        let pixelsPerSecond = w / playlistDuration;
+        let mediaSourceStyle = {
+            "video":"#a5a",
+            "image":"#5aa",
+            "canvas":"#aa5",
+        }
 
+
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = "#999";
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            for (let j = 0; j < track.length; j++) {
+                let mediaSource = track[j];
+                let msW = mediaSource.duration * pixelsPerSecond;
+                let msH = trackHeight;
+                let msX = mediaSource.start * pixelsPerSecond;
+                let msY = trackHeight * i;
+                ctx.fillStyle = mediaSourceStyle[mediaSource.type];
+                console.log(msX, msY, msW, msH);
+                ctx.fillRect(msX,msY,msW,msH);
+                ctx.fill();
+            };
+        };
     }
 }
 
