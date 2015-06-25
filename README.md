@@ -14,10 +14,10 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 var compositor = new VideoCompositor(canvas);
 
 var playlist = {
-    "tracks":{
-        "1":[{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
-        "2":[                        {type:"image", start:2.5, duration:5, src:"image.png"}],
-    }
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4"},                        {type:"video", start:7.5, duration:5, src:"video2.mp4"}],
+        [                        {type:"image", start:2.5, duration:5, src:"image.png"}]
+    ]
 }
 
 compositor.setPlaylist(playlist);
@@ -35,7 +35,7 @@ avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 
 ## Build
 
-This project uses npm to manage dependencies. To start development in the root of the project run:
+This project uses npm to manage dependencies. To build the compositor, in the root of the project run:
 
 ```
 npm install

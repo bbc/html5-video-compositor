@@ -1,9 +1,9 @@
 import Wrapper from "./wrapper";
 
-class WebGL extends Wrapper{
+class Canvas extends Wrapper{
     constructor(properties){
         super(properties);
-        console.log("Hello WebGL");
+        console.log("Hello Canvas");
     }
     play(){
         super.play();
@@ -13,4 +13,4 @@ class WebGL extends Wrapper{
     }
 }
 
-export default WebGL;
+export default Canvas;
