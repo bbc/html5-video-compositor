@@ -77,7 +77,9 @@ var playlist = {
         [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
     ]
 };
-VideoCompositor.playlist = playlist;
+var canvas = document.getElementById("canvas-id");
+var videocompositor = new VideoCompositor(canvas);
+videocompositor.playlist = playlist;
 ```
 
 
