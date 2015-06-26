@@ -7,6 +7,13 @@
     <script type="text/javascript" src="../dist/videocompositor.js"></script>
     <script type="text/javascript">
         window.onload = function () {
+
+            /*
+            *
+            * Set up the video compositor 
+            *
+            */
+
             var canvas = document.getElementById('player-canvas');
             var videoCompositor = new VideoCompositor(canvas);
 
@@ -19,24 +26,36 @@
 
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
-            console.log(videoCompositor._getPlaylistStatusAtTime(playlist, 3));
             videoCompositor.playlist = playlist;
-
             videoCompositor.play();
-            videoCompositor.currentTime = 3.5;
 
 
+
+            /*
+            *
+            * Create an interactive visualisation canvas.
+            *
+            */
             var visualisationCanvas = document.getElementById("visualisation-canvas");
-            visualisationCanvas.height = 50;
-
+            visualisationCanvas.height = 20;
+            //Setup up a render function so we can update the playhead position.
             function render () {
                 VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
                 requestAnimationFrame(render);
             }
             requestAnimationFrame(render);
+            //catch mouse events to we can scrub through the timeline.
+            visualisationCanvas.addEventListener("mousedown", function(evt){
+                var x = evt.x - visualisationCanvas.offsetLeft;
+                var secondsPerPixel = videoCompositor.duration / visualisationCanvas.width;
+                videoCompositor.currentTime = secondsPerPixel*x;
+            }, false);
+
+
         };
     </script>
     <canvas id="player-canvas"></canvas>
+    <br>
     <canvas id="visualisation-canvas"></canvas>
 </body>
 </html>

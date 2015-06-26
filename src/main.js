@@ -41,7 +41,6 @@ class VideoCompositor {
     set currentTime(currentTime){
         console.log("Seeking to", currentTime);
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, currentTime);
-        console.log(currentlyPlaying);
         //Load mediaSources
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
@@ -49,7 +48,7 @@ class VideoCompositor {
             if (this._mediaSources.has(mediaSourceID) === false){
                 this._loadMediaSource(currentlyPlaying[i]);
                 let mediaSource = this._mediaSources.get(mediaSourceID);
-                
+
                 //Once it's ready seek to the proper place.
                 mediaSource.onready=function(){
                     mediaSource.seek(currentTime);

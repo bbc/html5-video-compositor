@@ -258,7 +258,6 @@ var VideoCompositor =
 	            var currentlyPlaying = _getPlaylistStatusAtTime32[1];
 	            var finishedPlaying = _getPlaylistStatusAtTime32[2];
 
-	            console.log(currentlyPlaying);
 	            //Load mediaSources
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;

@@ -97,7 +97,7 @@ The VideoCompositor does not handle audio rendering. If two video's have audio a
 ### Properties of VideoCompositor Instances
 
 #### VideoCompositor.currentTime
-The current playhead position through the currently playing playlist. This can be set to seek to a given position in a playlist. Seeking is experimental and may break if seeking into some media sources.
+The current playhead position through the currently playing playlist. This can be set in order to seek to a given position in a playlist.
 
 #### VideoCompositor.playlist
 This provides access to the current playlist. Content can be added/removed to the playlist dynamically at play time. Removing a currently playing media source or a media source which is currently pre-loading may result in undefined behavior. The set playlist is run through the playlist validator to make sure it's OK.
