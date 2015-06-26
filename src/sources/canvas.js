@@ -1,6 +1,6 @@
-import Wrapper from "./wrapper";
+import MediaSource from "./mediasource";
 
-class Canvas extends Wrapper{
+class Canvas extends MediaSource{
     constructor(properties){
         super(properties);
         console.log("Hello Canvas");

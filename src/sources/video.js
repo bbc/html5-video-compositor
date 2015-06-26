@@ -1,6 +1,6 @@
-import Wrapper from "./wrapper";
+import MediaSource from "./mediasource";
 
-class Video extends Wrapper{
+class Video extends MediaSource{
     constructor(properties){
         super(properties);
         this.src = properties.src;

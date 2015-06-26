@@ -144,6 +144,17 @@ class VideoCompositor {
             }
         };
 
+        //clean-up any mediaSources which have already been played
+        for (let i = 0; i < finishedPlaying.length; i++) {
+            let mediaSourceReference = finishedPlaying[i];
+            if (this._mediaSources.has(mediaSourceReference.id)){
+                let mediaSource = this._mediaSources.has(mediaSourceReference.id);
+                mediaSource.destroy();
+                this._mediaSources.delete(mediaSourceReference.id);
+            }
+        };
+
+
         this._currentTime += dt;
     }
 
