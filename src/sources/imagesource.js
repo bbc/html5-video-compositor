@@ -3,16 +3,15 @@ import MediaSource from "./mediasource";
 class ImageSource extends MediaSource{
     constructor(properties){
         super(properties);
-        console.log("Hello Image");
     }
     play(){
         super.play();
     }
-    seek(){
-        super.seek();
+    seek(time){
+        super.seek(time);
     }
-    stop(){
-        super.stop();
+    pause(){
+        super.pause();
     }
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
@@ -23,6 +22,7 @@ class ImageSource extends MediaSource{
         let _this = this;
         this.element.onload = function(){
             _this.ready = true;
+            _this.onready();
         }
         this.element.src = this.src;
     }

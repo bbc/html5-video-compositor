@@ -116,7 +116,7 @@ var VideoCompositor =
 	        value: function pause() {
 	            this._playing = false;
 	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
-	                value.pause();
+	                mediaSource.pause();
 	            });
 	        }
 	    }, {
@@ -205,6 +205,13 @@ var VideoCompositor =
 
 	            toPlay = this._sortMediaSourcesByStartTime(toPlay);
 
+	            //Check if we've finished playing and then stop
+	            if (toPlay.length === 0 && currentlyPlaying.length === 0) {
+	                this.stop();
+	                console.log("Stopped");
+	                return;
+	            }
+
 	            //Preload mediaSources
 	            for (var _i2 = 0; _i2 < this._mediaSourcePreloadNumber; _i2++) {
 	                if (_i2 === toPlay.length) break;
@@ -239,7 +246,39 @@ var VideoCompositor =
 	    }, {
 	        key: "currentTime",
 	        set: function set(currentTime) {
+	            var _this = this;
+
 	            console.log("Seeking to", currentTime);
+
+	            var _getPlaylistStatusAtTime3 = this._getPlaylistStatusAtTime(this._playlist, currentTime);
+
+	            var _getPlaylistStatusAtTime32 = _slicedToArray(_getPlaylistStatusAtTime3, 3);
+
+	            var toPlay = _getPlaylistStatusAtTime32[0];
+	            var currentlyPlaying = _getPlaylistStatusAtTime32[1];
+	            var finishedPlaying = _getPlaylistStatusAtTime32[2];
+
+	            console.log(currentlyPlaying);
+	            //Load mediaSources
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceID = currentlyPlaying[i].id;
+	                //If the media source isn't loaded then we start loading it.
+	                if (this._mediaSources.has(mediaSourceID) === false) {
+	                    (function () {
+	                        _this._loadMediaSource(currentlyPlaying[i]);
+	                        var mediaSource = _this._mediaSources.get(mediaSourceID);
+
+	                        //Once it's ready seek to the proper place.
+	                        mediaSource.onready = function () {
+	                            mediaSource.seek(currentTime);
+	                        };
+	                    })();
+	                } else {
+	                    //If the mediaSource is loaded then we see to the proper bit
+	                    this._mediaSources.get(mediaSourceID).seek(currentTime);
+	                }
+	            };
+
 	            this._currentTime = currentTime;
 	        },
 	        get: function get() {
@@ -417,6 +456,7 @@ var VideoCompositor =
 
 	        this.id = properties.id;
 	        this.duration = properties.duration;
+	        this.start = properties.start;
 	        this.playing = false;
 	        this.ready = false;
 	        this.element;
@@ -442,9 +482,9 @@ var VideoCompositor =
 	            this.playing = true;
 	        }
 	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            console.log("Stopping", this.id);
+	        key: "pause",
+	        value: function pause() {
+	            console.log("Pausing", this.id);
 	            this.playing = false;
 	        }
 	    }, {
@@ -461,6 +501,7 @@ var VideoCompositor =
 	            console.log("Loading", this.id);
 	            if (this.element !== undefined) {
 	                this.ready = true;
+	                this.onready();
 	                return true;
 	            }
 	            return false;
@@ -476,6 +517,9 @@ var VideoCompositor =
 	    }, {
 	        key: "render",
 	        value: function render(w, h) {}
+	    }, {
+	        key: "onready",
+	        value: function onready() {}
 	    }]);
 
 	    return MediaSource;
@@ -523,7 +567,6 @@ var VideoCompositor =
 	        if (properties.sourceStart !== undefined) {
 	            this.sourceStart = properties.sourceStart;
 	        }
-	        console.log("Hello Video");
 	    }
 
 	    _inherits(VideoSource, _MediaSource);
@@ -536,13 +579,15 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "seek",
-	        value: function seek() {
-	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this, time);
+	            if (time - this.start < 0 || time > this.start + this.duration) return;
+	            this.element.currentTime = time - this.start + this.sourceStart;
 	        }
 	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            _get(Object.getPrototypeOf(VideoSource.prototype), "stop", this).call(this);
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "pause", this).call(this);
 	        }
 	    }, {
 	        key: "load",
@@ -562,6 +607,7 @@ var VideoCompositor =
 	            this.element.addEventListener("loadeddata", function () {
 	                _this.element.currentTime = _this.sourceStart;
 	                _this.ready = true;
+	                _this.onready();
 	            }, false);
 	        }
 	    }, {
@@ -612,7 +658,6 @@ var VideoCompositor =
 	        _classCallCheck(this, ImageSource);
 
 	        _get(Object.getPrototypeOf(ImageSource.prototype), "constructor", this).call(this, properties);
-	        console.log("Hello Image");
 	    }
 
 	    _inherits(ImageSource, _MediaSource);
@@ -624,13 +669,13 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "seek",
-	        value: function seek() {
-	            _get(Object.getPrototypeOf(ImageSource.prototype), "seek", this).call(this);
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "seek", this).call(this, time);
 	        }
 	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            _get(Object.getPrototypeOf(ImageSource.prototype), "stop", this).call(this);
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "pause", this).call(this);
 	        }
 	    }, {
 	        key: "load",
@@ -643,6 +688,7 @@ var VideoCompositor =
 	            var _this = this;
 	            this.element.onload = function () {
 	                _this.ready = true;
+	                _this.onready();
 	            };
 	            this.element.src = this.src;
 	        }
@@ -690,7 +736,6 @@ var VideoCompositor =
 	        _get(Object.getPrototypeOf(CanvasSource.prototype), "constructor", this).call(this, properties);
 	        this.width = properties.width;
 	        this.height = properties.height;
-	        console.log("Hello Canvas");
 	    }
 
 	    _inherits(CanvasSource, _MediaSource);
@@ -702,13 +747,13 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "seek",
-	        value: function seek() {
-	            _get(Object.getPrototypeOf(CanvasSource.prototype), "seek", this).call(this);
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "seek", this).call(this, time);
 	        }
 	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            _get(Object.getPrototypeOf(CanvasSource.prototype), "stop", this).call(this);
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "pause", this).call(this);
 	        }
 	    }, {
 	        key: "load",
@@ -721,6 +766,7 @@ var VideoCompositor =
 	            this.element.width = this.width;
 	            this.element.height = this.height;
 	            this.ready = true;
+	            this.onready();
 	        }
 	    }, {
 	        key: "render",

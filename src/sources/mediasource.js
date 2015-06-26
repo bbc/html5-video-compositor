@@ -3,6 +3,7 @@ class MediaSource {
     constructor(properties){
         this.id = properties.id;
         this.duration = properties.duration;
+        this.start = properties.start;
         this.playing = false;
         this.ready = false;
         this.element;
@@ -25,8 +26,8 @@ class MediaSource {
         //console.log("Playing", this.id);
         this.playing = true;
     }
-    stop(){
-        console.log("Stopping", this.id);
+    pause(){
+        console.log("Pausing", this.id);
         this.playing = false;
     }
     seek(seekTime){
@@ -39,6 +40,7 @@ class MediaSource {
         console.log("Loading", this.id);
         if (this.element !== undefined) {
             this.ready = true;
+            this.onready();
             return true;
         }
         return false;
@@ -51,6 +53,9 @@ class MediaSource {
     }
     render(w,h){
         //returns a render of this mediaSource which can be rendered to the display surface.
+    }
+    onready(){
+
     }
 }
 

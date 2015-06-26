@@ -40,6 +40,27 @@ class VideoCompositor {
 
     set currentTime(currentTime){
         console.log("Seeking to", currentTime);
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, currentTime);
+        console.log(currentlyPlaying);
+        //Load mediaSources
+        for (let i = 0; i < currentlyPlaying.length; i++) {
+            let mediaSourceID = currentlyPlaying[i].id;
+            //If the media source isn't loaded then we start loading it.
+            if (this._mediaSources.has(mediaSourceID) === false){
+                this._loadMediaSource(currentlyPlaying[i]);
+                let mediaSource = this._mediaSources.get(mediaSourceID);
+                
+                //Once it's ready seek to the proper place.
+                mediaSource.onready=function(){
+                    mediaSource.seek(currentTime);
+                }
+            }else{
+               //If the mediaSource is loaded then we see to the proper bit
+                this._mediaSources.get(mediaSourceID).seek(currentTime);
+            }
+
+        };
+
         this._currentTime = currentTime;
     }
 
@@ -60,7 +81,7 @@ class VideoCompositor {
     pause() {
         this._playing = false;
         this._mediaSources.forEach(function(mediaSource, id, mediaSources){
-            value.pause();
+            mediaSource.pause();
         });
     }
 
@@ -136,6 +157,14 @@ class VideoCompositor {
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, this._currentTime);
         toPlay = this._sortMediaSourcesByStartTime(toPlay);
 
+        //Check if we've finished playing and then stop
+        if (toPlay.length === 0 && currentlyPlaying.length === 0){
+            this.stop();
+            console.log("Stopped");
+            return;
+        }
+
+
         //Preload mediaSources
         for (let i = 0; i < this._mediaSourcePreloadNumber; i++) {
             if (i === toPlay.length) break;
@@ -158,7 +187,7 @@ class VideoCompositor {
         let w = this._canvas.width;
         let h = this._canvas.height;
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
-        
+
         for (var i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
             let mediaSource = this._mediaSources.get(mediaSourceID);

@@ -5,16 +5,15 @@ class CanvasSource extends MediaSource{
         super(properties);
         this.width = properties.width;
         this.height = properties.height;
-        console.log("Hello Canvas");
     }
     play(){
         super.play();
     }
-    seek(){
-        super.seek();
+    seek(time){
+        super.seek(time);
     }
-    stop(){
-        super.stop();
+    pause(){
+        super.pause();
     }
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
@@ -25,6 +24,7 @@ class CanvasSource extends MediaSource{
         this.element.width = this.width;
         this.element.height = this.height;
         this.ready = true;
+        this.onready();
     }
     render(){
         return this.element;
