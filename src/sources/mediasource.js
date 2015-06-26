@@ -38,6 +38,7 @@ class MediaSource {
         console.log("Loading", this.id);
     }
     destroy(){
+        console.log("Destroying", this.id);
         //this.texture.destroy();
     }
 }

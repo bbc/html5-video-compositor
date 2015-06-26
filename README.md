@@ -140,16 +140,44 @@ VideoCompositor.validatePlaylist(playlist);
 ```
 
 #### VideoCompositor.renderPlaylist()
-Accepts a playlist and a canvas element and renders a simple representation of the playlist to the canvas.
+Accepts a playlist and a canvas element and renders a simple representation of the playlist to the canvas. Also optionally takes a currentTime which renders a playhead marker over the playlist.
+The following code renders a static view of the playlist.
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}],
+        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
     ]    
 };
 var canvas = document.getElementById('canvas-id')
 VideoCompositor.renderPlaylist(playlist, canvas);
 ```
+
+To render a live updating version of the playlist the following approach can be used
+
+```JavaScript
+var playlist = {
+    "tracks":[
+        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}],
+        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+    ]    
+};
+var playCanvas = document.getElementById('play-canvas-id')
+var visualisationCanvas = document.getElementById('visualisation-canvas-id')
+
+var videoCompositor = new VideoCompositor(playCanvas);
+
+videoCompositor.playlist = playlist;
+videoCompositor.play();
+
+function render () {
+    VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
+    requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+```
+
 
 #### VideoCompositor.calculatePlaylistDuration()
 Accepts a playlist and calculates the duration of it.

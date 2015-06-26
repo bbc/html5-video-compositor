@@ -205,12 +205,27 @@ var VideoCompositor =
 
 	            toPlay = this._sortMediaSourcesByStartTime(toPlay);
 
-	            //preload mediaSources
-	            for (var i = 0; i < this._mediaSourcePreloadNumber; i++) {
-	                if (i === toPlay.length) break;
-	                if (this._mediaSources.has(toPlay[i].id) === false) {
-	                    this._loadMediaSource(toPlay[i]);
+	            //Preload mediaSources
+	            for (var _i2 = 0; _i2 < this._mediaSourcePreloadNumber; _i2++) {
+	                if (_i2 === toPlay.length) break;
+	                if (this._mediaSources.has(toPlay[_i2].id) === false) {
+	                    this._loadMediaSource(toPlay[_i2]);
 	                }
+	            };
+
+	            //Clean-up any mediaSources which have already been played
+	            for (var _i3 = 0; _i3 < finishedPlaying.length; _i3++) {
+	                var mediaSourceReference = finishedPlaying[_i3];
+	                if (this._mediaSources.has(mediaSourceReference.id)) {
+	                    var mediaSource = this._mediaSources.get(mediaSourceReference.id);
+	                    mediaSource.destroy();
+	                    this._mediaSources["delete"](mediaSourceReference.id);
+	                }
+	            };
+
+	            //Play mediaSources on the currently playing queue.
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                currentlyPlaying[i];
 	            };
 
 	            this._currentTime += dt;
@@ -333,7 +348,7 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "renderPlaylist",
-	        value: function renderPlaylist(playlist, canvas) {
+	        value: function renderPlaylist(playlist, canvas, currentTime) {
 	            var ctx = canvas.getContext("2d");
 	            var w = canvas.width;
 	            var h = canvas.height;
@@ -361,6 +376,11 @@ var VideoCompositor =
 	                    ctx.fill();
 	                };
 	            };
+
+	            if (currentTime !== undefined) {
+	                ctx.fillStyle = "#000";
+	                ctx.fillRect(currentTime * pixelsPerSecond, 0, 1, h);
+	            }
 	        }
 	    }]);
 
@@ -390,11 +410,11 @@ var VideoCompositor =
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-	var _wrapper = __webpack_require__(2);
+	var _mediasource = __webpack_require__(2);
 
-	var _wrapper2 = _interopRequireDefault(_wrapper);
+	var _mediasource2 = _interopRequireDefault(_mediasource);
 
-	var Video = (function (_Wrapper) {
+	var Video = (function (_MediaSource) {
 	    function Video(properties) {
 	        _classCallCheck(this, Video);
 
@@ -403,7 +423,7 @@ var VideoCompositor =
 	        console.log("Hello Video");
 	    }
 
-	    _inherits(Video, _Wrapper);
+	    _inherits(Video, _MediaSource);
 
 	    _createClass(Video, [{
 	        key: "play",
@@ -418,7 +438,7 @@ var VideoCompositor =
 	    }]);
 
 	    return Video;
-	})(_wrapper2["default"]);
+	})(_mediasource2["default"]);
 
 	exports["default"] = Video;
 	module.exports = exports["default"];
@@ -437,18 +457,30 @@ var VideoCompositor =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Wrapper = (function () {
-	    function Wrapper(properties) {
-	        _classCallCheck(this, Wrapper);
+	var MediaSource = (function () {
+	    function MediaSource(properties) {
+	        _classCallCheck(this, MediaSource);
 
 	        this.id = properties.id;
 	        this.currentTime = 0;
 	        this.texture = undefined;
 	        this.playing = false;
 	        this.ready = true;
+
+	        this.disposeOfElementOnDestroy = false;
+
+	        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
+	        if (properties.src !== undefined) {
+	            this.disposeOfElementOnDestroy = true;
+	            this.src = properties.src;
+	        } else {
+	            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
+	            this.disposeOfElementOnDestroy = false;
+	            this.element = properties.element;
+	        }
 	    }
 
-	    _createClass(Wrapper, [{
+	    _createClass(MediaSource, [{
 	        key: "play",
 	        value: function play() {
 	            console.log("Playing", this.id);
@@ -477,16 +509,17 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "destroy",
-	        value: function destroy() {}
+	        value: function destroy() {
+	            console.log("Destroying", this.id);
+	            //this.texture.destroy();
+	        }
 	    }]);
 
-	    return Wrapper;
+	    return MediaSource;
 	})();
 
-	exports["default"] = Wrapper;
+	exports["default"] = MediaSource;
 	module.exports = exports["default"];
-
-	//this.texture.destroy();
 
 /***/ },
 /* 3 */
@@ -508,11 +541,11 @@ var VideoCompositor =
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-	var _wrapper = __webpack_require__(2);
+	var _mediasource = __webpack_require__(2);
 
-	var _wrapper2 = _interopRequireDefault(_wrapper);
+	var _mediasource2 = _interopRequireDefault(_mediasource);
 
-	var Image = (function (_Wrapper) {
+	var Image = (function (_MediaSource) {
 	    function Image(properties) {
 	        _classCallCheck(this, Image);
 
@@ -521,7 +554,7 @@ var VideoCompositor =
 	        console.log("Hello Image");
 	    }
 
-	    _inherits(Image, _Wrapper);
+	    _inherits(Image, _MediaSource);
 
 	    _createClass(Image, [{
 	        key: "play",
@@ -536,7 +569,7 @@ var VideoCompositor =
 	    }]);
 
 	    return Image;
-	})(_wrapper2["default"]);
+	})(_mediasource2["default"]);
 
 	exports["default"] = Image;
 	module.exports = exports["default"];
@@ -561,11 +594,11 @@ var VideoCompositor =
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-	var _wrapper = __webpack_require__(2);
+	var _mediasource = __webpack_require__(2);
 
-	var _wrapper2 = _interopRequireDefault(_wrapper);
+	var _mediasource2 = _interopRequireDefault(_mediasource);
 
-	var Canvas = (function (_Wrapper) {
+	var Canvas = (function (_MediaSource) {
 	    function Canvas(properties) {
 	        _classCallCheck(this, Canvas);
 
@@ -573,7 +606,7 @@ var VideoCompositor =
 	        console.log("Hello Canvas");
 	    }
 
-	    _inherits(Canvas, _Wrapper);
+	    _inherits(Canvas, _MediaSource);
 
 	    _createClass(Canvas, [{
 	        key: "play",
@@ -588,7 +621,7 @@ var VideoCompositor =
 	    }]);
 
 	    return Canvas;
-	})(_wrapper2["default"]);
+	})(_mediasource2["default"]);
 
 	exports["default"] = Canvas;
 	module.exports = exports["default"];

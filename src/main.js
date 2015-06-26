@@ -136,7 +136,7 @@ class VideoCompositor {
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, this._currentTime);
         toPlay = this._sortMediaSourcesByStartTime(toPlay);
 
-        //preload mediaSources
+        //Preload mediaSources
         for (let i = 0; i < this._mediaSourcePreloadNumber; i++) {
             if (i === toPlay.length) break;
             if (this._mediaSources.has(toPlay[i].id) === false){
@@ -144,16 +144,20 @@ class VideoCompositor {
             }
         };
 
-        //clean-up any mediaSources which have already been played
+        //Clean-up any mediaSources which have already been played
         for (let i = 0; i < finishedPlaying.length; i++) {
             let mediaSourceReference = finishedPlaying[i];
             if (this._mediaSources.has(mediaSourceReference.id)){
-                let mediaSource = this._mediaSources.has(mediaSourceReference.id);
+                let mediaSource = this._mediaSources.get(mediaSourceReference.id);
                 mediaSource.destroy();
                 this._mediaSources.delete(mediaSourceReference.id);
             }
         };
 
+        //Play mediaSources on the currently playing queue.
+        for (var i = 0; i < currentlyPlaying.length; i++) {
+            currentlyPlaying[i];
+        };
 
         this._currentTime += dt;
     }
@@ -243,7 +247,7 @@ class VideoCompositor {
         }
     }
 
-    static renderPlaylist(playlist, canvas){
+    static renderPlaylist(playlist, canvas, currentTime){
         let ctx = canvas.getContext('2d');
         let w = canvas.width;
         let h = canvas.height;
@@ -272,6 +276,11 @@ class VideoCompositor {
                 ctx.fill();
             };
         };
+
+        if (currentTime !== undefined){
+            ctx.fillStyle = "#000";
+            ctx.fillRect(currentTime*pixelsPerSecond, 0, 1, h);
+        }
     }
 }
 

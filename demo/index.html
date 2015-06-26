@@ -13,7 +13,7 @@
             var playlist = {
                 "tracks":[
                     [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"},                            {type:"canvas", start:7.5, duration:5, src:"video2.mp4", id:"3"}],
-                    [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+                    [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"},                          {type:"image", start:10, duration:5, src:"image.png", id:"4"}]
                 ]
             };
 
@@ -22,13 +22,16 @@
             console.log(videoCompositor._getPlaylistStatusAtTime(playlist, 3));
             videoCompositor.playlist = playlist;
 
-
-
-            videoCompositor.currentTime = 2;
+            videoCompositor.play();
 
             var visualisationCanvas = document.getElementById("visualisation-canvas");
             visualisationCanvas.height = 50;
-            VideoCompositor.renderPlaylist(playlist, visualisationCanvas);
+
+            function render () {
+                VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
+                requestAnimationFrame(render);
+            }
+            requestAnimationFrame(render);
         };
     </script>
     <canvas id="player-canvas"></canvas>
