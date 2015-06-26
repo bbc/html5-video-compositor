@@ -2,11 +2,12 @@
 class MediaSource {
     constructor(properties){
         this.id = properties.id;
-        this.currentTime = 0;
-        this.texture = undefined;
+        this.duration = properties.duration;
         this.playing = false;
-        this.ready = true;
-        
+        this.ready = false;
+        this.element;
+        this.src;
+
         this.disposeOfElementOnDestroy = false;
 
         //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
@@ -21,7 +22,7 @@ class MediaSource {
 
     }
     play(){
-        console.log("Playing", this.id);
+        //console.log("Playing", this.id);
         this.playing = true;
     }
     stop(){
@@ -29,17 +30,27 @@ class MediaSource {
         this.playing = false;
     }
     seek(seekTime){
-        this.currentTime = seekTime;
+        //this.currentTime = seekTime;
     }
     isReady(){
         return this.ready;
     }
     load(){
         console.log("Loading", this.id);
+        if (this.element !== undefined) {
+            this.ready = true;
+            return true;
+        }
+        return false;
     }
     destroy(){
         console.log("Destroying", this.id);
-        //this.texture.destroy();
+        if (this.disposeOfElementOnDestroy){
+            delete this.element;  
+        }
+    }
+    render(w,h){
+        //returns a render of this mediaSource which can be rendered to the display surface.
     }
 }
 

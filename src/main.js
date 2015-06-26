@@ -1,12 +1,12 @@
-import Video from "./sources/video.js";
-import Image from "./sources/image.js";
-import Canvas from "./sources/canvas.js";
+import VideoSource from "./sources/videosource.js";
+import ImageSource from "./sources/imagesource.js";
+import CanvasSource from "./sources/canvassource.js";
 
 
 let updateables = [];
 let previousTime = undefined;
 let mediaSourceMapping = new Map();
-mediaSourceMapping.set("video",Video).set("image",Image).set("canvas",Canvas);
+mediaSourceMapping.set("video",VideoSource).set("image",ImageSource).set("canvas",CanvasSource);
 
 
 function registerUpdateable(updateable){
@@ -27,7 +27,7 @@ update();
 class VideoCompositor {
     constructor(canvas){
         this._canvas = canvas;
-        this._ctx = this._canvas.getContext('webgl');
+        this._ctx = this._canvas.getContext('2d');
         this._playing = false;
         this._mediaSources = new Map();
         this._mediaSourcePreloadNumber = 1; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
@@ -110,17 +110,17 @@ class VideoCompositor {
     _loadMediaSource(mediaSourceReference){
         switch (mediaSourceReference.type){
             case "video":
-                let video = new Video(mediaSourceReference);
+                let video = new VideoSource(mediaSourceReference);
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
                 break;
             case "image":
-                let image = new Image(mediaSourceReference);
+                let image = new ImageSource(mediaSourceReference);
                 image.load();
                 this._mediaSources.set(mediaSourceReference.id, image);
                 break;
             case "canvas":
-                let canvas = new Canvas(mediaSourceReference);
+                let canvas = new CanvasSource(mediaSourceReference);
                 canvas.load();
                 this._mediaSources.set(mediaSourceReference.id, canvas);
                 break;
@@ -155,12 +155,19 @@ class VideoCompositor {
         };
 
         //Play mediaSources on the currently playing queue.
+        let w = this._canvas.width;
+        let h = this._canvas.height;
+        currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
+        
         for (var i = 0; i < currentlyPlaying.length; i++) {
-            currentlyPlaying[i];
+            let mediaSourceID = currentlyPlaying[i].id;
+            let mediaSource = this._mediaSources.get(mediaSourceID);
+            mediaSource.play();
+            this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
         };
-
         this._currentTime += dt;
     }
+
 
 
     static calculateTrackDuration(track){

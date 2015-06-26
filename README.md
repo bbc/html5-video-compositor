@@ -14,8 +14,8 @@ A shader based video composition engine for the browser.
 
             videoCompositor.playlist = {
                 "tracks":[
-                    [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"},                            {type:"video", start:7.5, duration:5, src:"video2.mp4", id:"3"}],
-                    [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+                    [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"},                      {type:"video", sourceStart:0, start:7.5, duration:5, src:"video2.mp4", id:"3"}],
+                    [                                      {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
                 ]
             };
 
@@ -42,6 +42,10 @@ You will probably only see acceptable video performance if you encode videos wit
 avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 ```
 
+## Hosting
+In order to composite playlists from sections within a source video your webserver must be able to support the Media Fragments URI 1.0 syntax.
+
+
 ## VideoCompositor API
 
 ### Syntax
@@ -53,8 +57,8 @@ var compositor = new VideoCompositor(canvas);
 //Setting a playlist
 compositor.playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"},                             {type:"video", start:7.5, duration:5, src:"video2.mp4", id:"3"}],
-        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"},                       {type:"video", sourceStart:0, start:7.5, duration:5, src:"video2.mp4", id:"3"}],
+        [                                       {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
     ]
 };
 
@@ -74,8 +78,8 @@ In the following situation video1 will be displayed for it's full duration, afte
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"video1"}],
-        [                     {type:"video", start:2, duration:5, src:"video2.mp4", id:"video2"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"video1"}],
+        [                             {type:"video", sourceStart:0, start:2, duration:5, src:"video2.mp4", id:"video2"}]
     ]
 };
 ```
@@ -84,8 +88,8 @@ In the following situation video2 will be shown for 2 seconds, then video1 will 
 ```JavaScript
 var playlist = {
     "tracks":[
-        [                       {type:"video", start:2, duration:5, src:"video1.mp4", id:"video1"}],
-        [{type:"video", start:0, duration:5, src:"video2.mp4", id:"video2"}]
+        [                       {type:"video", sourceStart:0, start:2, duration:5, src:"video1.mp4", id:"video1"}],
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video2.mp4", id:"video2"}]
     ]
 };
 ```
@@ -105,7 +109,7 @@ This provides access to the current playlist. Content can be added/removed to th
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"}]
     ]
 };
 var canvas = document.getElementById("canvas-id");
@@ -133,7 +137,7 @@ Takes a playlist and validates it for a range of common errors.
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"}]
     ]    
 };
 VideoCompositor.validatePlaylist(playlist);
@@ -145,8 +149,8 @@ The following code renders a static view of the playlist.
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}],
-        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"}],
+        [                                    {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
     ]    
 };
 var canvas = document.getElementById('canvas-id')
@@ -158,8 +162,8 @@ To render a live updating version of the playlist the following approach can be 
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}],
-        [                             {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"}],
+        [                                   {type:"image", start:2.5, duration:5, src:"image.png", id:"2"}]
     ]    
 };
 var playCanvas = document.getElementById('play-canvas-id')
@@ -184,7 +188,7 @@ Accepts a playlist and calculates the duration of it.
 ```JavaScript
 var playlist = {
     "tracks":[
-        [{type:"video", start:0, duration:5, src:"video1.mp4", id:"1"}]
+        [{type:"video", sourceStart:0, start:0, duration:5, src:"video1.mp4", id:"1"}]
     ]    
 };
 var duration = VideoCompositor.calculatePlaylistDuration(playlist);

@@ -59,22 +59,22 @@ var VideoCompositor =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var _sourcesVideoJs = __webpack_require__(1);
+	var _sourcesVideosourceJs = __webpack_require__(5);
 
-	var _sourcesVideoJs2 = _interopRequireDefault(_sourcesVideoJs);
+	var _sourcesVideosourceJs2 = _interopRequireDefault(_sourcesVideosourceJs);
 
-	var _sourcesImageJs = __webpack_require__(3);
+	var _sourcesImagesourceJs = __webpack_require__(6);
 
-	var _sourcesImageJs2 = _interopRequireDefault(_sourcesImageJs);
+	var _sourcesImagesourceJs2 = _interopRequireDefault(_sourcesImagesourceJs);
 
-	var _sourcesCanvasJs = __webpack_require__(4);
+	var _sourcesCanvassourceJs = __webpack_require__(7);
 
-	var _sourcesCanvasJs2 = _interopRequireDefault(_sourcesCanvasJs);
+	var _sourcesCanvassourceJs2 = _interopRequireDefault(_sourcesCanvassourceJs);
 
 	var updateables = [];
 	var previousTime = undefined;
 	var mediaSourceMapping = new Map();
-	mediaSourceMapping.set("video", _sourcesVideoJs2["default"]).set("image", _sourcesImageJs2["default"]).set("canvas", _sourcesCanvasJs2["default"]);
+	mediaSourceMapping.set("video", _sourcesVideosourceJs2["default"]).set("image", _sourcesImagesourceJs2["default"]).set("canvas", _sourcesCanvassourceJs2["default"]);
 
 	function registerUpdateable(updateable) {
 	    updateables.push(updateable);
@@ -95,7 +95,7 @@ var VideoCompositor =
 	        _classCallCheck(this, VideoCompositor);
 
 	        this._canvas = canvas;
-	        this._ctx = this._canvas.getContext("webgl");
+	        this._ctx = this._canvas.getContext("2d");
 	        this._playing = false;
 	        this._mediaSources = new Map();
 	        this._mediaSourcePreloadNumber = 1; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
@@ -169,17 +169,17 @@ var VideoCompositor =
 	        value: function _loadMediaSource(mediaSourceReference) {
 	            switch (mediaSourceReference.type) {
 	                case "video":
-	                    var video = new _sourcesVideoJs2["default"](mediaSourceReference);
+	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference);
 	                    video.load();
 	                    this._mediaSources.set(mediaSourceReference.id, video);
 	                    break;
 	                case "image":
-	                    var image = new _sourcesImageJs2["default"](mediaSourceReference);
+	                    var image = new _sourcesImagesourceJs2["default"](mediaSourceReference);
 	                    image.load();
 	                    this._mediaSources.set(mediaSourceReference.id, image);
 	                    break;
 	                case "canvas":
-	                    var canvas = new _sourcesCanvasJs2["default"](mediaSourceReference);
+	                    var canvas = new _sourcesCanvassourceJs2["default"](mediaSourceReference);
 	                    canvas.load();
 	                    this._mediaSources.set(mediaSourceReference.id, canvas);
 	                    break;
@@ -224,10 +224,16 @@ var VideoCompositor =
 	            };
 
 	            //Play mediaSources on the currently playing queue.
-	            for (var i = 0; i < currentlyPlaying.length; i++) {
-	                currentlyPlaying[i];
-	            };
+	            var w = this._canvas.width;
+	            var h = this._canvas.height;
+	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceID = currentlyPlaying[i].id;
+	                var mediaSource = this._mediaSources.get(mediaSourceID);
+	                mediaSource.play();
+	                this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
+	            };
 	            this._currentTime += dt;
 	        }
 	    }, {
@@ -391,59 +397,7 @@ var VideoCompositor =
 	module.exports = exports["default"];
 
 /***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
-
-	var _mediasource = __webpack_require__(2);
-
-	var _mediasource2 = _interopRequireDefault(_mediasource);
-
-	var Video = (function (_MediaSource) {
-	    function Video(properties) {
-	        _classCallCheck(this, Video);
-
-	        _get(Object.getPrototypeOf(Video.prototype), "constructor", this).call(this, properties);
-	        this.src = properties.src;
-	        console.log("Hello Video");
-	    }
-
-	    _inherits(Video, _MediaSource);
-
-	    _createClass(Video, [{
-	        key: "play",
-	        value: function play() {
-	            _get(Object.getPrototypeOf(Video.prototype), "play", this).call(this);
-	        }
-	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            _get(Object.getPrototypeOf(Video.prototype), "stop", this).call(this);
-	        }
-	    }]);
-
-	    return Video;
-	})(_mediasource2["default"]);
-
-	exports["default"] = Video;
-	module.exports = exports["default"];
-
-/***/ },
+/* 1 */,
 /* 2 */
 /***/ function(module, exports) {
 
@@ -462,10 +416,11 @@ var VideoCompositor =
 	        _classCallCheck(this, MediaSource);
 
 	        this.id = properties.id;
-	        this.currentTime = 0;
-	        this.texture = undefined;
+	        this.duration = properties.duration;
 	        this.playing = false;
-	        this.ready = true;
+	        this.ready = false;
+	        this.element;
+	        this.src;
 
 	        this.disposeOfElementOnDestroy = false;
 
@@ -483,7 +438,7 @@ var VideoCompositor =
 	    _createClass(MediaSource, [{
 	        key: "play",
 	        value: function play() {
-	            console.log("Playing", this.id);
+	            //console.log("Playing", this.id);
 	            this.playing = true;
 	        }
 	    }, {
@@ -494,9 +449,7 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "seek",
-	        value: function seek(seekTime) {
-	            this.currentTime = seekTime;
-	        }
+	        value: function seek(seekTime) {}
 	    }, {
 	        key: "isReady",
 	        value: function isReady() {
@@ -506,13 +459,23 @@ var VideoCompositor =
 	        key: "load",
 	        value: function load() {
 	            console.log("Loading", this.id);
+	            if (this.element !== undefined) {
+	                this.ready = true;
+	                return true;
+	            }
+	            return false;
 	        }
 	    }, {
 	        key: "destroy",
 	        value: function destroy() {
 	            console.log("Destroying", this.id);
-	            //this.texture.destroy();
+	            if (this.disposeOfElementOnDestroy) {
+	                delete this.element;
+	            }
 	        }
+	    }, {
+	        key: "render",
+	        value: function render(w, h) {}
 	    }]);
 
 	    return MediaSource;
@@ -521,8 +484,14 @@ var VideoCompositor =
 	exports["default"] = MediaSource;
 	module.exports = exports["default"];
 
+	//this.currentTime = seekTime;
+
+	//returns a render of this mediaSource which can be rendered to the display surface.
+
 /***/ },
-/* 3 */
+/* 3 */,
+/* 4 */,
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -545,37 +514,70 @@ var VideoCompositor =
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
-	var Image = (function (_MediaSource) {
-	    function Image(properties) {
-	        _classCallCheck(this, Image);
+	var VideoSource = (function (_MediaSource) {
+	    function VideoSource(properties) {
+	        _classCallCheck(this, VideoSource);
 
-	        _get(Object.getPrototypeOf(Image.prototype), "constructor", this).call(this, properties);
-	        this.src = properties.src;
-	        console.log("Hello Image");
+	        _get(Object.getPrototypeOf(VideoSource.prototype), "constructor", this).call(this, properties);
+	        this.sourceStart = 0;
+	        if (properties.sourceStart !== undefined) {
+	            this.sourceStart = properties.sourceStart;
+	        }
+	        console.log("Hello Video");
 	    }
 
-	    _inherits(Image, _MediaSource);
+	    _inherits(VideoSource, _MediaSource);
 
-	    _createClass(Image, [{
+	    _createClass(VideoSource, [{
 	        key: "play",
 	        value: function play() {
-	            _get(Object.getPrototypeOf(Image.prototype), "play", this).call(this);
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "play", this).call(this);
+	            this.element.play();
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek() {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
 	        }
 	    }, {
 	        key: "stop",
 	        value: function stop() {
-	            _get(Object.getPrototypeOf(Image.prototype), "stop", this).call(this);
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "stop", this).call(this);
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+	            if (_get(Object.getPrototypeOf(VideoSource.prototype), "load", this).call(this)) return;
+
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = document.createElement("video");
+	            //construct a fragement URL to cut the required segment from the source video
+	            var fragment = "#t=" + this.sourceStart + "," + this.duration;
+	            this.element.src = this.src + fragment;
+	            console.log(this.element.src);
+	            this.element.preload = "auto";
+	            this.element.load();
+	            var _this = this;
+	            this.element.addEventListener("loadeddata", function () {
+	                _this.ready = true;
+	            }, false);
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return this.element;
 	        }
 	    }]);
 
-	    return Image;
+	    return VideoSource;
 	})(_mediasource2["default"]);
 
-	exports["default"] = Image;
+	exports["default"] = VideoSource;
 	module.exports = exports["default"];
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -598,32 +600,132 @@ var VideoCompositor =
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
-	var Canvas = (function (_MediaSource) {
-	    function Canvas(properties) {
-	        _classCallCheck(this, Canvas);
+	var ImageSource = (function (_MediaSource) {
+	    function ImageSource(properties) {
+	        _classCallCheck(this, ImageSource);
 
-	        _get(Object.getPrototypeOf(Canvas.prototype), "constructor", this).call(this, properties);
-	        console.log("Hello Canvas");
+	        _get(Object.getPrototypeOf(ImageSource.prototype), "constructor", this).call(this, properties);
+	        console.log("Hello Image");
 	    }
 
-	    _inherits(Canvas, _MediaSource);
+	    _inherits(ImageSource, _MediaSource);
 
-	    _createClass(Canvas, [{
+	    _createClass(ImageSource, [{
 	        key: "play",
 	        value: function play() {
-	            _get(Object.getPrototypeOf(Canvas.prototype), "play", this).call(this);
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "play", this).call(this);
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek() {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "seek", this).call(this);
 	        }
 	    }, {
 	        key: "stop",
 	        value: function stop() {
-	            _get(Object.getPrototypeOf(Canvas.prototype), "stop", this).call(this);
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "stop", this).call(this);
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+	            if (_get(Object.getPrototypeOf(ImageSource.prototype), "load", this).call(this)) return;
+
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = new Image();
+	            var _this = this;
+	            this.element.onload = function () {
+	                _this.ready = true;
+	            };
+	            this.element.src = this.src;
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return this.element;
 	        }
 	    }]);
 
-	    return Canvas;
+	    return ImageSource;
 	})(_mediasource2["default"]);
 
-	exports["default"] = Canvas;
+	exports["default"] = ImageSource;
+	module.exports = exports["default"];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+	var _mediasource = __webpack_require__(2);
+
+	var _mediasource2 = _interopRequireDefault(_mediasource);
+
+	var CanvasSource = (function (_MediaSource) {
+	    function CanvasSource(properties) {
+	        _classCallCheck(this, CanvasSource);
+
+	        _get(Object.getPrototypeOf(CanvasSource.prototype), "constructor", this).call(this, properties);
+	        this.width = properties.width;
+	        this.height = properties.height;
+	        console.log("Hello Canvas");
+	    }
+
+	    _inherits(CanvasSource, _MediaSource);
+
+	    _createClass(CanvasSource, [{
+	        key: "play",
+	        value: function play() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "play", this).call(this);
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "seek", this).call(this);
+	        }
+	    }, {
+	        key: "stop",
+	        value: function stop() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "stop", this).call(this);
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+	            if (_get(Object.getPrototypeOf(CanvasSource.prototype), "load", this).call(this)) return;
+
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = document.createElement("canvas");
+	            this.element.width = this.width;
+	            this.element.height = this.height;
+	            this.ready = true;
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return this.element;
+	        }
+	    }]);
+
+	    return CanvasSource;
+	})(_mediasource2["default"]);
+
+	exports["default"] = CanvasSource;
 	module.exports = exports["default"];
 
 /***/ }
