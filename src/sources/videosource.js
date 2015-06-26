@@ -19,6 +19,7 @@ class VideoSource extends MediaSource{
     }
     pause(){
         super.pause();
+        this.element.pause();
     }
     load(){
         //check if we're using an already instatiated element, if so don't do anything.

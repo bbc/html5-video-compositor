@@ -30,7 +30,7 @@ class VideoCompositor {
         this._ctx = this._canvas.getContext('2d');
         this._playing = false;
         this._mediaSources = new Map();
-        this._mediaSourcePreloadNumber = 1; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
         this._playlist = undefined;
 
         this._currentTime = 0;
@@ -41,6 +41,13 @@ class VideoCompositor {
     set currentTime(currentTime){
         console.log("Seeking to", currentTime);
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, currentTime);
+
+        //clean-up any currently playing mediaSources
+        this._mediaSources.forEach(function(mediaSource, id, mediaSources){
+            mediaSource.destroy();
+        });
+        this._mediaSources.clear();
+
         //Load mediaSources
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
@@ -54,7 +61,7 @@ class VideoCompositor {
                     mediaSource.seek(currentTime);
                 }
             }else{
-               //If the mediaSource is loaded then we see to the proper bit
+               //If the mediaSource is loaded then we seek to the proper bit
                 this._mediaSources.get(mediaSourceID).seek(currentTime);
             }
 

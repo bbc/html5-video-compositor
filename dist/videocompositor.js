@@ -98,7 +98,7 @@ var VideoCompositor =
 	        this._ctx = this._canvas.getContext("2d");
 	        this._playing = false;
 	        this._mediaSources = new Map();
-	        this._mediaSourcePreloadNumber = 1; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+	        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
 	        this._playlist = undefined;
 
 	        this._currentTime = 0;
@@ -258,6 +258,12 @@ var VideoCompositor =
 	            var currentlyPlaying = _getPlaylistStatusAtTime32[1];
 	            var finishedPlaying = _getPlaylistStatusAtTime32[2];
 
+	            //clean-up any currently playing mediaSources
+	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
+	                mediaSource.destroy();
+	            });
+	            this._mediaSources.clear();
+
 	            //Load mediaSources
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;
@@ -273,7 +279,7 @@ var VideoCompositor =
 	                        };
 	                    })();
 	                } else {
-	                    //If the mediaSource is loaded then we see to the proper bit
+	                    //If the mediaSource is loaded then we seek to the proper bit
 	                    this._mediaSources.get(mediaSourceID).seek(currentTime);
 	                }
 	            };
@@ -587,6 +593,7 @@ var VideoCompositor =
 	        key: "pause",
 	        value: function pause() {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "pause", this).call(this);
+	            this.element.pause();
 	        }
 	    }, {
 	        key: "load",
