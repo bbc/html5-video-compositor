@@ -15,6 +15,9 @@
             */
 
             var canvas = document.getElementById('player-canvas');
+            canvas.width = 800;
+            canvas.height = 420;
+
             var videoCompositor = new VideoCompositor(canvas);
 
             var playlist = {
@@ -39,6 +42,7 @@
             */
             var visualisationCanvas = document.getElementById("visualisation-canvas");
             visualisationCanvas.height = 20;
+            visualisationCanvas.width = 800;
             //Setup up a render function so we can update the playhead position.
             function render () {
                 VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
@@ -47,7 +51,14 @@
             requestAnimationFrame(render);
             //catch mouse events to we can scrub through the timeline.
             visualisationCanvas.addEventListener("mousedown", function(evt){
-                var x = evt.x - visualisationCanvas.offsetLeft;
+                var x;
+                if (evt.x!= undefined){
+                    x = evt.x - visualisationCanvas.offsetLeft;
+                }else{
+                    //Fix for firefox
+                    x = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;          
+                }
+
                 var secondsPerPixel = videoCompositor.duration / visualisationCanvas.width;
                 videoCompositor.currentTime = secondsPerPixel*x;
             }, false);
