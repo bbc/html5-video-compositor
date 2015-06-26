@@ -42,10 +42,6 @@ You will probably only see acceptable video performance if you encode videos wit
 avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 ```
 
-## Hosting
-In order to composite playlists from sections within a source video your webserver must be able to support the Media Fragments URI 1.0 syntax.
-
-
 ## VideoCompositor API
 
 ### Syntax

@@ -553,13 +553,14 @@ var VideoCompositor =
 	            //otherwise begin the loading process for this mediaSource
 	            this.element = document.createElement("video");
 	            //construct a fragement URL to cut the required segment from the source video
-	            var fragment = "#t=" + this.sourceStart + "," + this.duration;
-	            this.element.src = this.src + fragment;
-	            console.log(this.element.src);
+	            //let fragment = '#t='+this.sourceStart+','+this.duration;
+	            //this.element.src = this.src + fragment;
+	            this.element.src = this.src;
 	            this.element.preload = "auto";
 	            this.element.load();
 	            var _this = this;
 	            this.element.addEventListener("loadeddata", function () {
+	                _this.element.currentTime = _this.sourceStart;
 	                _this.ready = true;
 	            }, false);
 	        }
@@ -567,6 +568,12 @@ var VideoCompositor =
 	        key: "render",
 	        value: function render() {
 	            return this.element;
+	        }
+	    }, {
+	        key: "destroy",
+	        value: function destroy() {
+	            this.element.pause();
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "destroy", this).call(this);
 	        }
 	    }]);
 
