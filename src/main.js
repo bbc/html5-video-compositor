@@ -32,6 +32,7 @@ class VideoCompositor {
         this._mediaSources = new Map();
         this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
         this._playlist = undefined;
+        this._eventMappings = new Map();
 
         this._currentTime = 0;
         this.duration = 0;
@@ -68,6 +69,8 @@ class VideoCompositor {
         };
 
         this._currentTime = currentTime;
+        let seekEvent = new CustomEvent('seek', {detail:{data:currentTime, instance:this}});
+        this._canvas.dispatchEvent(seekEvent);
     }
 
     get currentTime(){
@@ -82,6 +85,8 @@ class VideoCompositor {
 
     play(){
         this._playing = true;
+        let playEvent = new CustomEvent('play', {detail:{data:this._currentTime, instance:this}});
+        this._canvas.dispatchEvent(playEvent);
     }
 
     pause() {
@@ -89,12 +94,28 @@ class VideoCompositor {
         this._mediaSources.forEach(function(mediaSource, id, mediaSources){
             mediaSource.pause();
         });
+        let pauseEvent = new CustomEvent('pause', {detail:{data:this._currentTime, instance:this}});
+        this._canvas.dispatchEvent(pauseEvent);
     }
 
-    stop(){
-        this.pause();
-        this._currentTime = 0;
+    addEventListener(type, func){
+        //Pass through any event listeners through to the underlying canvas rendering element
+        //Catch any events and handle with a custom events dispatcher so things 
+        if (this._eventMappings.has(type)){
+            this._eventMappings.get(type).push(func);
+        }else {
+            this._eventMappings.set(type, [func]);
+        }
+        this._canvas.addEventListener(type, this._dispatchEvents, false);
     }
+
+    _dispatchEvents(evt){
+        //Catch events and pass them on, mangling the detail property so it looks nice in the API
+        for (let i = 0; i < evt.detail.instance._eventMappings.get(evt.type).length; i++){
+            evt.detail.instance._eventMappings.get(evt.type)[i](evt.detail.data);
+        }
+    }
+
 
     _getPlaylistStatusAtTime(playlist, playhead){
         let toPlay = [];
@@ -165,8 +186,8 @@ class VideoCompositor {
 
         //Check if we've finished playing and then stop
         if (toPlay.length === 0 && currentlyPlaying.length === 0){
-            this.stop();
-            console.log("Stopped");
+            this.pause();
+            this.currentTime = 0;
             return;
         }
 

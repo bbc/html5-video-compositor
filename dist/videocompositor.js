@@ -59,15 +59,15 @@ var VideoCompositor =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var _sourcesVideosourceJs = __webpack_require__(5);
+	var _sourcesVideosourceJs = __webpack_require__(1);
 
 	var _sourcesVideosourceJs2 = _interopRequireDefault(_sourcesVideosourceJs);
 
-	var _sourcesImagesourceJs = __webpack_require__(6);
+	var _sourcesImagesourceJs = __webpack_require__(3);
 
 	var _sourcesImagesourceJs2 = _interopRequireDefault(_sourcesImagesourceJs);
 
-	var _sourcesCanvassourceJs = __webpack_require__(7);
+	var _sourcesCanvassourceJs = __webpack_require__(4);
 
 	var _sourcesCanvassourceJs2 = _interopRequireDefault(_sourcesCanvassourceJs);
 
@@ -100,6 +100,7 @@ var VideoCompositor =
 	        this._mediaSources = new Map();
 	        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
 	        this._playlist = undefined;
+	        this._eventMappings = new Map();
 
 	        this._currentTime = 0;
 	        this.duration = 0;
@@ -110,6 +111,8 @@ var VideoCompositor =
 	        key: "play",
 	        value: function play() {
 	            this._playing = true;
+	            var playEvent = new CustomEvent("play", { detail: { data: this._currentTime, instance: this } });
+	            this._canvas.dispatchEvent(playEvent);
 	        }
 	    }, {
 	        key: "pause",
@@ -118,12 +121,28 @@ var VideoCompositor =
 	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
 	                mediaSource.pause();
 	            });
+	            var pauseEvent = new CustomEvent("pause", { detail: { data: this._currentTime, instance: this } });
+	            this._canvas.dispatchEvent(pauseEvent);
 	        }
 	    }, {
-	        key: "stop",
-	        value: function stop() {
-	            this.pause();
-	            this._currentTime = 0;
+	        key: "addEventListener",
+	        value: function addEventListener(type, func) {
+	            //Pass through any event listeners through to the underlying canvas rendering element
+	            //Catch any events and handle with a custom events dispatcher so things
+	            if (this._eventMappings.has(type)) {
+	                this._eventMappings.get(type).push(func);
+	            } else {
+	                this._eventMappings.set(type, [func]);
+	            }
+	            this._canvas.addEventListener(type, this._dispatchEvents, false);
+	        }
+	    }, {
+	        key: "_dispatchEvents",
+	        value: function _dispatchEvents(evt) {
+	            //Catch events and pass them on, mangling the detail property so it looks nice in the API
+	            for (var i = 0; i < evt.detail.instance._eventMappings.get(evt.type).length; i++) {
+	                evt.detail.instance._eventMappings.get(evt.type)[i](evt.detail.data);
+	            }
 	        }
 	    }, {
 	        key: "_getPlaylistStatusAtTime",
@@ -207,8 +226,8 @@ var VideoCompositor =
 
 	            //Check if we've finished playing and then stop
 	            if (toPlay.length === 0 && currentlyPlaying.length === 0) {
-	                this.stop();
-	                console.log("Stopped");
+	                this.pause();
+	                this.currentTime = 0;
 	                return;
 	            }
 
@@ -285,6 +304,8 @@ var VideoCompositor =
 	            };
 
 	            this._currentTime = currentTime;
+	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
+	            this._canvas.dispatchEvent(seekEvent);
 	        },
 	        get: function get() {
 	            return this._currentTime;
@@ -441,106 +462,7 @@ var VideoCompositor =
 	module.exports = exports["default"];
 
 /***/ },
-/* 1 */,
-/* 2 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var MediaSource = (function () {
-	    function MediaSource(properties) {
-	        _classCallCheck(this, MediaSource);
-
-	        this.id = properties.id;
-	        this.duration = properties.duration;
-	        this.start = properties.start;
-	        this.playing = false;
-	        this.ready = false;
-	        this.element;
-	        this.src;
-
-	        this.disposeOfElementOnDestroy = false;
-
-	        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
-	        if (properties.src !== undefined) {
-	            this.disposeOfElementOnDestroy = true;
-	            this.src = properties.src;
-	        } else {
-	            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
-	            this.disposeOfElementOnDestroy = false;
-	            this.element = properties.element;
-	        }
-	    }
-
-	    _createClass(MediaSource, [{
-	        key: "play",
-	        value: function play() {
-	            //console.log("Playing", this.id);
-	            this.playing = true;
-	        }
-	    }, {
-	        key: "pause",
-	        value: function pause() {
-	            console.log("Pausing", this.id);
-	            this.playing = false;
-	        }
-	    }, {
-	        key: "seek",
-	        value: function seek(seekTime) {}
-	    }, {
-	        key: "isReady",
-	        value: function isReady() {
-	            return this.ready;
-	        }
-	    }, {
-	        key: "load",
-	        value: function load() {
-	            console.log("Loading", this.id);
-	            if (this.element !== undefined) {
-	                this.ready = true;
-	                this.onready();
-	                return true;
-	            }
-	            return false;
-	        }
-	    }, {
-	        key: "destroy",
-	        value: function destroy() {
-	            console.log("Destroying", this.id);
-	            if (this.disposeOfElementOnDestroy) {
-	                delete this.element;
-	            }
-	        }
-	    }, {
-	        key: "render",
-	        value: function render(w, h) {}
-	    }, {
-	        key: "onready",
-	        value: function onready() {}
-	    }]);
-
-	    return MediaSource;
-	})();
-
-	exports["default"] = MediaSource;
-	module.exports = exports["default"];
-
-	//this.currentTime = seekTime;
-
-	//returns a render of this mediaSource which can be rendered to the display surface.
-
-/***/ },
-/* 3 */,
-/* 4 */,
-/* 5 */
+/* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -636,7 +558,104 @@ var VideoCompositor =
 	module.exports = exports["default"];
 
 /***/ },
-/* 6 */
+/* 2 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var MediaSource = (function () {
+	    function MediaSource(properties) {
+	        _classCallCheck(this, MediaSource);
+
+	        this.id = properties.id;
+	        this.duration = properties.duration;
+	        this.start = properties.start;
+	        this.playing = false;
+	        this.ready = false;
+	        this.element;
+	        this.src;
+
+	        this.disposeOfElementOnDestroy = false;
+
+	        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
+	        if (properties.src !== undefined) {
+	            this.disposeOfElementOnDestroy = true;
+	            this.src = properties.src;
+	        } else {
+	            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
+	            this.disposeOfElementOnDestroy = false;
+	            this.element = properties.element;
+	            console.log("HAS ELEMENT");
+	        }
+	    }
+
+	    _createClass(MediaSource, [{
+	        key: "play",
+	        value: function play() {
+	            //console.log("Playing", this.id);
+	            this.playing = true;
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            console.log("Pausing", this.id);
+	            this.playing = false;
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek(seekTime) {}
+	    }, {
+	        key: "isReady",
+	        value: function isReady() {
+	            return this.ready;
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            console.log("Loading", this.id);
+	            if (this.element !== undefined) {
+	                this.ready = true;
+	                this.onready();
+	                return true;
+	            }
+	            return false;
+	        }
+	    }, {
+	        key: "destroy",
+	        value: function destroy() {
+	            console.log("Destroying", this.id);
+	            if (this.disposeOfElementOnDestroy) {
+	                delete this.element;
+	            }
+	        }
+	    }, {
+	        key: "render",
+	        value: function render(w, h) {}
+	    }, {
+	        key: "onready",
+	        value: function onready() {}
+	    }]);
+
+	    return MediaSource;
+	})();
+
+	exports["default"] = MediaSource;
+	module.exports = exports["default"];
+
+	//this.currentTime = seekTime;
+
+	//returns a render of this mediaSource which can be rendered to the display surface.
+
+/***/ },
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -712,7 +731,7 @@ var VideoCompositor =
 	module.exports = exports["default"];
 
 /***/ },
-/* 7 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";

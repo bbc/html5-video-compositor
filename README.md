@@ -122,8 +122,26 @@ Starts playing the current playlist. Stop will be called once the end of the pla
 #### VideoCompositor.pause()
 Pauses the currently playing content.
 
-#### VideoCompositor.stop()
-Pauses the currently playing content and sets the currentTime to 0
+#### VideoCompositor.addEventListener()
+This is a shim to give the VideoCompositor DOM element like events. They following events are supported: play, pause, seek.
+
+```
+var canvas = document.getElementById('canvas');
+var videoCompositor = new VideoCompositor(canvas);
+
+videoCompositor.addEventListener("play", function(time){
+    console.log("Playing at time ", time);
+});
+
+videoCompositor.addEventListener("pause", function(time){
+    console.log("Pausing at time ", time);
+});
+
+videoCompositor.addEventListener("seek", function(time){
+    console.log("Seeking to time ", time);
+});
+
+```
 
 
 ### Methods of the VideoCompositor Constructor
