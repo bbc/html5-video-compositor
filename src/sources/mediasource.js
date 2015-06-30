@@ -40,8 +40,6 @@ class MediaSource {
     load(){
         console.log("Loading", this.id);
         if (this.element !== undefined) {
-            this.ready = true;
-            this.onready();
             return true;
         }
         return false;
@@ -55,8 +53,7 @@ class MediaSource {
     render(w,h){
         //returns a render of this mediaSource which can be rendered to the display surface.
     }
-    onready(){
-
+    onready(mediaSource){
     }
 }
 

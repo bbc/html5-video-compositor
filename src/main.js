@@ -55,12 +55,10 @@ class VideoCompositor {
             //If the media source isn't loaded then we start loading it.
             if (this._mediaSources.has(mediaSourceID) === false){
                 this._loadMediaSource(currentlyPlaying[i]);
-                let mediaSource = this._mediaSources.get(mediaSourceID);
 
-                //Once it's ready seek to the proper place.
-                mediaSource.onready=function(){
-                    mediaSource.seek(currentTime);
-                }
+                let mediaSource = this._mediaSources.get(mediaSourceID);
+                mediaSource.seek(currentTime);
+
             }else{
                //If the mediaSource is loaded then we seek to the proper bit
                 this._mediaSources.get(mediaSourceID).seek(currentTime);
@@ -155,20 +153,24 @@ class VideoCompositor {
     }
 
 
-    _loadMediaSource(mediaSourceReference){
+    _loadMediaSource(mediaSourceReference, onReadyCallback){
+        if (onReadyCallback === undefined) onReadyCallback = function(mediaSource){};
         switch (mediaSourceReference.type){
             case "video":
                 let video = new VideoSource(mediaSourceReference);
+                video.onready = onReadyCallback;
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
                 break;
             case "image":
                 let image = new ImageSource(mediaSourceReference);
+                image.onready = onReadyCallback;
                 image.load();
                 this._mediaSources.set(mediaSourceReference.id, image);
                 break;
             case "canvas":
                 let canvas = new CanvasSource(mediaSourceReference);
+                canvas.onready = onReadyCallback;
                 canvas.load();
                 this._mediaSources.set(mediaSourceReference.id, canvas);
                 break;

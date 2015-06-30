@@ -185,20 +185,24 @@ var VideoCompositor =
 	        }
 	    }, {
 	        key: "_loadMediaSource",
-	        value: function _loadMediaSource(mediaSourceReference) {
+	        value: function _loadMediaSource(mediaSourceReference, onReadyCallback) {
+	            if (onReadyCallback === undefined) onReadyCallback = function (mediaSource) {};
 	            switch (mediaSourceReference.type) {
 	                case "video":
 	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference);
+	                    video.onready = onReadyCallback;
 	                    video.load();
 	                    this._mediaSources.set(mediaSourceReference.id, video);
 	                    break;
 	                case "image":
 	                    var image = new _sourcesImagesourceJs2["default"](mediaSourceReference);
+	                    image.onready = onReadyCallback;
 	                    image.load();
 	                    this._mediaSources.set(mediaSourceReference.id, image);
 	                    break;
 	                case "canvas":
 	                    var canvas = new _sourcesCanvassourceJs2["default"](mediaSourceReference);
+	                    canvas.onready = onReadyCallback;
 	                    canvas.load();
 	                    this._mediaSources.set(mediaSourceReference.id, canvas);
 	                    break;
@@ -265,8 +269,6 @@ var VideoCompositor =
 	    }, {
 	        key: "currentTime",
 	        set: function set(currentTime) {
-	            var _this = this;
-
 	            console.log("Seeking to", currentTime);
 
 	            var _getPlaylistStatusAtTime3 = this._getPlaylistStatusAtTime(this._playlist, currentTime);
@@ -288,15 +290,10 @@ var VideoCompositor =
 	                var mediaSourceID = currentlyPlaying[i].id;
 	                //If the media source isn't loaded then we start loading it.
 	                if (this._mediaSources.has(mediaSourceID) === false) {
-	                    (function () {
-	                        _this._loadMediaSource(currentlyPlaying[i]);
-	                        var mediaSource = _this._mediaSources.get(mediaSourceID);
+	                    this._loadMediaSource(currentlyPlaying[i]);
 
-	                        //Once it's ready seek to the proper place.
-	                        mediaSource.onready = function () {
-	                            mediaSource.seek(currentTime);
-	                        };
-	                    })();
+	                    var mediaSource = this._mediaSources.get(mediaSourceID);
+	                    mediaSource.seek(currentTime);
 	                } else {
 	                    //If the mediaSource is loaded then we seek to the proper bit
 	                    this._mediaSources.get(mediaSourceID).seek(currentTime);
@@ -521,21 +518,24 @@ var VideoCompositor =
 	        key: "load",
 	        value: function load() {
 	            //check if we're using an already instatiated element, if so don't do anything.
-	            if (_get(Object.getPrototypeOf(VideoSource.prototype), "load", this).call(this)) return;
-
+	            if (_get(Object.getPrototypeOf(VideoSource.prototype), "load", this).call(this)) {
+	                this.seek(0);
+	                this.ready = true;
+	                this.onready(this);
+	                return;
+	            };
+	            console.log("CREATING MY OWN VIDEO ELEMENT");
 	            //otherwise begin the loading process for this mediaSource
 	            this.element = document.createElement("video");
 	            //construct a fragement URL to cut the required segment from the source video
-	            //let fragment = '#t='+this.sourceStart+','+this.duration;
-	            //this.element.src = this.src + fragment;
 	            this.element.src = this.src;
 	            this.element.preload = "auto";
 	            this.element.load();
 	            var _this = this;
 	            this.element.addEventListener("loadeddata", function () {
-	                _this.element.currentTime = _this.sourceStart;
+	                _this.seek(0);
 	                _this.ready = true;
-	                _this.onready();
+	                _this.onready(this);
 	            }, false);
 	        }
 	    }, {
@@ -622,8 +622,6 @@ var VideoCompositor =
 	        value: function load() {
 	            console.log("Loading", this.id);
 	            if (this.element !== undefined) {
-	                this.ready = true;
-	                this.onready();
 	                return true;
 	            }
 	            return false;
@@ -641,7 +639,7 @@ var VideoCompositor =
 	        value: function render(w, h) {}
 	    }, {
 	        key: "onready",
-	        value: function onready() {}
+	        value: function onready(mediaSource) {}
 	    }]);
 
 	    return MediaSource;
