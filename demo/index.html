@@ -5,26 +5,64 @@
 </head>
 <body>
     <script type="text/javascript" src="../dist/videocompositor.js"></script>
+    <script type="text/javascript" src="./lib/three.min.js"></script>
     <script type="text/javascript">
         window.onload = function () {
 
-            /*
-            *
-            * Set up the video compositor 
-            *
-            */
 
+
+
+
+            var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true });
+            var webGLWidth = 300;
+            var webGLHeight = 160;
+            renderer.setSize(webGLWidth, webGLHeight);
+
+            document.body.appendChild(renderer.domElement);
+            // camera
+            var camera = new THREE.PerspectiveCamera(45, webGLWidth / webGLHeight, 1, 1000);
+            camera.position.z = 500;
+            // scene
+            var scene = new THREE.Scene();
+            // sphere
+            // the first argument of THREE.SphereGeometry is the radius, the second argument is
+            // the segmentsWidth, and the third argument is the segmentsHeight.  Increasing the 
+            // segmentsWidth and segmentsHeight will yield a more perfect circle, but will degrade
+            // rendering performance
+            var sphere = new THREE.Mesh(new THREE.SphereGeometry(150, 100, 100), new THREE.MeshNormalMaterial());
+            sphere.overdraw = true;
+            scene.add(sphere);
+            function webglRender(time){
+                sphere.position.set( Math.sin(time/1000)*100, 0, 0 );
+                sphere.__dirtyPosition = true;
+                renderer.render(scene, camera);
+                requestAnimationFrame(webglRender);
+            }
+            requestAnimationFrame(webglRender);
+
+            console.log(renderer);
+
+
+
+
+
+
+
+
+            /*
+            * Set up the video compositor 
+            */
             var canvas = document.getElementById('player-canvas');
-            canvas.width = 800;
-            canvas.height = 420;
+            canvas.width = 680;
+            canvas.height = 320;
 
             var videoCompositor = new VideoCompositor(canvas);
 
             var playlist = {
                 "tracks":[
-                    [{type:"image", start:0, duration:15, src:"assets/plate.png", id:"5"}],
+                    [{type:"image", start:0, duration:6.5, src:"assets/plate.png", id:"5"},{type:"image", start:10, duration:3.5, src:"assets/plate.png", id:"6"}],
                     [{type:"video", sourceStart:0, start:0, duration:5, src:"assets/video1.mp4", id:"1"},                 {type:"video", sourceStart:10, start:7.5,src:"assets/video1.mp4", duration:5, id:"3"}],
-                    [                                 {type:"image", start:2.5, duration:5, src:"assets/image.jpg", id:"2"},                                {type:"image", start:10, duration:5, src:"assets/image.jpg", id:"4"}]
+                    [                                 {type:"image", start:2.5, duration:5, src:"assets/image.jpg", id:"2"},                                {type:"canvas", start:10, duration:5, element:renderer.domElement, id:"4"}]
                 ]
             };
 
@@ -33,16 +71,31 @@
             videoCompositor.playlist = playlist;
             videoCompositor.play();
 
+            videoCompositor.addEventListener("seek", function(data){
+                console.log("Current Time",data);
+            }, false);
 
 
             /*
-            *
+            * Wire the buttons into controlling the video compositor.
+            */
+            var playButton = document.getElementById("play-button");
+            var pauseButton = document.getElementById("pause-button");
+            playButton.onclick = function(){
+                videoCompositor.play();
+            };
+            pauseButton.onclick = function(){
+                videoCompositor.pause();
+            };
+
+
+
+            /*
             * Create an interactive visualisation canvas.
-            *
             */
             var visualisationCanvas = document.getElementById("visualisation-canvas");
             visualisationCanvas.height = 20;
-            visualisationCanvas.width = 800;
+            visualisationCanvas.width = canvas.width;
             //Setup up a render function so we can update the playhead position.
             function render () {
                 VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
@@ -61,7 +114,11 @@
 
                 var secondsPerPixel = videoCompositor.duration / visualisationCanvas.width;
                 videoCompositor.currentTime = secondsPerPixel*x;
+                videoCompositor.play();
             }, false);
+
+
+
 
 
         };
@@ -69,5 +126,10 @@
     <canvas id="player-canvas"></canvas>
     <br>
     <canvas id="visualisation-canvas"></canvas>
+    <br>
+    <button id="play-button">Play</button>
+    <button id="pause-button">Pause</button>
+    <br>
+
 </body>
 </html>
