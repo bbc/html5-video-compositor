@@ -175,7 +175,7 @@ class VideoCompositor {
                 this._mediaSources.set(mediaSourceReference.id, canvas);
                 break;
             default:
-                throw {"error":2,"msg":"mediaSourceReference "+mediaSourceReference.id+" has unrecognized type "+mediaSourceReference.type, toString:function(){console.log(this.msg);}};
+                throw {"error":5,"msg":"mediaSourceReference "+mediaSourceReference.id+" has unrecognized type "+mediaSourceReference.type, toString:function(){return this.msg;}};
                 break;
         }
     }
@@ -257,56 +257,72 @@ class VideoCompositor {
         /*     
         This function validates a passed playlist, making sure it matches a 
         number of properties a playlist must have to be OK.
-        
-        * Error 1. The playlist media sources have all the expected properties.
-        * Error 2. Media sources in single track are sequential.
-        * Error 3. Media sources in single track don't overlap
+
+        * Error 1. MediaSourceReferences have a unique ID        
+        * Error 2. The playlist media sources have all the expected properties.
+        * Error 3. MediaSourceReferences in single track are sequential.
+        * Error 4. MediaSourceReferences in single track don't overlap
         */
 
-
-        //Error 1. The playlist media sources have all the expected properties.
+        //Error 1. MediaSourceReferences have a unique ID
+        let IDs = new Map();
         for (let i = 0; i < playlist.tracks.length; i++) {
             let track = playlist.tracks[i]
             for (let j = 0; j < track.length; j++) {
-                let mediaSource = track[j];
-                if (mediaSource.id === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a id property", toString:function(){console.log(this.msg);}};
-                if (mediaSource.start === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a start property", toString:function(){console.log(this.msg);}};
-                if (mediaSource.duration === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a duration property", toString:function(){console.log(this.msg);}};
-                if (mediaSource.type === undefined) throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" is missing a type property", toString:function(){console.log(this.msg);}};
-                if (mediaSource.src != undefined && mediaSource.element != undefined)throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" has both a src and element, it must have one or the other", toString:function(){console.log(this.msg);}};
-                if (mediaSource.src === undefined && mediaSource.element === undefined)throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" has neither a src or an element, it must have one or the other", toString:function(){console.log(this.msg);}};                
+                let MediaSourceReference = track[j];
+                console.log(MediaSourceReference.id);
+                if (IDs.has(MediaSourceReference.id)){
+                    throw {"error":1,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has a duplicate ID.", toString:function(){return this.msg;}};
+                }else{
+                    IDs.set(MediaSourceReference.id, true);
+                }
             }
         }
 
 
-        // Error 2. Media sources in single track are sequential.
+        //Error 2. The playlist MediaSourceReferences have all the expected properties.
+        for (let i = 0; i < playlist.tracks.length; i++) {
+            let track = playlist.tracks[i]
+            for (let j = 0; j < track.length; j++) {
+                let MediaSourceReference = track[j];
+                if (MediaSourceReference.id === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a id property", toString:function(){return this.msg;}};
+                if (MediaSourceReference.start === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a start property", toString:function(){return this.msg;}};
+                if (MediaSourceReference.duration === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a duration property", toString:function(){return this.msg;}};
+                if (MediaSourceReference.type === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a type property", toString:function(){return this.msg;}};
+                if (MediaSourceReference.src != undefined && MediaSourceReference.element != undefined)throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has both a src and element, it must have one or the other", toString:function(){return this.msg;}};
+                if (MediaSourceReference.src === undefined && MediaSourceReference.element === undefined)throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has neither a src or an element, it must have one or the other", toString:function(){return this.msg;}};                
+            }
+        }
+
+
+        // Error 3. MediaSourceReferences in single track are sequential.
         for (let i = 0; i < playlist.tracks.length; i++) {
             let track = playlist.tracks[i]
             let time = 0;
             for (let j = 0; j < track.length; j++) {
-                let mediaSource = track[j];
-                if (mediaSource.start < time){
-                    throw {"error":2,"msg":"mediaSource "+mediaSource.id+" in track " +i+" starts before previous mediaSource", toString:function(){console.log(this.msg);}};
+                let MediaSourceReference = track[j];
+                if (MediaSourceReference.start < time){
+                    throw {"error":3,"msg":"MediaSourceReferences "+MediaSourceReference.id+" in track " +i+" starts before previous MediaSourceReference", toString:function(){return this.msg;}};
                 }
-                time = mediaSource.start;
+                time = MediaSourceReference.start;
             }
         }        
 
 
-        //Error 3. Media sources in single track don't overlap
+        //Error 4. MediaSourceReferences in single track don't overlap
         for (let i = 0; i < playlist.tracks.length; i++) {
             let track = playlist.tracks[i]
-            let previousMediaSource = undefined;
+            let previousMediaSourceReference = undefined;
             for (let j = 0; j < track.length; j++) {
-                let mediaSource = track[j];
-                if (previousMediaSource === undefined){
-                    previousMediaSource = mediaSource;
+                let MediaSourceReference = track[j];
+                if (previousMediaSourceReference === undefined){
+                    previousMediaSourceReference = MediaSourceReference;
                     continue;
                 }
-                let previousEnd = previousMediaSource.start + previousMediaSource.duration;
-                let currentStart = mediaSource.start;
+                let previousEnd = previousMediaSourceReference.start + previousMediaSourceReference.duration;
+                let currentStart = MediaSourceReference.start;
                 if (previousEnd > currentStart){
-                    throw {"error":2,"msg":"Track mediaSource overlap. mediaSource "+previousMediaSource.id+" in track " +i+" finishes after mediaSource " + mediaSource.id +" starts.", toString:function(){console.log(this.msg);}};
+                    throw {"error":4,"msg":"Track MediaSourceReferences overlap. MediaSourceReference "+previousMediaSourceReference.id+" in track " +i+" finishes after MediaSourceReference " + MediaSourceReference.id +" starts.", toString:function(){return this.msg;}};
                 }
             }
         }
