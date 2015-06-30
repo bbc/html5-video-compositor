@@ -258,6 +258,8 @@ var VideoCompositor =
 	            var h = this._canvas.height;
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
+	            this._ctx.clearRect(0, 0, w, h);
+
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;
 	                var mediaSource = this._mediaSources.get(mediaSourceID);
