@@ -60,7 +60,6 @@ class VideoCompositor {
                 
                 var _this = this;
                 this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
-                    console.log("READY", mediaSource);
                     //let mediaSource = _this._mediaSources.get(mediaSourceID);
                     mediaSource.seek(currentTime);
                 });
@@ -227,6 +226,24 @@ class VideoCompositor {
             }
         };
 
+        //Make sure all mediaSources are ready to play
+        let ready = true;
+        for (let i = 0; i < currentlyPlaying.length; i++) {
+            let mediaSourceID = currentlyPlaying[i].id;
+            //check that currently playing mediaSource exists
+            if (!this._mediaSources.has(mediaSourceID)){
+                //if not load it
+                this._loadMediaSource(currentlyPlaying[i]);
+                ready = false;
+                continue;
+            }
+            if (!this._mediaSources.get(mediaSourceID).isReady()) ready=false;
+        }
+        //if all the sources aren't ready, exit function before rendering or advancing clock.
+        if (ready === false){
+            return;
+        }
+
 
         //Play mediaSources on the currently playing queue.
         let w = this._canvas.width;
@@ -235,14 +252,9 @@ class VideoCompositor {
 
         this._ctx.clearRect(0,0,w,h);
 
-        for (var i = 0; i < currentlyPlaying.length; i++) {
+        for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
-            //check that currently playing mediaSource exists
-            if (!this._mediaSources.has(mediaSourceID)){
-                //if not load it
-                this._loadMediaSource(currentlyPlaying[i]);
-                continue;
-            }
+            
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
             this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);

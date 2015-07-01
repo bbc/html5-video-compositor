@@ -17,7 +17,6 @@ class VideoSource extends MediaSource{
         if ((time - this.start) < 0 || time >(this.start+this.duration)){
             this.element.currentTime = this.sourceStart;
         } else {
-            console.log("Seeking  to mid point");
             this.element.currentTime = (time - this.start) + this.sourceStart;
         }
     }
@@ -27,13 +26,11 @@ class VideoSource extends MediaSource{
     }
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
-        console.log("Loading", this.id);
 
         if (super.load()){
             //this.element.currentTime = this.sourceStart;
             this.seek(0);
             this.ready = true;
-            console.log("Calling On Ready", this, this.onready);
             this.onready(this);
             return;
         };
@@ -45,13 +42,9 @@ class VideoSource extends MediaSource{
         this.element.load();
         let _this = this;
         this.element.addEventListener('loadeddata', function() {
-            console.log("Loaded", this.id);
-
             _this.element.currentTime = _this.sourceStart;
             _this.seek(0);
             _this.ready = true;
-            console.log("Calling On Ready", _this.id, _this.onready);
-
             _this.onready(_this);
         }, false);
 
