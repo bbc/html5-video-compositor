@@ -19,7 +19,6 @@ class MediaSource {
             //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
             this.disposeOfElementOnDestroy = false;
             this.element = properties.element;
-            console.log("HAS ELEMENT");
         }
 
     }

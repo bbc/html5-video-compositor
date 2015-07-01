@@ -17,14 +17,20 @@ class CanvasSource extends MediaSource{
     }
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
-        if (super.load())return;
+        if (super.load()){
+            this.seek(0);
+            this.ready = true;
+            this.onready(this);
+            return;
+        }
+
 
         //otherwise begin the loading process for this mediaSource
         this.element = document.createElement("canvas");
         this.element.width = this.width;
         this.element.height = this.height;
         this.ready = true;
-        this.onready();
+        this.onready(this);
     }
     render(){
         return this.element;

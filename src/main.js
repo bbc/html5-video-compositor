@@ -54,10 +54,15 @@ class VideoCompositor {
             let mediaSourceID = currentlyPlaying[i].id;
             //If the media source isn't loaded then we start loading it.
             if (this._mediaSources.has(mediaSourceID) === false){
-                this._loadMediaSource(currentlyPlaying[i]);
+                
+                var _this = this;
+                this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
+                    console.log("READY", mediaSource);
+                    //let mediaSource = _this._mediaSources.get(mediaSourceID);
+                    mediaSource.seek(currentTime);
+                });
 
-                let mediaSource = this._mediaSources.get(mediaSourceID);
-                mediaSource.seek(currentTime);
+                
 
             }else{
                //If the mediaSource is loaded then we seek to the proper bit
