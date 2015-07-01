@@ -81,7 +81,10 @@
             videoCompositor.addEventListener("seek", function(data){
                 console.log("Current Time",data);
             }, false);
-
+            
+            videoCompositor.addEventListener("ended", function(data){
+                console.log("Playlist Ended",data);
+            }, false);
 
             /*
             * Wire the buttons into controlling the video compositor.

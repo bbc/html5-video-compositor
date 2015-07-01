@@ -190,7 +190,9 @@ class VideoCompositor {
         //Check if we've finished playing and then stop
         if (toPlay.length === 0 && currentlyPlaying.length === 0){
             this.pause();
+            let endedEvent = new CustomEvent('ended', {detail:{data:this.currentTime, instance:this}});
             this.currentTime = 0;
+            this._canvas.dispatchEvent(endedEvent);
             return;
         }
 
