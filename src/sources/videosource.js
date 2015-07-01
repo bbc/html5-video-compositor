@@ -24,6 +24,7 @@ class VideoSource extends MediaSource{
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
         if (super.load()){
+            this.element.currentTime = this.sourceStart;
             this.seek(0);
             this.ready = true;
             this.onready(this);
@@ -38,6 +39,7 @@ class VideoSource extends MediaSource{
         this.element.load();
         let _this = this;
         this.element.addEventListener('loadeddata', function() {
+            _this.element.currentTime = _this.sourceStart;
             _this.seek(0);
             _this.ready = true;
             _this.onready(this);

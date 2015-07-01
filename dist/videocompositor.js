@@ -190,6 +190,7 @@ var VideoCompositor =
 	            switch (mediaSourceReference.type) {
 	                case "video":
 	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference);
+	                    console.log(video);
 	                    video.onready = onReadyCallback;
 	                    video.load();
 	                    this._mediaSources.set(mediaSourceReference.id, video);
@@ -538,6 +539,7 @@ var VideoCompositor =
 	        value: function load() {
 	            //check if we're using an already instatiated element, if so don't do anything.
 	            if (_get(Object.getPrototypeOf(VideoSource.prototype), "load", this).call(this)) {
+	                this.element.currentTime = this.sourceStart;
 	                this.seek(0);
 	                this.ready = true;
 	                this.onready(this);
@@ -552,6 +554,7 @@ var VideoCompositor =
 	            this.element.load();
 	            var _this = this;
 	            this.element.addEventListener("loadeddata", function () {
+	                _this.element.currentTime = _this.sourceStart;
 	                _this.seek(0);
 	                _this.ready = true;
 	                _this.onready(this);

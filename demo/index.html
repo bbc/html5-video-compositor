@@ -66,6 +66,13 @@
                 ]
             };
 
+            /*var playlist = {
+                "tracks":[
+                    [{type:"image", start:0, duration:10, src:"assets/plate.png", id:"5"}],
+                    [{type:"video", sourceStart:10, start:0, duration:3, src:"assets/video1.mp4", id:"1"},{type:"video", sourceStart:11, start:4,src:"assets/video1.mp4", duration:7, id:"3"}]
+                ]
+            };*/
+
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             videoCompositor.playlist = playlist;
@@ -87,7 +94,7 @@
             pauseButton.onclick = function(){
                 videoCompositor.pause();
             };
-
+            
 
 
             /*
@@ -114,7 +121,8 @@
 
                 var secondsPerPixel = videoCompositor.duration / visualisationCanvas.width;
                 videoCompositor.currentTime = secondsPerPixel*x;
-                videoCompositor.play();
+                //videoCompositor.play();
+
             }, false);
 
 

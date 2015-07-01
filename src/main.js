@@ -158,6 +158,7 @@ class VideoCompositor {
         switch (mediaSourceReference.type){
             case "video":
                 let video = new VideoSource(mediaSourceReference);
+                console.log(video);
                 video.onready = onReadyCallback;
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
