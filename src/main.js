@@ -41,6 +41,9 @@ class VideoCompositor {
 
     set currentTime(currentTime){
         console.log("Seeking to", currentTime);
+        if (this._playlist === undefined){
+            return;
+        }
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, currentTime);
 
         //clean-up any currently playing mediaSources
