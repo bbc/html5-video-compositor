@@ -158,7 +158,6 @@ class VideoCompositor {
         switch (mediaSourceReference.type){
             case "video":
                 let video = new VideoSource(mediaSourceReference);
-                console.log(video);
                 video.onready = onReadyCallback;
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
@@ -275,7 +274,6 @@ class VideoCompositor {
             let track = playlist.tracks[i]
             for (let j = 0; j < track.length; j++) {
                 let MediaSourceReference = track[j];
-                console.log(MediaSourceReference.id);
                 if (IDs.has(MediaSourceReference.id)){
                     throw {"error":1,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has a duplicate ID.", toString:function(){return this.msg;}};
                 }else{
