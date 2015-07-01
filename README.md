@@ -56,13 +56,13 @@ This project uses npm to manage dependencies. To build the compositor, in the ro
 npm install
 ```
 
-Once this has completed you can build the source files by running:
+Once this has completed you can build the source files by running (this will build a commonjs2 and a vanilla js file):
 
 ```Bash
 npm run build
 ```
 
-To auto-recompile the project on source change run:
+To auto-recompile the project on source change run (this will only rebuild the vanilla js file):
 ```Bash
-npm run watch
+npm run dev
 ```
