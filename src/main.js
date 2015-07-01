@@ -84,6 +84,11 @@ class VideoCompositor {
         VideoCompositor.validatePlaylist(playlist);
         this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
         this._playlist = playlist;
+        //clean-up any currently playing mediaSources
+        this._mediaSources.forEach(function(mediaSource, id, mediaSources){
+            mediaSource.destroy();
+        });
+        this._mediaSources.clear();
     }
 
     play(){
@@ -219,6 +224,7 @@ class VideoCompositor {
             }
         };
 
+
         //Play mediaSources on the currently playing queue.
         let w = this._canvas.width;
         let h = this._canvas.height;
@@ -228,6 +234,12 @@ class VideoCompositor {
 
         for (var i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
+            //check that currently playing mediaSource exists
+            if (!this._mediaSources.has(mediaSourceID)){
+                //if not load it
+                this._loadMediaSource(currentlyPlaying[i]);
+                continue;
+            }
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
             this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);

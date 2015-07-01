@@ -92,6 +92,8 @@
             var playButton = document.getElementById("play-button");
             var pauseButton = document.getElementById("pause-button");
             playButton.onclick = function(){
+                videoCompositor.pause();
+                videoCompositor.currentTime = 0;
                 videoCompositor.play();
             };
             pauseButton.onclick = function(){

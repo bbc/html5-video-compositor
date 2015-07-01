@@ -13,8 +13,8 @@
     }
   ],
   "scripts":{
-        "build":"./node_modules/webpack/bin/webpack.js --optimize-minimize",
-        "watch":"./node_modules/webpack/bin/webpack.js --watch"
+        "build":"./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
+        "dev":"./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
   },
   "dependencies": {},
   "devDependencies": {
