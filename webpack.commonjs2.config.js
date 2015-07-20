@@ -2,8 +2,8 @@ module.exports = {
     entry: __dirname + "/src/main.js",
     output: {
         path: __dirname+'/dist',
-        filename: "videocompositor.js", 
-        libraryTarget: "var",
+        filename: "videocompositor.commonjs2.js", 
+        libraryTarget: "commonjs2",
         library: "VideoCompositor"
     },
     module: {

@@ -1,6 +1,7 @@
 
 class MediaSource {
-    constructor(properties){
+    constructor(properties, gl){
+        this.gl = gl;
         this.id = properties.id;
         this.duration = properties.duration;
         this.start = properties.start;
@@ -8,6 +9,7 @@ class MediaSource {
         this.ready = false;
         this.element;
         this.src;
+        this.texture;
 
         this.disposeOfElementOnDestroy = false;
 
@@ -20,6 +22,45 @@ class MediaSource {
             this.disposeOfElementOnDestroy = false;
             this.element = properties.element;
         }
+
+
+        /*var positionLocation = gl.getAttribLocation(program, "a_position");
+        var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
+        
+        //Hard Code these for now, but this is baaaaaad
+        var positionLocation = 0;
+        var texCoordLocation = 1;
+        
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable ( gl.BLEND) ;
+        // Create a texture.
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        
+
+        var buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array([
+                1.0, 1.0,
+                 -1.0, 1.0,
+                1.0,  -1.0,
+                1.0,  -1.0,
+                -1.0, 1.0,
+                -1.0, -1.0]),
+            gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
     }
     play(){
@@ -49,8 +90,12 @@ class MediaSource {
             delete this.element;  
         }
     }
-    render(w,h){
-        //returns a render of this mediaSource which can be rendered to the display surface.
+    render(program){
+        //renders the media source to the WebGL context using the pased program
+        this.gl.useProgram(program);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
     onready(mediaSource){
     }

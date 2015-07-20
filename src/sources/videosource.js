@@ -1,8 +1,8 @@
 import MediaSource from "./mediasource";
 
 class VideoSource extends MediaSource{
-    constructor(properties){
-        super(properties);
+    constructor(properties, gl){
+        super(properties, gl);
         this.sourceStart = 0;
         if (properties.sourceStart !== undefined){
             this.sourceStart = properties.sourceStart;
@@ -30,6 +30,7 @@ class VideoSource extends MediaSource{
         if (super.load()){
             //this.element.currentTime = this.sourceStart;
             this.seek(0);
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
             this.ready = true;
             this.onready(this);
             return;
@@ -44,14 +45,20 @@ class VideoSource extends MediaSource{
         this.element.addEventListener('loadeddata', function() {
             _this.element.currentTime = _this.sourceStart;
             _this.seek(0);
+            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
             _this.ready = true;
             _this.onready(_this);
         }, false);
+        /*this.element.addEventListener('seeked', function(){
+            console.log("SEEKED");
+            _this.ready = true;
+            _this.onready(_this);
+        })*/
 
 
     }
-    render(){
-        return this.element;
+    render(program){
+        super.render(program);
     }
     destroy(){
         this.element.pause();

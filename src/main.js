@@ -27,12 +27,18 @@ update();
 class VideoCompositor {
     constructor(canvas){
         this._canvas = canvas;
-        this._ctx = this._canvas.getContext('2d');
+        this._ctx = this._canvas.getContext('webgl');
         this._playing = false;
         this._mediaSources = new Map();
         this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
         this._playlist = undefined;
         this._eventMappings = new Map();
+        this._effectShaderPrograms = new Map();
+        this._transitionShaderPrograms = new Map();
+
+        //Setup the default shader effect
+        let defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
+        this._effectShaderPrograms.set("default", defaultEffectShader);
 
         this._currentTime = 0;
         this.duration = 0;
@@ -44,7 +50,7 @@ class VideoCompositor {
         if (this._playlist === undefined){
             return;
         }
-        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, currentTime);
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
 
         //clean-up any currently playing mediaSources
         this._mediaSources.forEach(function(mediaSource, id, mediaSources){
@@ -126,8 +132,7 @@ class VideoCompositor {
         }
     }
 
-
-    _getPlaylistStatusAtTime(playlist, playhead){
+    _getPlaylistPlayingStatusAtTime(playlist, playhead){
         let toPlay = [];
         let currentlyPlaying = [];
         let finishedPlaying = [];
@@ -165,23 +170,53 @@ class VideoCompositor {
     }
 
 
+    _getEffectShaderProgramForMediaSource(mediaSourceID){
+        let effects = this._playlist.effects;
+        let defaultEffectShader = this._effectShaderPrograms.get("default")
+
+        if (effects === undefined){
+            //No effects defined so just use default shader
+            return defaultEffectShader;
+        }
+
+        for (let effectKey of Object.keys(effects)){
+            
+            let effect = effects[effectKey];
+            if (effect.inputs.indexOf(mediaSourceID) > -1){
+                //Found effect for mediaSourceID
+                //Check if program for effect is compiled.
+                if (this._effectShaderPrograms.has(effect.effect.id)){
+                    return this._effectShaderPrograms.get(effect.effect.id);
+                }else {
+                    let effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
+                    this._effectShaderPrograms.set(effect.effect.id, effectShader);
+                    return effectShader;
+                }
+            }
+        }
+
+        //if wer get top this point no suitable effect shader was found so just return the default
+        return defaultEffectShader;
+    }
+
     _loadMediaSource(mediaSourceReference, onReadyCallback){
         if (onReadyCallback === undefined) onReadyCallback = function(mediaSource){};
+
         switch (mediaSourceReference.type){
             case "video":
-                let video = new VideoSource(mediaSourceReference);
+                let video = new VideoSource(mediaSourceReference, this._ctx);
                 video.onready = onReadyCallback;
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
                 break;
             case "image":
-                let image = new ImageSource(mediaSourceReference);
+                let image = new ImageSource(mediaSourceReference, this._ctx);
                 image.onready = onReadyCallback;
                 image.load();
                 this._mediaSources.set(mediaSourceReference.id, image);
                 break;
             case "canvas":
-                let canvas = new CanvasSource(mediaSourceReference);
+                let canvas = new CanvasSource(mediaSourceReference, this._ctx);
                 canvas.onready = onReadyCallback;
                 canvas.load();
                 this._mediaSources.set(mediaSourceReference.id, canvas);
@@ -195,7 +230,7 @@ class VideoCompositor {
     update(dt){
         if (this._playlist === undefined || this._playing === false) return;
 
-        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistStatusAtTime(this._playlist, this._currentTime);
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, this._currentTime);
         toPlay = this._sortMediaSourcesByStartTime(toPlay);
 
         //Check if we've finished playing and then stop
@@ -250,14 +285,17 @@ class VideoCompositor {
         let h = this._canvas.height;
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
-        this._ctx.clearRect(0,0,w,h);
+
+
 
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
-            
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
-            this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
+
+            var effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
+            mediaSource.render(effectShaderProgram);
+            //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
         };
         this._currentTime += dt;
     }
@@ -363,6 +401,69 @@ class VideoCompositor {
         }
     }
 
+
+
+
+
+
+    static createEffectShaderProgram(gl, effect){
+        let vertexShaderSource = "\
+            attribute vec2 a_position;\
+            attribute vec2 a_texCoord;\
+            varying vec2 v_texCoord;\
+            \
+            void main() {\
+                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);\
+                v_texCoord = a_texCoord;\
+            }";
+
+        let fragmentShaderSource = "\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            void main(){\
+                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(1.0,1.0,1.0,1.0);\
+            }";
+
+        if (effect !== undefined){
+            if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
+            if (effect.effect.vertexShader !== undefined) vertexShaderSource = effect.effect.vertexShader;    
+        }
+        
+        let program = VideoCompositor.createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
+        return program;
+        gl.useProgram(program);
+    }
+
+
+    static createShaderProgram(gl, vertexShaderSource, fragmentShaderSource){
+        let vertexShader = VideoCompositor.compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+        let fragmentShader = VideoCompositor.compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
+        let program = gl.createProgram();
+
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
+            throw {"error":4,"msg":"Can't link shader program for track "+trackIndex, toString:function(){return this.msg;}};
+        }
+        return program;
+    }
+
+
+    static compileShader(gl, shaderSource, shaderType) {
+        var shader = gl.createShader(shaderType);
+        gl.shaderSource(shader, shaderSource);
+        gl.compileShader(shader);
+        var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+        if (!success) {
+            throw "could not compile shader:" + gl.getShaderInfoLog(shader);
+        }
+        return shader;
+    }
+
+
     static renderPlaylist(playlist, canvas, currentTime){
         let ctx = canvas.getContext('2d');
         let w = canvas.width;
@@ -398,6 +499,97 @@ class VideoCompositor {
             ctx.fillRect(currentTime*pixelsPerSecond, 0, 1, h);
         }
     }
+}
+
+
+VideoCompositor.Effects = {
+    "MONOCHROME":{
+                "id":"monochrome-filter",
+                "fragmentShader":"\
+                    precision mediump float;\
+                    uniform sampler2D u_image;\
+                    varying vec2 v_texCoord;\
+                    void main(){\
+                        vec4 pixel = texture2D(u_image, v_texCoord);\
+                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+                        pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);\
+                        gl_FragColor = pixel;\
+                    }"
+            },
+    "SEPIA":{
+                "id":"sepia-filter",
+                "fragmentShader":"\
+                    precision mediump float;\
+                    uniform sampler2D u_image;\
+                    varying vec2 v_texCoord;\
+                    void main(){\
+                        vec4 pixel = texture2D(u_image, v_texCoord);\
+                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+                        pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);\
+                        gl_FragColor = pixel;\
+                    }"
+            },
+    "BITCRUNCH":{
+                "id":"bitcrunch-filter",
+                "fragmentShader":"\
+                    precision mediump float;\
+                    uniform sampler2D u_image;\
+                    varying vec2 v_texCoord;\
+                    void main(){\
+                        vec4 pixel = texture2D(u_image, v_texCoord);\
+                        pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
+                        pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
+                        gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
+                    }"
+                },
+    //Green screen color =  r = 62, g = 178, b = 31
+    //Normalised         = r = 0.243, g= 0.698, b = 0.122
+    "GREENSCREENMAD":{
+                "id":"greenscreen-filter",
+                "fragmentShader":"\
+                    precision mediump float;\
+                    uniform sampler2D u_image;\
+                    varying vec2 v_texCoord;\
+                    void main(){\
+                        vec4 pixel = texture2D(u_image, v_texCoord);\
+                        float alpha = 1.0;\
+                        float r = pixel[0];\
+                        float g = pixel[1];\
+                        float b = pixel[2];\
+                        float y =  0.299*r + 0.587*g + 0.114*b;\
+                        float u = -0.147*r - 0.289*g + 0.436*b;\
+                        float v =  0.615*r - 0.515*g - 0.100*b;\
+                        ;\
+                        alpha = (v+u)*10.0 +2.0;\
+                        \
+                        pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));\
+                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);\
+                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);\
+                        gl_FragColor = pixel;\
+                    }"
+            },
+    "GREENSCREEN":{
+                "id":"greenscreen-filter",
+                "fragmentShader":"\
+                    precision mediump float;\
+                    uniform sampler2D u_image;\
+                    varying vec2 v_texCoord;\
+                    void main(){\
+                        vec4 pixel = texture2D(u_image, v_texCoord);\
+                        float alpha = 1.0;\
+                        float r = pixel[0];\
+                        float g = pixel[1];\
+                        float b = pixel[2];\
+                        float y =  0.299*r + 0.587*g + 0.114*b;\
+                        float u = -0.147*r - 0.289*g + 0.436*b;\
+                        float v =  0.615*r - 0.515*g - 0.100*b;\
+                        if (y > 0.2 && y < 0.8){\
+                            alpha = (v+u)*40.0 +2.0;\
+                        }\
+                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
+                        gl_FragColor = pixel;\
+                    }"
+            },
 }
 
 export default VideoCompositor;

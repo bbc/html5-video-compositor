@@ -13,7 +13,7 @@
 
 
 
-            var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true });
+            var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, alpha:true });
             var webGLWidth = 300;
             var webGLHeight = 160;
             renderer.setSize(webGLWidth, webGLHeight);
@@ -29,11 +29,13 @@
             // the segmentsWidth, and the third argument is the segmentsHeight.  Increasing the 
             // segmentsWidth and segmentsHeight will yield a more perfect circle, but will degrade
             // rendering performance
-            var sphere = new THREE.Mesh(new THREE.SphereGeometry(150, 100, 100), new THREE.MeshNormalMaterial());
+            var sphere = new THREE.Mesh(new THREE.SphereGeometry(200, 100, 100), new THREE.MeshNormalMaterial());
             sphere.overdraw = true;
             scene.add(sphere);
+            console.log(sphere);
             function webglRender(time){
-                sphere.position.set( Math.sin(time/1000)*100, 0, 0 );
+                sphere.position.set( Math.sin(time/400)*100, 0, 0 );
+                sphere.scale = Math.sin(time/400)*2;
                 sphere.__dirtyPosition = true;
                 renderer.render(scene, camera);
                 requestAnimationFrame(webglRender);
@@ -60,10 +62,49 @@
 
             var playlist = {
                 "tracks":[
-                    [{type:"image", start:0, duration:6.5, src:"assets/plate.png", id:"5"},{type:"image", start:10, duration:3.5, src:"assets/plate.png", id:"6"}],
-                    [{type:"video", sourceStart:0, start:0, duration:5, src:"assets/video1.mp4", id:"1"},                 {type:"video", sourceStart:10, start:7.5,src:"assets/video1.mp4", duration:5, id:"3"}],
-                    [                                 {type:"image", start:2.5, duration:5, src:"assets/image.jpg", id:"2"},                                {type:"canvas", start:10, duration:5, element:renderer.domElement, id:"4"}]
-                ]
+                    [{type:"video", start:0, duration:230, src:"assets/wtf_greenscreen_fast.mp4", id:"5"}],
+                    [                                                                                                                     {type:"image", start:10, duration:3.5, src:"assets/plate.png", id:"6"}],
+                    [                                 {type:"image", start:2.5, duration:5, src:"assets/image.jpg", id:"2"}],
+                    [{type:"video", sourceStart:0, start:0, duration:5, src:"assets/video1.mp4", id:"1"},                 {type:"video", sourceStart:10, start:7.5,src:"assets/video1.mp4", duration:7.5, id:"3"}]
+
+                ],
+                "effects":{
+                    "8bit-filter":{
+                        "inputs":["2","3"],
+                        "effect":VideoCompositor.Effects.BITCRUNCH
+                    },
+                    "mono-filter":{
+                        "inputs":["6"],
+                        "effect":VideoCompositor.Effects.MONOCHROME
+                    },
+                    "monochrome-filter":{
+                        "inputs":["1"],
+                        "effect":VideoCompositor.Effects.SEPIA
+                    },
+                    "greenscreen-filter":{
+                        "inputs":["5"],
+                        "effect":VideoCompositor.Effects.GREENSCREEN
+                    }
+                },
+                "transitions":{
+                    "xfade-1":{
+                        "inputs":["1","2"],
+                        "effect":{
+                            "id":"crossfade-filter",
+                            "inputNumber":2,
+                            "fragmentShader":"\
+                                precision mediump float;\
+                                uniform sampler2D u_image;\
+                                varying vec2 v_texCoord;\
+                                void main(){\
+                                    vec4 pixel = texture2D(u_image, v_texCoord);\
+                                    pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
+                                    pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
+                                    gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
+                                }"
+                        }
+                    }
+                }
             };
 
             /*var playlist = {
@@ -91,13 +132,28 @@
             */
             var playButton = document.getElementById("play-button");
             var pauseButton = document.getElementById("pause-button");
+            var mst3000Button = document.getElementById("mst3000-button");
             playButton.onclick = function(){
                 videoCompositor.play();
             };
             pauseButton.onclick = function(){
                 videoCompositor.pause();
             };
-            
+            mst3000Button.onclick = function(){
+                var mst3000Track = [];
+                playlist.tracks.unshift([{type:"image", start:0, duration:15, src:"assets/mst3000.png", id:"7"}]);
+            };
+
+
+
+            /*
+            Test stuff
+            */
+            var testCanvas = document.getElementById("test-canvas");
+            testCanvas.width = 680;
+            testCanvas.height = 320;
+            var testCtx = testCanvas.getContext("2d");
+
 
 
             /*
@@ -110,6 +166,8 @@
             function render () {
                 VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
                 requestAnimationFrame(render);
+                testCtx.drawImage(canvas,0,0);
+
             }
             requestAnimationFrame(render);
             //catch mouse events to we can scrub through the timeline.
@@ -132,14 +190,18 @@
 
 
 
+
+
         };
     </script>
     <canvas id="player-canvas"></canvas>
+    <canvas id="test-canvas"></canvas>
     <br>
     <canvas id="visualisation-canvas"></canvas>
     <br>
     <button id="play-button">Play</button>
     <button id="pause-button">Pause</button>
+    <button id="mst3000-button">More MST3000</button>
     <br>
 
 </body>
