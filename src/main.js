@@ -1,7 +1,7 @@
 import VideoSource from "./sources/videosource.js";
 import ImageSource from "./sources/imagesource.js";
 import CanvasSource from "./sources/canvassource.js";
-
+import {combinations} from "./combinations.js";
 
 let updateables = [];
 let previousTime = undefined;
@@ -227,6 +227,16 @@ class VideoCompositor {
         }
     }
 
+
+    _calculateTransitions(currentlyPlaying, currentTime){
+        //console.log(currentlyPlaying);
+        
+        var maxInputs = currentlyPlaying.length;
+        //console.log(combinations);
+        //console.log(combinations(currentlyPlaying));
+    }
+
+
     update(dt){
         if (this._playlist === undefined || this._playing === false) return;
 
@@ -286,7 +296,7 @@ class VideoCompositor {
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
 
-
+        this._calculateTransitions(currentlyPlaying, this._currentTime);
 
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;

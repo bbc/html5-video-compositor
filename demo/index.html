@@ -6,6 +6,7 @@
 <body>
     <script type="text/javascript" src="../dist/videocompositor.js"></script>
     <script type="text/javascript" src="./lib/three.min.js"></script>
+    <script src="http://www.webglearth.com/v2/api.js"></script>
     <script type="text/javascript">
         window.onload = function () {
 
@@ -13,36 +14,30 @@
 
 
 
-            var renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true, alpha:true });
-            var webGLWidth = 300;
-            var webGLHeight = 160;
-            renderer.setSize(webGLWidth, webGLHeight);
 
-            document.body.appendChild(renderer.domElement);
-            // camera
-            var camera = new THREE.PerspectiveCamera(45, webGLWidth / webGLHeight, 1, 1000);
-            camera.position.z = 500;
-            // scene
-            var scene = new THREE.Scene();
-            // sphere
-            // the first argument of THREE.SphereGeometry is the radius, the second argument is
-            // the segmentsWidth, and the third argument is the segmentsHeight.  Increasing the 
-            // segmentsWidth and segmentsHeight will yield a more perfect circle, but will degrade
-            // rendering performance
-            var sphere = new THREE.Mesh(new THREE.SphereGeometry(200, 100, 100), new THREE.MeshNormalMaterial());
-            sphere.overdraw = true;
-            scene.add(sphere);
-            console.log(sphere);
-            function webglRender(time){
-                sphere.position.set( Math.sin(time/400)*100, 0, 0 );
-                sphere.scale = Math.sin(time/400)*2;
-                sphere.__dirtyPosition = true;
-                renderer.render(scene, camera);
-                requestAnimationFrame(webglRender);
-            }
-            requestAnimationFrame(webglRender);
 
-            console.log(renderer);
+
+
+            var options = {atmosphere: true, center: [0, 0], zoom: 0};
+            var earthDiv = document.getElementById("earth_div");
+            var earth = new WE.map('earth_div', options);
+            earth.setZoom(5.4);
+            WE.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
+                subdomains: '1234',
+                attribution: 'Tiles Courtesy of MapQuest'
+            }).addTo(earth);
+            earth.canvas.width = 680;
+            earth.canvas.height = 320;
+            earthDiv.removeChild(earth.canvas);
+            var prevEarthTime = null;
+            requestAnimationFrame(function spinEarth(earthTime){
+                var pos = earth.getPosition();
+                var elapsed =0.001;
+                if (prevEarthTime) elapsed =  earthTime - prevEarthTime;
+                prevEarthTime = earthTime;
+                earth.setCenter([pos[0],pos[1]+0.1*(elapsed/30)]);
+                requestAnimationFrame(spinEarth);
+            });
 
 
 
@@ -62,27 +57,14 @@
 
             var playlist = {
                 "tracks":[
-                    [{type:"video", start:0, duration:230, src:"assets/wtf_greenscreen_fast.mp4", id:"5"}],
-                    [                                                                                                                     {type:"image", start:10, duration:3.5, src:"assets/plate.png", id:"6"}],
-                    [                                 {type:"image", start:2.5, duration:5, src:"assets/image.jpg", id:"2"}],
-                    [{type:"video", sourceStart:0, start:0, duration:5, src:"assets/video1.mp4", id:"1"},                 {type:"video", sourceStart:10, start:7.5,src:"assets/video1.mp4", duration:7.5, id:"3"}]
+                    [{type:"video", start:0, duration:15, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video"}],
+                    [{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
+                    [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}]
 
                 ],
                 "effects":{
-                    "8bit-filter":{
-                        "inputs":["2","3"],
-                        "effect":VideoCompositor.Effects.BITCRUNCH
-                    },
-                    "mono-filter":{
-                        "inputs":["6"],
-                        "effect":VideoCompositor.Effects.MONOCHROME
-                    },
-                    "monochrome-filter":{
-                        "inputs":["1"],
-                        "effect":VideoCompositor.Effects.SEPIA
-                    },
                     "greenscreen-filter":{
-                        "inputs":["5"],
+                        "inputs":["greenscreen video"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     }
                 },
@@ -117,7 +99,7 @@
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             videoCompositor.playlist = playlist;
-            videoCompositor.play();
+            //videoCompositor.play();
 
             videoCompositor.addEventListener("seek", function(data){
                 console.log("Current Time",data);
@@ -145,17 +127,6 @@
             };
 
 
-
-            /*
-            Test stuff
-            */
-            var testCanvas = document.getElementById("test-canvas");
-            testCanvas.width = 680;
-            testCanvas.height = 320;
-            var testCtx = testCanvas.getContext("2d");
-
-
-
             /*
             * Create an interactive visualisation canvas.
             */
@@ -166,8 +137,6 @@
             function render () {
                 VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
                 requestAnimationFrame(render);
-                testCtx.drawImage(canvas,0,0);
-
             }
             requestAnimationFrame(render);
             //catch mouse events to we can scrub through the timeline.
@@ -195,7 +164,6 @@
         };
     </script>
     <canvas id="player-canvas"></canvas>
-    <canvas id="test-canvas"></canvas>
     <br>
     <canvas id="visualisation-canvas"></canvas>
     <br>
@@ -203,6 +171,7 @@
     <button id="pause-button">Pause</button>
     <button id="mst3000-button">More MST3000</button>
     <br>
+    <div id="earth_div"></div>
 
 </body>
 </html>
