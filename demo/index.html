@@ -40,9 +40,28 @@
             });
 
 
+            function MediaSourceListener(){
+                this.play = function() {
+                    console.log("Listened Play");
+                };
+                this.pause = function() {
+                    console.log("Listened Pause");
+                };
+                this.seek = function(time) {
+                    console.log("Listened Seek", time);
+                };
+                this.load = function() {
+                    console.log("Listened Load");
+                };
+                this.destroy = function(){
+                    console.log("Listened Destroy");
+                };
+                this.render = function() {
 
+                };
+            };
 
-
+            var testListener = new MediaSourceListener();
 
 
 
@@ -88,6 +107,8 @@
                     }
                 }
             };
+
+            videoCompositor.registerMediaSourceListener("earth", testListener);
 
             /*var playlist = {
                 "tracks":[
