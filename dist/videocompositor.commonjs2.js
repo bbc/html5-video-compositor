@@ -105,6 +105,7 @@ module.exports =
 	        this._eventMappings = new Map();
 	        this._effectShaderPrograms = new Map();
 	        this._transitionShaderPrograms = new Map();
+	        this._mediaSourceListeners = new Map();
 
 	        //Setup the default shader effect
 	        var defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
@@ -126,7 +127,7 @@ module.exports =
 	        key: "pause",
 	        value: function pause() {
 	            this._playing = false;
-	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
+	            this._mediaSources.forEach(function (mediaSource) {
 	                mediaSource.pause();
 	            });
 	            var pauseEvent = new CustomEvent("pause", { detail: { data: this._currentTime, instance: this } });
@@ -143,6 +144,15 @@ module.exports =
 	                this._eventMappings.set(type, [func]);
 	            }
 	            this._canvas.addEventListener(type, this._dispatchEvents, false);
+	        }
+	    }, {
+	        key: "registerMediaSourceListener",
+	        value: function registerMediaSourceListener(mediaSourceID, mediaSourceListener) {
+	            if (this._mediaSourceListeners.has(mediaSourceID)) {
+	                this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);
+	            } else {
+	                this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
+	            }
 	        }
 	    }, {
 	        key: "_dispatchEvents",
@@ -178,7 +188,7 @@ module.exports =
 	                        toPlay.push(segment);
 	                        continue;
 	                    }
-	                };
+	                }
 	            }
 
 	            return [toPlay, currentlyPlaying, finishedPlaying];
@@ -244,24 +254,31 @@ module.exports =
 	    }, {
 	        key: "_loadMediaSource",
 	        value: function _loadMediaSource(mediaSourceReference, onReadyCallback) {
-	            if (onReadyCallback === undefined) onReadyCallback = function (mediaSource) {};
+	            if (onReadyCallback === undefined) onReadyCallback = function () {};
+	            var mediaSourceListeners = [];
+	            if (this._mediaSourceListeners.has(mediaSourceReference.id)) {
+	                mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);
+	            }
 
 	            switch (mediaSourceReference.type) {
 	                case "video":
 	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference, this._ctx);
 	                    video.onready = onReadyCallback;
+	                    video.mediaSourceListeners = mediaSourceListeners;
 	                    video.load();
 	                    this._mediaSources.set(mediaSourceReference.id, video);
 	                    break;
 	                case "image":
 	                    var image = new _sourcesImagesourceJs2["default"](mediaSourceReference, this._ctx);
 	                    image.onready = onReadyCallback;
+	                    image.mediaSourceListeners = mediaSourceListeners;
 	                    image.load();
 	                    this._mediaSources.set(mediaSourceReference.id, image);
 	                    break;
 	                case "canvas":
 	                    var canvas = new _sourcesCanvassourceJs2["default"](mediaSourceReference, this._ctx);
 	                    canvas.onready = onReadyCallback;
+	                    canvas.mediaSourceListeners = mediaSourceListeners;
 	                    canvas.load();
 	                    this._mediaSources.set(mediaSourceReference.id, canvas);
 	                    break;
@@ -269,7 +286,6 @@ module.exports =
 	                    throw { "error": 5, "msg": "mediaSourceReference " + mediaSourceReference.id + " has unrecognized type " + mediaSourceReference.type, toString: function toString() {
 	                            return this.msg;
 	                        } };
-	                    break;
 	            }
 	        }
 	    }, {
@@ -311,7 +327,7 @@ module.exports =
 	                if (this._mediaSources.has(toPlay[i].id) === false) {
 	                    this._loadMediaSource(toPlay[i]);
 	                }
-	            };
+	            }
 
 	            //Clean-up any mediaSources which have already been played
 	            for (var i = 0; i < finishedPlaying.length; i++) {
@@ -321,7 +337,7 @@ module.exports =
 	                    mediaSource.destroy();
 	                    this._mediaSources["delete"](mediaSourceReference.id);
 	                }
-	            };
+	            }
 
 	            //Make sure all mediaSources are ready to play
 	            var ready = true;
@@ -342,8 +358,6 @@ module.exports =
 	            }
 
 	            //Play mediaSources on the currently playing queue.
-	            var w = this._canvas.width;
-	            var h = this._canvas.height;
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
 	            this._calculateTransitions(currentlyPlaying, this._currentTime);
@@ -356,7 +370,7 @@ module.exports =
 	                var effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
 	                mediaSource.render(effectShaderProgram);
 	                //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
-	            };
+	            }
 	            this._currentTime += dt;
 	        }
 	    }, {
@@ -376,7 +390,7 @@ module.exports =
 	            var finishedPlaying = _getPlaylistPlayingStatusAtTime32[2];
 
 	            //clean-up any currently playing mediaSources
-	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
+	            this._mediaSources.forEach(function (mediaSource) {
 	                mediaSource.destroy();
 	            });
 	            this._mediaSources.clear();
@@ -387,7 +401,6 @@ module.exports =
 	                //If the media source isn't loaded then we start loading it.
 	                if (this._mediaSources.has(mediaSourceID) === false) {
 
-	                    var _this = this;
 	                    this._loadMediaSource(currentlyPlaying[i], function (mediaSource) {
 	                        //let mediaSource = _this._mediaSources.get(mediaSourceID);
 	                        mediaSource.seek(currentTime);
@@ -396,7 +409,7 @@ module.exports =
 	                    //If the mediaSource is loaded then we seek to the proper bit
 	                    this._mediaSources.get(mediaSourceID).seek(currentTime);
 	                }
-	            };
+	            }
 
 	            this._currentTime = currentTime;
 	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
@@ -412,7 +425,7 @@ module.exports =
 	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
 	            this._playlist = playlist;
 	            //clean-up any currently playing mediaSources
-	            this._mediaSources.forEach(function (mediaSource, id, mediaSources) {
+	            this._mediaSources.forEach(function (mediaSource) {
 	                mediaSource.destroy();
 	            });
 	            this._mediaSources.clear();
@@ -426,7 +439,7 @@ module.exports =
 	                if (playheadPosition > maxPlayheadPosition) {
 	                    maxPlayheadPosition = playheadPosition;
 	                }
-	            };
+	            }
 	            return maxPlayheadPosition;
 	        }
 	    }, {
@@ -489,7 +502,7 @@ module.exports =
 	                    if (MediaSourceReference.type === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " is missing a type property", toString: function toString() {
 	                            return this.msg;
 	                        } };
-	                    if (MediaSourceReference.src != undefined && MediaSourceReference.element != undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has both a src and element, it must have one or the other", toString: function toString() {
+	                    if (MediaSourceReference.src !== undefined && MediaSourceReference.element !== undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has both a src and element, it must have one or the other", toString: function toString() {
 	                            return this.msg;
 	                        } };
 	                    if (MediaSourceReference.src === undefined && MediaSourceReference.element === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has neither a src or an element, it must have one or the other", toString: function toString() {
@@ -547,7 +560,6 @@ module.exports =
 
 	            var program = VideoCompositor.createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
 	            return program;
-	            gl.useProgram(program);
 	        }
 	    }, {
 	        key: "createShaderProgram",
@@ -561,7 +573,7 @@ module.exports =
 	            gl.linkProgram(program);
 
 	            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	                throw { "error": 4, "msg": "Can't link shader program for track " + trackIndex, toString: function toString() {
+	                throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
 	                        return this.msg;
 	                    } };
 	            }
@@ -607,8 +619,8 @@ module.exports =
 	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type];
 	                    ctx.fillRect(msX, msY, msW, msH);
 	                    ctx.fill();
-	                };
-	            };
+	                }
+	            }
 
 	            if (currentTime !== undefined) {
 	                ctx.fillStyle = "#000";
@@ -678,8 +690,12 @@ module.exports =
 
 	        _get(Object.getPrototypeOf(VideoSource.prototype), "constructor", this).call(this, properties, gl);
 	        this.sourceStart = 0;
+	        this._volume = 1.0;
 	        if (properties.sourceStart !== undefined) {
 	            this.sourceStart = properties.sourceStart;
+	        }
+	        if (properties.volume !== undefined) {
+	            this._volume = properties.volume;
 	        }
 	    }
 
@@ -724,6 +740,7 @@ module.exports =
 	            this.element = document.createElement("video");
 	            //construct a fragement URL to cut the required segment from the source video
 	            this.element.src = this.src;
+	            this.element.volume = this._volume;
 	            this.element.preload = "auto";
 	            this.element.load();
 	            var _this = this;
@@ -783,9 +800,10 @@ module.exports =
 	        this.start = properties.start;
 	        this.playing = false;
 	        this.ready = false;
-	        this.element;
-	        this.src;
-	        this.texture;
+	        this.element = undefined;
+	        this.src = undefined;
+	        this.texture = undefined;
+	        this.mediaSourceListeners = [];
 
 	        this.disposeOfElementOnDestroy = false;
 
@@ -833,16 +851,27 @@ module.exports =
 	        value: function play() {
 	            //console.log("Playing", this.id);
 	            this.playing = true;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].play();
+	            }
 	        }
 	    }, {
 	        key: "pause",
 	        value: function pause() {
 	            console.log("Pausing", this.id);
 	            this.playing = false;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].pause();
+	            }
 	        }
 	    }, {
 	        key: "seek",
-	        value: function seek(seekTime) {}
+	        value: function seek(seekTime) {
+	            //this.currentTime = seekTime;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].seek(seekTime);
+	            }
+	        }
 	    }, {
 	        key: "isReady",
 	        value: function isReady() {
@@ -852,6 +881,9 @@ module.exports =
 	        key: "load",
 	        value: function load() {
 	            console.log("Loading", this.id);
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].load();
+	            }
 	            if (this.element !== undefined) {
 	                return true;
 	            }
@@ -861,6 +893,9 @@ module.exports =
 	        key: "destroy",
 	        value: function destroy() {
 	            console.log("Destroying", this.id);
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].destroy();
+	            }
 	            if (this.disposeOfElementOnDestroy) {
 	                delete this.element;
 	            }
@@ -869,6 +904,9 @@ module.exports =
 	        key: "render",
 	        value: function render(program) {
 	            //renders the media source to the WebGL context using the pased program
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                this.mediaSourceListeners[i].render();
+	            }
 	            this.gl.useProgram(program);
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
@@ -884,8 +922,6 @@ module.exports =
 
 	exports["default"] = MediaSource;
 	module.exports = exports["default"];
-
-	//this.currentTime = seekTime;
 
 /***/ },
 /* 3 */

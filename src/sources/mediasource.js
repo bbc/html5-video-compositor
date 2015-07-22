@@ -7,9 +7,10 @@ class MediaSource {
         this.start = properties.start;
         this.playing = false;
         this.ready = false;
-        this.element;
-        this.src;
-        this.texture;
+        this.element = undefined;
+        this.src = undefined;
+        this.texture = undefined;
+        this.mediaSourceListeners = [];
 
         this.disposeOfElementOnDestroy = false;
 
@@ -66,19 +67,31 @@ class MediaSource {
     play(){
         //console.log("Playing", this.id);
         this.playing = true;
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].play();
+        }
     }
     pause(){
         console.log("Pausing", this.id);
         this.playing = false;
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].pause();
+        }
     }
     seek(seekTime){
         //this.currentTime = seekTime;
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].seek(seekTime);
+        }
     }
     isReady(){
         return this.ready;
     }
     load(){
         console.log("Loading", this.id);
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].load();
+        }
         if (this.element !== undefined) {
             return true;
         }
@@ -86,12 +99,18 @@ class MediaSource {
     }
     destroy(){
         console.log("Destroying", this.id);
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].destroy();
+        }
         if (this.disposeOfElementOnDestroy){
             delete this.element;  
         }
     }
     render(program){
         //renders the media source to the WebGL context using the pased program
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            this.mediaSourceListeners[i].render();
+        }
         this.gl.useProgram(program);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);

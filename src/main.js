@@ -4,7 +4,7 @@ import CanvasSource from "./sources/canvassource.js";
 import {combinations} from "./combinations.js";
 
 let updateables = [];
-let previousTime = undefined;
+let previousTime;
 let mediaSourceMapping = new Map();
 mediaSourceMapping.set("video",VideoSource).set("image",ImageSource).set("canvas",CanvasSource);
 
@@ -35,6 +35,7 @@ class VideoCompositor {
         this._eventMappings = new Map();
         this._effectShaderPrograms = new Map();
         this._transitionShaderPrograms = new Map();
+        this._mediaSourceListeners = new Map();
 
         //Setup the default shader effect
         let defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
@@ -53,7 +54,7 @@ class VideoCompositor {
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
 
         //clean-up any currently playing mediaSources
-        this._mediaSources.forEach(function(mediaSource, id, mediaSources){
+        this._mediaSources.forEach(function(mediaSource){
             mediaSource.destroy();
         });
         this._mediaSources.clear();
@@ -64,7 +65,6 @@ class VideoCompositor {
             //If the media source isn't loaded then we start loading it.
             if (this._mediaSources.has(mediaSourceID) === false){
                 
-                var _this = this;
                 this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
                     //let mediaSource = _this._mediaSources.get(mediaSourceID);
                     mediaSource.seek(currentTime);
@@ -77,7 +77,7 @@ class VideoCompositor {
                 this._mediaSources.get(mediaSourceID).seek(currentTime);
             }
 
-        };
+        }
 
         this._currentTime = currentTime;
         let seekEvent = new CustomEvent('seek', {detail:{data:currentTime, instance:this}});
@@ -93,7 +93,7 @@ class VideoCompositor {
         this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
         this._playlist = playlist;
         //clean-up any currently playing mediaSources
-        this._mediaSources.forEach(function(mediaSource, id, mediaSources){
+        this._mediaSources.forEach(function(mediaSource){
             mediaSource.destroy();
         });
         this._mediaSources.clear();
@@ -107,7 +107,7 @@ class VideoCompositor {
 
     pause() {
         this._playing = false;
-        this._mediaSources.forEach(function(mediaSource, id, mediaSources){
+        this._mediaSources.forEach(function(mediaSource){
             mediaSource.pause();
         });
         let pauseEvent = new CustomEvent('pause', {detail:{data:this._currentTime, instance:this}});
@@ -123,6 +123,14 @@ class VideoCompositor {
             this._eventMappings.set(type, [func]);
         }
         this._canvas.addEventListener(type, this._dispatchEvents, false);
+    }
+
+    registerMediaSourceListener(mediaSourceID, mediaSourceListener){
+        if (this._mediaSourceListeners.has(mediaSourceID)){
+            this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);
+        }else{
+            this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
+        }
     }
 
     _dispatchEvents(evt){
@@ -156,7 +164,7 @@ class VideoCompositor {
                     toPlay.push(segment);
                     continue;
                 }
-            };
+            }
         }
 
         return [toPlay, currentlyPlaying, finishedPlaying];
@@ -172,7 +180,7 @@ class VideoCompositor {
 
     _getEffectShaderProgramForMediaSource(mediaSourceID){
         let effects = this._playlist.effects;
-        let defaultEffectShader = this._effectShaderPrograms.get("default")
+        let defaultEffectShader = this._effectShaderPrograms.get("default");
 
         if (effects === undefined){
             //No effects defined so just use default shader
@@ -200,30 +208,37 @@ class VideoCompositor {
     }
 
     _loadMediaSource(mediaSourceReference, onReadyCallback){
-        if (onReadyCallback === undefined) onReadyCallback = function(mediaSource){};
+        if (onReadyCallback === undefined) onReadyCallback = function(){};
+        let mediaSourceListeners = [];
+        if (this._mediaSourceListeners.has(mediaSourceReference.id)){
+            mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);
+        }
+
 
         switch (mediaSourceReference.type){
             case "video":
                 let video = new VideoSource(mediaSourceReference, this._ctx);
                 video.onready = onReadyCallback;
+                video.mediaSourceListeners = mediaSourceListeners;
                 video.load();
                 this._mediaSources.set(mediaSourceReference.id, video);
                 break;
             case "image":
                 let image = new ImageSource(mediaSourceReference, this._ctx);
                 image.onready = onReadyCallback;
+                image.mediaSourceListeners = mediaSourceListeners;
                 image.load();
                 this._mediaSources.set(mediaSourceReference.id, image);
                 break;
             case "canvas":
                 let canvas = new CanvasSource(mediaSourceReference, this._ctx);
                 canvas.onready = onReadyCallback;
+                canvas.mediaSourceListeners = mediaSourceListeners;
                 canvas.load();
                 this._mediaSources.set(mediaSourceReference.id, canvas);
                 break;
             default:
                 throw {"error":5,"msg":"mediaSourceReference "+mediaSourceReference.id+" has unrecognized type "+mediaSourceReference.type, toString:function(){return this.msg;}};
-                break;
         }
     }
 
@@ -231,7 +246,7 @@ class VideoCompositor {
     _calculateTransitions(currentlyPlaying, currentTime){
         //console.log(currentlyPlaying);
         
-        var maxInputs = currentlyPlaying.length;
+        let maxInputs = currentlyPlaying.length;
         //console.log(combinations);
         //console.log(combinations(currentlyPlaying));
     }
@@ -259,7 +274,7 @@ class VideoCompositor {
             if (this._mediaSources.has(toPlay[i].id) === false){
                 this._loadMediaSource(toPlay[i]);
             }
-        };
+        }
 
         //Clean-up any mediaSources which have already been played
         for (let i = 0; i < finishedPlaying.length; i++) {
@@ -269,7 +284,7 @@ class VideoCompositor {
                 mediaSource.destroy();
                 this._mediaSources.delete(mediaSourceReference.id);
             }
-        };
+        }
 
         //Make sure all mediaSources are ready to play
         let ready = true;
@@ -291,8 +306,6 @@ class VideoCompositor {
 
 
         //Play mediaSources on the currently playing queue.
-        let w = this._canvas.width;
-        let h = this._canvas.height;
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
 
@@ -303,10 +316,10 @@ class VideoCompositor {
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
 
-            var effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
+            let effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
             mediaSource.render(effectShaderProgram);
             //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
-        };
+        }
         this._currentTime += dt;
     }
 
@@ -319,7 +332,7 @@ class VideoCompositor {
             if (playheadPosition > maxPlayheadPosition){
                 maxPlayheadPosition = playheadPosition;
             }
-        };
+        }
         return maxPlayheadPosition;
     }
 
@@ -351,7 +364,7 @@ class VideoCompositor {
         //Error 1. MediaSourceReferences have a unique ID
         let IDs = new Map();
         for (let i = 0; i < playlist.tracks.length; i++) {
-            let track = playlist.tracks[i]
+            let track = playlist.tracks[i];
             for (let j = 0; j < track.length; j++) {
                 let MediaSourceReference = track[j];
                 if (IDs.has(MediaSourceReference.id)){
@@ -365,14 +378,14 @@ class VideoCompositor {
 
         //Error 2. The playlist MediaSourceReferences have all the expected properties.
         for (let i = 0; i < playlist.tracks.length; i++) {
-            let track = playlist.tracks[i]
+            let track = playlist.tracks[i];
             for (let j = 0; j < track.length; j++) {
                 let MediaSourceReference = track[j];
                 if (MediaSourceReference.id === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a id property", toString:function(){return this.msg;}};
                 if (MediaSourceReference.start === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a start property", toString:function(){return this.msg;}};
                 if (MediaSourceReference.duration === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a duration property", toString:function(){return this.msg;}};
                 if (MediaSourceReference.type === undefined) throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" is missing a type property", toString:function(){return this.msg;}};
-                if (MediaSourceReference.src != undefined && MediaSourceReference.element != undefined)throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has both a src and element, it must have one or the other", toString:function(){return this.msg;}};
+                if (MediaSourceReference.src !== undefined && MediaSourceReference.element !== undefined)throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has both a src and element, it must have one or the other", toString:function(){return this.msg;}};
                 if (MediaSourceReference.src === undefined && MediaSourceReference.element === undefined)throw {"error":2,"msg":"MediaSourceReference "+MediaSourceReference.id+" in track " +i+" has neither a src or an element, it must have one or the other", toString:function(){return this.msg;}};                
             }
         }
@@ -380,7 +393,7 @@ class VideoCompositor {
 
         // Error 3. MediaSourceReferences in single track are sequential.
         for (let i = 0; i < playlist.tracks.length; i++) {
-            let track = playlist.tracks[i]
+            let track = playlist.tracks[i];
             let time = 0;
             for (let j = 0; j < track.length; j++) {
                 let MediaSourceReference = track[j];
@@ -394,8 +407,8 @@ class VideoCompositor {
 
         //Error 4. MediaSourceReferences in single track don't overlap
         for (let i = 0; i < playlist.tracks.length; i++) {
-            let track = playlist.tracks[i]
-            let previousMediaSourceReference = undefined;
+            let track = playlist.tracks[i];
+            let previousMediaSourceReference;
             for (let j = 0; j < track.length; j++) {
                 let MediaSourceReference = track[j];
                 if (previousMediaSourceReference === undefined){
@@ -442,7 +455,6 @@ class VideoCompositor {
         
         let program = VideoCompositor.createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
         return program;
-        gl.useProgram(program);
     }
 
 
@@ -456,17 +468,17 @@ class VideoCompositor {
         gl.linkProgram(program);
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
-            throw {"error":4,"msg":"Can't link shader program for track "+trackIndex, toString:function(){return this.msg;}};
+            throw {"error":4,"msg":"Can't link shader program for track", toString:function(){return this.msg;}};
         }
         return program;
     }
 
 
     static compileShader(gl, shaderSource, shaderType) {
-        var shader = gl.createShader(shaderType);
+        let shader = gl.createShader(shaderType);
         gl.shaderSource(shader, shaderSource);
         gl.compileShader(shader);
-        var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+        let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
         if (!success) {
             throw "could not compile shader:" + gl.getShaderInfoLog(shader);
         }
@@ -484,8 +496,8 @@ class VideoCompositor {
         let mediaSourceStyle = {
             "video":"#a5a",
             "image":"#5aa",
-            "canvas":"#aa5",
-        }
+            "canvas":"#aa5"
+        };
 
 
         ctx.clearRect(0,0,w,h);
@@ -501,8 +513,8 @@ class VideoCompositor {
                 ctx.fillStyle = mediaSourceStyle[mediaSource.type];
                 ctx.fillRect(msX,msY,msW,msH);
                 ctx.fill();
-            };
-        };
+            }
+        }
 
         if (currentTime !== undefined){
             ctx.fillStyle = "#000";

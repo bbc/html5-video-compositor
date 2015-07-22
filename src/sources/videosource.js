@@ -4,8 +4,12 @@ class VideoSource extends MediaSource{
     constructor(properties, gl){
         super(properties, gl);
         this.sourceStart = 0;
+        this._volume = 1.0;
         if (properties.sourceStart !== undefined){
             this.sourceStart = properties.sourceStart;
+        }
+        if (properties.volume !== undefined){
+            this._volume = properties.volume;
         }
     }
     play(){
@@ -39,6 +43,7 @@ class VideoSource extends MediaSource{
         this.element = document.createElement('video');            
         //construct a fragement URL to cut the required segment from the source video
         this.element.src = this.src;
+        this.element.volume = this._volume;
         this.element.preload = "auto";
         this.element.load();
         let _this = this;
