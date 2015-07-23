@@ -66,7 +66,7 @@
             canvas.width = 680;
             canvas.height = 320;
 
-            var videoCompositor = new VideoCompositolocalor(canvas);
+            var videoCompositor = new VideoCompositor(canvas);
 
             var playlist = {
                 "tracks":[
@@ -81,7 +81,7 @@
                 ],
                 "effects":{
                     "greenscreen-filter":{
-                        "inputs":["greenscreen video", "greenscreen video2"],
+                        "inputs":["greenscreen video", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     }
                 },

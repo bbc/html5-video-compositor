@@ -68,29 +68,29 @@ class MediaSource {
         //console.log("Playing", this.id);
         this.playing = true;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].play();
+            if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play();
         }
     }
     pause(){
-        console.log("Pausing", this.id);
+        console.debug("Pausing", this.id);
         this.playing = false;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].pause();
+            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause();
         }
     }
     seek(seekTime){
         //this.currentTime = seekTime;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].seek(seekTime);
+            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(seekTime);
         }
     }
     isReady(){
         return this.ready;
     }
     load(){
-        console.log("Loading", this.id);
+        console.debug("Loading", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].load();
+            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load();
         }
         if (this.element !== undefined) {
             return true;
@@ -98,9 +98,9 @@ class MediaSource {
         return false;
     }
     destroy(){
-        console.log("Destroying", this.id);
+        console.debug("Destroying", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].destroy();
+            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy();
         }
         if (this.disposeOfElementOnDestroy){
             delete this.element;  
@@ -109,7 +109,7 @@ class MediaSource {
     render(program){
         //renders the media source to the WebGL context using the pased program
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            this.mediaSourceListeners[i].render();
+            if (typeof this.mediaSourceListeners[i].render === 'function') this.mediaSourceListeners[i].render();
         }
         this.gl.useProgram(program);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);

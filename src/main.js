@@ -1,7 +1,6 @@
 import VideoSource from "./sources/videosource.js";
 import ImageSource from "./sources/imagesource.js";
 import CanvasSource from "./sources/canvassource.js";
-import {combinations} from "./combinations.js";
 
 let updateables = [];
 let previousTime;
@@ -47,7 +46,7 @@ class VideoCompositor {
     }
 
     set currentTime(currentTime){
-        console.log("Seeking to", currentTime);
+        console.debug("Seeking to", currentTime);
         if (this._playlist === undefined){
             return;
         }
@@ -123,6 +122,18 @@ class VideoCompositor {
             this._eventMappings.set(type, [func]);
         }
         this._canvas.addEventListener(type, this._dispatchEvents, false);
+    }
+
+    removeEventListener(type, func){
+        if (this._eventMappings.has(type)){
+            let listenerArray = this._eventMappings.get(type);
+            let listenerIndex = listenerArray.indexOf(func);
+            if (listenerIndex !== -1){
+                listenerArray.splice(listenerIndex, 1);
+                return true;
+            }
+        }
+        return false;
     }
 
     registerMediaSourceListener(mediaSourceID, mediaSourceListener){

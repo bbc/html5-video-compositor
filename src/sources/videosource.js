@@ -38,7 +38,7 @@ class VideoSource extends MediaSource{
             this.ready = true;
             this.onready(this);
             return;
-        };
+        }
         //otherwise begin the loading process for this mediaSource
         this.element = document.createElement('video');            
         //construct a fragement URL to cut the required segment from the source video

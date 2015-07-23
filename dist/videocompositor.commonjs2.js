@@ -146,6 +146,19 @@ module.exports =
 	            this._canvas.addEventListener(type, this._dispatchEvents, false);
 	        }
 	    }, {
+	        key: "removeEventListener",
+	        value: function removeEventListener(type, func) {
+	            if (this._eventMappings.has(type)) {
+	                var listenerArray = this._eventMappings.get(type);
+	                var listenerIndex = listenerArray.indexOf(func);
+	                if (listenerIndex !== -1) {
+	                    listenerArray.splice(listenerIndex, 1);
+	                    return true;
+	                }
+	            }
+	            return false;
+	        }
+	    }, {
 	        key: "registerMediaSourceListener",
 	        value: function registerMediaSourceListener(mediaSourceID, mediaSourceListener) {
 	            if (this._mediaSourceListeners.has(mediaSourceID)) {
