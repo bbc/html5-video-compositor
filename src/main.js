@@ -27,7 +27,7 @@ update();
 class VideoCompositor {
     constructor(canvas){
         this._canvas = canvas;
-        this._ctx = this._canvas.getContext('webgl');
+        this._ctx = this._canvas.getContext('webgl', {preserveDrawingBuffer:true});
         this._playing = false;
         this._mediaSources = new Map();
         this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
