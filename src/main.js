@@ -262,6 +262,7 @@ class VideoCompositor {
 
     _calculateActiveTransitions(currentlyPlaying, currentTime){
         if (this._playlist === undefined || this._playing === false) return [];
+        if (this._playlist.transitions === undefined ) return [];
         
         //Get the currently playing ID's
         let currentlyPlayingIDs = [];

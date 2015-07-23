@@ -66,11 +66,15 @@
             canvas.width = 680;
             canvas.height = 320;
 
-            var videoCompositor = new VideoCompositor(canvas);
+            var videoCompositor = new VideoCompositolocalor(canvas);
 
             var playlist = {
                 "tracks":[
-                    [{type:"video", start:0, duration:5, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video", "volume":0.0}, {type:"video", start:7, sourceStart:27, duration:5, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":0.0}],
+                    [
+                        {type:"video", start:0, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video", "volume":0.0}, 
+                        {type:"video", start:6, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":0.0},
+                        {type:"video", start:11, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":0.0}
+                        ],
                     [{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
                     [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}]
 
