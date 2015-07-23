@@ -242,13 +242,68 @@ class VideoCompositor {
         }
     }
 
+    _calculateMediaSourcesOverlap(mediaSources){
+        let maxStart = 0.0;
+        let minEnd;
+        //calculate max start time
+        for (var i = 0; i < mediaSources.length; i++) {
+            let mediaSource = mediaSources[i];
+            if (mediaSource.start  > maxStart){
+                maxStart = mediaSource.start;
+            }
+            let end = (mediaSource.start + mediaSource.duration);
+            if (minEnd === undefined || end < minEnd){
+                minEnd = end;
+            }
+        }
+        return [maxStart, minEnd];
+    }
 
-    _calculateTransitions(currentlyPlaying, currentTime){
-        //console.log(currentlyPlaying);
+
+    _calculateActiveTransitions(currentlyPlaying, currentTime){
+        if (this._playlist === undefined || this._playing === false) return [];
         
-        let maxInputs = currentlyPlaying.length;
-        //console.log(combinations);
-        //console.log(combinations(currentlyPlaying));
+        //Get the currently playing ID's
+        let currentlyPlayingIDs = [];
+        for (let i = 0; i < currentlyPlaying.length; i++) {
+            currentlyPlayingIDs.push(currentlyPlaying[i].id);
+        }
+
+        let activeTransitions = [];
+
+        //Get the transitions whose video sources are currently playing
+
+
+        for (let transitionID of Object.keys(this._playlist.transitions)){
+            let transition = this._playlist.transitions[transitionID];
+            let areInputsCurrentlyPlaying = true;
+            for (let j = 0; j < transition.inputs.length; j++) {
+                let id = transition.inputs[j];
+                if (currentlyPlayingIDs.indexOf(id) === -1){
+                    areInputsCurrentlyPlaying = false;
+                    break;
+                }
+            }
+            if (areInputsCurrentlyPlaying){
+                let activeTransition = {transition:transition, transitionID:transitionID, mediaSources:[]};
+                
+                for(let j = 0; j < transition.inputs.length; j++){
+                    activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
+                }
+
+                activeTransitions.push(activeTransition);
+            }
+        }
+
+        //Calculate the progress through the transition
+        for (let i = 0; i < activeTransitions.length; i++) {
+            let mediaSources = activeTransitions[i].mediaSources;
+            let [overlapStart, overlapEnd] = this._calculateMediaSourcesOverlap(mediaSources);
+            let progress = ((currentTime - overlapStart)) / (overlapEnd - overlapStart);
+            activeTransitions[i].progress = progress;
+        }
+
+        return activeTransitions;
     }
 
 
@@ -309,7 +364,8 @@ class VideoCompositor {
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
 
-        this._calculateTransitions(currentlyPlaying, this._currentTime);
+        let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+        
 
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;

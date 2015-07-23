@@ -120,12 +120,13 @@ export function k_combinations(set, k) {
  *   combinations([1])
  *   -> [[1]]
  */
-export function combinations(set) {
+export function combinations(set, min) {
 	var k, i, combs, k_combs;
+	if (min === undefined) min = 1;
 	combs = [];
 	
 	// Calculate all non-empty k-combinations
-	for (k = 1; k <= set.length; k++) {
+	for (k = min; k <= set.length; k++) {
 		k_combs = k_combinations(set, k);
 		for (i = 0; i < k_combs.length; i++) {
 			combs.push(k_combs[i]);

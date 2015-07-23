@@ -67,6 +67,10 @@ class VideoSource extends MediaSource{
     }
     destroy(){
         this.element.pause();
+        if (this.disposeOfElementOnDestroy){
+            this.element.src = "";
+            this.element.removeAttribute("src");    
+        }
         super.destroy();
     }
 }

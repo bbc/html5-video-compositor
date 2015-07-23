@@ -97,7 +97,7 @@ module.exports =
 	        _classCallCheck(this, VideoCompositor);
 
 	        this._canvas = canvas;
-	        this._ctx = this._canvas.getContext("webgl");
+	        this._ctx = this._canvas.getContext("webgl", { preserveDrawingBuffer: true });
 	        this._playing = false;
 	        this._mediaSources = new Map();
 	        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
@@ -289,13 +289,96 @@ module.exports =
 	            }
 	        }
 	    }, {
-	        key: "_calculateTransitions",
-	        value: function _calculateTransitions(currentlyPlaying, currentTime) {
-	            //console.log(currentlyPlaying);
+	        key: "_calculateMediaSourcesOverlap",
+	        value: function _calculateMediaSourcesOverlap(mediaSources) {
+	            var maxStart = 0.0;
+	            var minEnd = undefined;
+	            //calculate max start time
+	            for (var i = 0; i < mediaSources.length; i++) {
+	                var mediaSource = mediaSources[i];
+	                if (mediaSource.start > maxStart) {
+	                    maxStart = mediaSource.start;
+	                }
+	                var end = mediaSource.start + mediaSource.duration;
+	                if (minEnd === undefined || end < minEnd) {
+	                    minEnd = end;
+	                }
+	            }
+	            return [maxStart, minEnd];
+	        }
+	    }, {
+	        key: "_calculateActiveTransitions",
+	        value: function _calculateActiveTransitions(currentlyPlaying, currentTime) {
+	            if (this._playlist === undefined || this._playing === false) return [];
 
-	            var maxInputs = currentlyPlaying.length;
-	            //console.log(combinations);
-	            //console.log(combinations(currentlyPlaying));
+	            //Get the currently playing ID's
+	            var currentlyPlayingIDs = [];
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                currentlyPlayingIDs.push(currentlyPlaying[i].id);
+	            }
+
+	            var activeTransitions = [];
+
+	            //Get the transitions whose video sources are currently playing
+
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
+
+	            try {
+	                for (var _iterator2 = Object.keys(this._playlist.transitions)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var transitionID = _step2.value;
+
+	                    var transition = this._playlist.transitions[transitionID];
+	                    var areInputsCurrentlyPlaying = true;
+	                    for (var j = 0; j < transition.inputs.length; j++) {
+	                        var id = transition.inputs[j];
+	                        if (currentlyPlayingIDs.indexOf(id) === -1) {
+	                            areInputsCurrentlyPlaying = false;
+	                            break;
+	                        }
+	                    }
+	                    if (areInputsCurrentlyPlaying) {
+	                        var activeTransition = { transition: transition, transitionID: transitionID, mediaSources: [] };
+
+	                        for (var j = 0; j < transition.inputs.length; j++) {
+	                            activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
+	                        }
+
+	                        activeTransitions.push(activeTransition);
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                        _iterator2["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
+	                    }
+	                }
+	            }
+
+	            //Calculate the progress through the transition
+	            for (var i = 0; i < activeTransitions.length; i++) {
+	                var mediaSources = activeTransitions[i].mediaSources;
+
+	                var _calculateMediaSourcesOverlap2 = this._calculateMediaSourcesOverlap(mediaSources);
+
+	                var _calculateMediaSourcesOverlap22 = _slicedToArray(_calculateMediaSourcesOverlap2, 2);
+
+	                var overlapStart = _calculateMediaSourcesOverlap22[0];
+	                var overlapEnd = _calculateMediaSourcesOverlap22[1];
+
+	                var progress = (currentTime - overlapStart) / (overlapEnd - overlapStart);
+	                activeTransitions[i].progress = progress;
+	            }
+
+	            return activeTransitions;
 	        }
 	    }, {
 	        key: "update",
@@ -360,7 +443,7 @@ module.exports =
 	            //Play mediaSources on the currently playing queue.
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
-	            this._calculateTransitions(currentlyPlaying, this._currentTime);
+	            var activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
 
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;
@@ -766,6 +849,10 @@ module.exports =
 	        key: "destroy",
 	        value: function destroy() {
 	            this.element.pause();
+	            if (this.disposeOfElementOnDestroy) {
+	                this.element.src = "";
+	                this.element.removeAttribute("src");
+	            }
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "destroy", this).call(this);
 	        }
 	    }]);
@@ -1223,12 +1310,13 @@ module.exports =
 	 *   -> [[1]]
 	 */
 
-	function combinations(set) {
+	function combinations(set, min) {
 	  var k, i, combs, k_combs;
+	  if (min === undefined) min = 1;
 	  combs = [];
 
 	  // Calculate all non-empty k-combinations
-	  for (k = 1; k <= set.length; k++) {
+	  for (k = min; k <= set.length; k++) {
 	    k_combs = k_combinations(set, k);
 	    for (i = 0; i < k_combs.length; i++) {
 	      combs.push(k_combs[i]);
