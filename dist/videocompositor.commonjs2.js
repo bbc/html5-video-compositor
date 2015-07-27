@@ -71,8 +71,6 @@ module.exports =
 
 	var _sourcesCanvassourceJs2 = _interopRequireDefault(_sourcesCanvassourceJs);
 
-	var _combinationsJs = __webpack_require__(5);
-
 	var updateables = [];
 	var previousTime = undefined;
 	var mediaSourceMapping = new Map();
@@ -473,7 +471,7 @@ module.exports =
 	    }, {
 	        key: "currentTime",
 	        set: function set(currentTime) {
-	            console.log("Seeking to", currentTime);
+	            console.debug("Seeking to", currentTime);
 	            if (this._playlist === undefined) {
 	                return;
 	            }
@@ -832,7 +830,7 @@ module.exports =
 	                this.ready = true;
 	                this.onready(this);
 	                return;
-	            };
+	            }
 	            //otherwise begin the loading process for this mediaSource
 	            this.element = document.createElement("video");
 	            //construct a fragement URL to cut the required segment from the source video
@@ -881,15 +879,15 @@ module.exports =
 /* 2 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
+	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 	var MediaSource = (function () {
 	    function MediaSource(properties, gl) {
@@ -948,42 +946,42 @@ module.exports =
 	    }
 
 	    _createClass(MediaSource, [{
-	        key: "play",
+	        key: 'play',
 	        value: function play() {
 	            //console.log("Playing", this.id);
 	            this.playing = true;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].play();
+	                if (typeof this.mediaSourceListeners[i].play === 'function') this.mediaSourceListeners[i].play();
 	            }
 	        }
 	    }, {
-	        key: "pause",
+	        key: 'pause',
 	        value: function pause() {
-	            console.log("Pausing", this.id);
+	            console.debug('Pausing', this.id);
 	            this.playing = false;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].pause();
+	                if (typeof this.mediaSourceListeners[i].pause === 'function') this.mediaSourceListeners[i].pause();
 	            }
 	        }
 	    }, {
-	        key: "seek",
+	        key: 'seek',
 	        value: function seek(seekTime) {
 	            //this.currentTime = seekTime;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].seek(seekTime);
+	                if (typeof this.mediaSourceListeners[i].seek === 'function') this.mediaSourceListeners[i].seek(seekTime);
 	            }
 	        }
 	    }, {
-	        key: "isReady",
+	        key: 'isReady',
 	        value: function isReady() {
 	            return this.ready;
 	        }
 	    }, {
-	        key: "load",
+	        key: 'load',
 	        value: function load() {
-	            console.log("Loading", this.id);
+	            console.debug('Loading', this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].load();
+	                if (typeof this.mediaSourceListeners[i].load === 'function') this.mediaSourceListeners[i].load();
 	            }
 	            if (this.element !== undefined) {
 	                return true;
@@ -991,22 +989,22 @@ module.exports =
 	            return false;
 	        }
 	    }, {
-	        key: "destroy",
+	        key: 'destroy',
 	        value: function destroy() {
-	            console.log("Destroying", this.id);
+	            console.debug('Destroying', this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].destroy();
+	                if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy();
 	            }
 	            if (this.disposeOfElementOnDestroy) {
 	                delete this.element;
 	            }
 	        }
 	    }, {
-	        key: "render",
+	        key: 'render',
 	        value: function render(program) {
 	            //renders the media source to the WebGL context using the pased program
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-	                this.mediaSourceListeners[i].render();
+	                if (typeof this.mediaSourceListeners[i].render === 'function') this.mediaSourceListeners[i].render();
 	            }
 	            this.gl.useProgram(program);
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
@@ -1014,15 +1012,15 @@ module.exports =
 	            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
 	        }
 	    }, {
-	        key: "onready",
+	        key: 'onready',
 	        value: function onready(mediaSource) {}
 	    }]);
 
 	    return MediaSource;
 	})();
 
-	exports["default"] = MediaSource;
-	module.exports = exports["default"];
+	exports['default'] = MediaSource;
+	module.exports = exports['default'];
 
 /***/ },
 /* 3 */
@@ -1190,154 +1188,6 @@ module.exports =
 
 	exports["default"] = CanvasSource;
 	module.exports = exports["default"];
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	/**
-	 * Copyright 2012 Akseli Palén.
-	 * Created 2012-07-15.
-	 * Licensed under the MIT license.
-	 * 
-	 * <license>
-	 * Permission is hereby granted, free of charge, to any person obtaining
-	 * a copy of this software and associated documentation files
-	 * (the "Software"), to deal in the Software without restriction,
-	 * including without limitation the rights to use, copy, modify, merge,
-	 * publish, distribute, sublicense, and/or sell copies of the Software,
-	 * and to permit persons to whom the Software is furnished to do so,
-	 * subject to the following conditions:
-	 * 
-	 * The above copyright notice and this permission notice shall be
-	 * included in all copies or substantial portions of the Software.
-	 * 
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	 * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-	 * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-	 * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-	 * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-	 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-	 * SOFTWARE.
-	 * </lisence>
-	 * 
-	 * Implements functions to calculate combinations of elements in JS Arrays.
-	 * 
-	 * Functions:
-	 *   k_combinations(set, k) -- Return all k-sized combinations in a set
-	 *   combinations(set) -- Return all combinations of the set
-	 */
-
-	/**
-	 * K-combinations
-	 * 
-	 * Get k-sized combinations of elements in a set.
-	 * 
-	 * Usage:
-	 *   k_combinations(set, k)
-	 * 
-	 * Parameters:
-	 *   set: Array of objects of any type. They are treated as unique.
-	 *   k: size of combinations to search for.
-	 * 
-	 * Return:
-	 *   Array of found combinations, size of a combination is k.
-	 * 
-	 * Examples:
-	 * 
-	 *   k_combinations([1, 2, 3], 1)
-	 *   -> [[1], [2], [3]]
-	 * 
-	 *   k_combinations([1, 2, 3], 2)
-	 *   -> [[1,2], [1,3], [2, 3]
-	 * 
-	 *   k_combinations([1, 2, 3], 3)
-	 *   -> [[1, 2, 3]]
-	 * 
-	 *   k_combinations([1, 2, 3], 4)
-	 *   -> []
-	 * 
-	 *   k_combinations([1, 2, 3], 0)
-	 *   -> []
-	 * 
-	 *   k_combinations([1, 2, 3], -1)
-	 *   -> []
-	 * 
-	 *   k_combinations([], 0)
-	 *   -> []
-	 */
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.k_combinations = k_combinations;
-	exports.combinations = combinations;
-
-	function k_combinations(set, k) {
-	  var i, j, combs, head, tailcombs;
-
-	  if (k > set.length || k <= 0) {
-	    return [];
-	  }
-
-	  if (k == set.length) {
-	    return [set];
-	  }
-
-	  if (k == 1) {
-	    combs = [];
-	    for (i = 0; i < set.length; i++) {
-	      combs.push([set[i]]);
-	    }
-	    return combs;
-	  }
-
-	  // Assert {1 < k < set.length}
-
-	  combs = [];
-	  for (i = 0; i < set.length - k + 1; i++) {
-	    head = set.slice(i, i + 1);
-	    tailcombs = k_combinations(set.slice(i + 1), k - 1);
-	    for (j = 0; j < tailcombs.length; j++) {
-	      combs.push(head.concat(tailcombs[j]));
-	    }
-	  }
-	  return combs;
-	}
-
-	/**
-	 * Combinations
-	 * 
-	 * Get all possible combinations of elements in a set.
-	 * 
-	 * Usage:
-	 *   combinations(set)
-	 * 
-	 * Examples:
-	 * 
-	 *   combinations([1, 2, 3])
-	 *   -> [[1],[2],[3],[1,2],[1,3],[2,3],[1,2,3]]
-	 * 
-	 *   combinations([1])
-	 *   -> [[1]]
-	 */
-
-	function combinations(set, min) {
-	  var k, i, combs, k_combs;
-	  if (min === undefined) min = 1;
-	  combs = [];
-
-	  // Calculate all non-empty k-combinations
-	  for (k = min; k <= set.length; k++) {
-	    k_combs = k_combinations(set, k);
-	    for (i = 0; i < k_combs.length; i++) {
-	      combs.push(k_combs[i]);
-	    }
-	  }
-	  return combs;
-	}
 
 /***/ }
 /******/ ]);
