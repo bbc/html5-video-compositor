@@ -696,9 +696,9 @@ module.exports =
 	            var playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
 	            var pixelsPerSecond = w / playlistDuration;
 	            var mediaSourceStyle = {
-	                "video": "#a5a",
-	                "image": "#5aa",
-	                "canvas": "#aa5"
+	                "video": ["#a5a", "#e9e"],
+	                "image": ["#5aa", "#9ee"],
+	                "canvas": ["#aa5", "#ee9"]
 	            };
 
 	            ctx.clearRect(0, 0, w, h);
@@ -711,7 +711,7 @@ module.exports =
 	                    var msH = trackHeight;
 	                    var msX = mediaSource.start * pixelsPerSecond;
 	                    var msY = trackHeight * i;
-	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type];
+	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type][j % mediaSourceStyle[mediaSource.type].length];
 	                    ctx.fillRect(msX, msY, msW, msH);
 	                    ctx.fill();
 	                }

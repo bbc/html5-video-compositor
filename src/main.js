@@ -562,9 +562,9 @@ class VideoCompositor {
         let playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
         let pixelsPerSecond = w / playlistDuration;
         let mediaSourceStyle = {
-            "video":"#a5a",
-            "image":"#5aa",
-            "canvas":"#aa5"
+            "video":["#a5a", "#e9e"],
+            "image":["#5aa", "#9ee"],
+            "canvas":["#aa5", "#ee9"]
         };
 
 
@@ -578,7 +578,7 @@ class VideoCompositor {
                 let msH = trackHeight;
                 let msX = mediaSource.start * pixelsPerSecond;
                 let msY = trackHeight * i;
-                ctx.fillStyle = mediaSourceStyle[mediaSource.type];
+                ctx.fillStyle = mediaSourceStyle[mediaSource.type][j%mediaSourceStyle[mediaSource.type].length];
                 ctx.fillRect(msX,msY,msW,msH);
                 ctx.fill();
             }
