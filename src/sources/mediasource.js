@@ -85,7 +85,16 @@ class MediaSource {
         }
     }
     isReady(){
-        return this.ready;
+        var listenerReady = true;
+        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            if(typeof this.mediaSourceListeners[i].isReady === 'function'){
+                if (this.mediaSourceListeners[i].isReady() === false){
+                    listenerReady = false;
+                }
+            }
+        }
+        if (listenerReady === true && this.ready === true) return true;
+        return false;
     }
     load(){
         console.debug("Loading", this.id);
