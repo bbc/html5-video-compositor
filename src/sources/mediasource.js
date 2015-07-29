@@ -68,27 +68,27 @@ class MediaSource {
         //console.log("Playing", this.id);
         this.playing = true;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play();
+            if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this.id);
         }
     }
     pause(){
         console.debug("Pausing", this.id);
         this.playing = false;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause();
+            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this.id);
         }
     }
     seek(seekTime){
         //this.currentTime = seekTime;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(seekTime);
+            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this.id, seekTime);
         }
     }
     isReady(){
         var listenerReady = true;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].isReady === 'function'){
-                if (this.mediaSourceListeners[i].isReady() === false){
+                if (this.mediaSourceListeners[i].isReady(this.id) === false){
                     listenerReady = false;
                 }
             }
@@ -99,7 +99,7 @@ class MediaSource {
     load(){
         console.debug("Loading", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load();
+            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load(this.id);
         }
         if (this.element !== undefined) {
             return true;
@@ -109,7 +109,7 @@ class MediaSource {
     destroy(){
         console.debug("Destroying", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy();
+            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this.id);
         }
         if (this.disposeOfElementOnDestroy){
             delete this.element;  
@@ -118,7 +118,7 @@ class MediaSource {
     render(program){
         //renders the media source to the WebGL context using the pased program
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if (typeof this.mediaSourceListeners[i].render === 'function') this.mediaSourceListeners[i].render();
+            if (typeof this.mediaSourceListeners[i].render === 'function') this.mediaSourceListeners[i].render(this.id);
         }
         this.gl.useProgram(program);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
