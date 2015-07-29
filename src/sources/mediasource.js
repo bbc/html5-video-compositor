@@ -66,10 +66,12 @@ class MediaSource {
     }
     play(){
         //console.log("Playing", this.id);
-        this.playing = true;
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this.id);
+        if (this.playing === false){
+            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+                if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this.id);
+            }    
         }
+        this.playing = true;
     }
     pause(){
         console.debug("Pausing", this.id);
