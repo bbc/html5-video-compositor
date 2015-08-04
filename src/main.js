@@ -26,7 +26,7 @@ update();
 class VideoCompositor {
     constructor(canvas){
         this._canvas = canvas;
-        this._ctx = this._canvas.getContext('webgl', {preserveDrawingBuffer:true});
+        this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
         this._playing = false;
         this._mediaSources = new Map();
         this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
@@ -377,6 +377,7 @@ class VideoCompositor {
 
 
         let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+        this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
         
 
         for (let i = 0; i < currentlyPlaying.length; i++) {

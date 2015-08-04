@@ -119,12 +119,20 @@ class MediaSource {
     }
     render(program){
         //renders the media source to the WebGL context using the pased program
+        var overriddenElement;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if (typeof this.mediaSourceListeners[i].render === 'function') this.mediaSourceListeners[i].render(this.id);
+            if (typeof this.mediaSourceListeners[i].render === 'function'){
+                var result =  this.mediaSourceListeners[i].render(this.id)
+                if (result !== undefined) overriddenElement = result;
+            }
         }
         this.gl.useProgram(program);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+        if (overriddenElement !== undefined){
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);
+        } else {
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+        }
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
     }
     onready(mediaSource){

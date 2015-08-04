@@ -17,7 +17,7 @@ class VideoSource extends MediaSource{
         this.element.play();
     }
     seek(time){
-        super.seek(time);
+        super.seek();
         if ((time - this.start) < 0 || time >(this.start+this.duration)){
             this.element.currentTime = this.sourceStart;
         } else {
