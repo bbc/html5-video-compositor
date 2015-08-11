@@ -68,7 +68,7 @@ class MediaSource {
         //console.log("Playing", this.id);
         if (this.playing === false){
             for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-                if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this.id);
+                if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this);
             }    
         }
         this.playing = true;
@@ -77,20 +77,20 @@ class MediaSource {
         console.debug("Pausing", this.id);
         this.playing = false;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this.id);
+            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this);
         }
     }
     seek(seekTime){
         //this.currentTime = seekTime;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this.id, seekTime);
+            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this, seekTime);
         }
     }
     isReady(){
         var listenerReady = true;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].isReady === 'function'){
-                if (this.mediaSourceListeners[i].isReady(this.id) === false){
+                if (this.mediaSourceListeners[i].isReady(this) === false){
                     listenerReady = false;
                 }
             }
@@ -101,7 +101,7 @@ class MediaSource {
     load(){
         console.debug("Loading", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load(this.id);
+            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load(this);
         }
         if (this.element !== undefined) {
             return true;
@@ -111,7 +111,7 @@ class MediaSource {
     destroy(){
         console.debug("Destroying", this.id);
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
-            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this.id);
+            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);
         }
         if (this.disposeOfElementOnDestroy){
             delete this.element;  
@@ -122,7 +122,7 @@ class MediaSource {
         var overriddenElement;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].render === 'function'){
-                var result =  this.mediaSourceListeners[i].render(this.id)
+                var result =  this.mediaSourceListeners[i].render(this);
                 if (result !== undefined) overriddenElement = result;
             }
         }
