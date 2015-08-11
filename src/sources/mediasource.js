@@ -117,12 +117,12 @@ class MediaSource {
             delete this.element;  
         }
     }
-    render(program){
+    render(program, progress){
         //renders the media source to the WebGL context using the pased program
         var overriddenElement;
         for (var i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].render === 'function'){
-                var result =  this.mediaSourceListeners[i].render(this);
+                var result =  this.mediaSourceListeners[i].render(this, progress);
                 if (result !== undefined) overriddenElement = result;
             }
         }

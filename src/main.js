@@ -386,7 +386,11 @@ class VideoCompositor {
             mediaSource.play();
 
             let effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
-            mediaSource.render(effectShaderProgram);
+
+            let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
+
+
+            mediaSource.render(effectShaderProgram, progress);
             //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
         }
         this._currentTime += dt;
