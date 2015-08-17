@@ -504,11 +504,14 @@ class VideoCompositor {
 
     static createEffectShaderProgram(gl, effect){
         let vertexShaderSource = "\
+            uniform float progress;\
             attribute vec2 a_position;\
             attribute vec2 a_texCoord;\
             varying vec2 v_texCoord;\
+            varying float v_progress;\
             \
             void main() {\
+                v_progress = progress;\
                 gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);\
                 v_texCoord = a_texCoord;\
             }";
@@ -517,8 +520,9 @@ class VideoCompositor {
             precision mediump float;\
             uniform sampler2D u_image;\
             varying vec2 v_texCoord;\
+            varying float v_progress;\
             void main(){\
-                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(1.0,1.0,1.0,1.0);\
+                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(v_progress,v_progress,v_progress,1.0);\
             }";
 
         if (effect !== undefined){
@@ -539,6 +543,7 @@ class VideoCompositor {
         gl.attachShader(program, vertexShader);
         gl.attachShader(program, fragmentShader);
         gl.linkProgram(program);
+       
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
             throw {"error":4,"msg":"Can't link shader program for track", toString:function(){return this.msg;}};
@@ -604,6 +609,7 @@ VideoCompositor.Effects = {
                     precision mediump float;\
                     uniform sampler2D u_image;\
                     varying vec2 v_texCoord;\
+                    varying float v_progress;\
                     void main(){\
                         vec4 pixel = texture2D(u_image, v_texCoord);\
                         float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
@@ -617,6 +623,7 @@ VideoCompositor.Effects = {
                     precision mediump float;\
                     uniform sampler2D u_image;\
                     varying vec2 v_texCoord;\
+                    varying float v_progress;\
                     void main(){\
                         vec4 pixel = texture2D(u_image, v_texCoord);\
                         float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
@@ -630,6 +637,7 @@ VideoCompositor.Effects = {
                     precision mediump float;\
                     uniform sampler2D u_image;\
                     varying vec2 v_texCoord;\
+                    varying float v_progress;\
                     void main(){\
                         vec4 pixel = texture2D(u_image, v_texCoord);\
                         pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
@@ -645,6 +653,7 @@ VideoCompositor.Effects = {
                     precision mediump float;\
                     uniform sampler2D u_image;\
                     varying vec2 v_texCoord;\
+                    varying float v_progress;\
                     void main(){\
                         vec4 pixel = texture2D(u_image, v_texCoord);\
                         float alpha = 1.0;\
@@ -669,6 +678,7 @@ VideoCompositor.Effects = {
                     precision mediump float;\
                     uniform sampler2D u_image;\
                     varying vec2 v_texCoord;\
+                    varying float v_progress;\
                     void main(){\
                         vec4 pixel = texture2D(u_image, v_texCoord);\
                         float alpha = 1.0;\
@@ -684,7 +694,7 @@ VideoCompositor.Effects = {
                         pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
                         gl_FragColor = pixel;\
                     }"
-            },
-}
+            }
+};
 
 export default VideoCompositor;

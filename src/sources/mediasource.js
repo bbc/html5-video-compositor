@@ -126,7 +126,14 @@ class MediaSource {
                 if (result !== undefined) overriddenElement = result;
             }
         }
+
+        
         this.gl.useProgram(program);
+        let progressLoctation = this.gl.getUniformLocation(program, "progress");
+        this.gl.uniform1f(progressLoctation, progress);
+        
+        
+        
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         if (overriddenElement !== undefined){
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);

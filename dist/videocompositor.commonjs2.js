@@ -648,9 +648,9 @@ module.exports =
 	    }, {
 	        key: "createEffectShaderProgram",
 	        value: function createEffectShaderProgram(gl, effect) {
-	            var vertexShaderSource = "            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;                        void main() {                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
+	            var vertexShaderSource = "            uniform float progress;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;                        void main() {                v_progress = progress;                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
 
-	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(1.0,1.0,1.0,1.0);            }";
+	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(v_progress,v_progress,v_progress,1.0);            }";
 
 	            if (effect !== undefined) {
 	                if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
@@ -734,25 +734,25 @@ module.exports =
 	VideoCompositor.Effects = {
 	    "MONOCHROME": {
 	        "id": "monochrome-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                        gl_FragColor = pixel;                    }"
 	    },
 	    "SEPIA": {
 	        "id": "sepia-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                        gl_FragColor = pixel;                    }"
 	    },
 	    "BITCRUNCH": {
 	        "id": "bitcrunch-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                        pixel = pixel/vec4(8.0,8.0,8.0,8.0);                        gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                    }"
+	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                        pixel = pixel/vec4(8.0,8.0,8.0,8.0);                        gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                    }"
 	    },
 	    //Green screen color =  r = 62, g = 178, b = 31
 	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
 	    "GREENSCREENMAD": {
 	        "id": "greenscreen-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        ;                        alpha = (v+u)*10.0 +2.0;                                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        ;                        alpha = (v+u)*10.0 +2.0;                                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                        gl_FragColor = pixel;                    }"
 	    },
 	    "GREENSCREEN": {
 	        "id": "greenscreen-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > 0.2 && y < 0.8){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > 0.2 && y < 0.8){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }"
 	    }
 	};
 
@@ -1025,7 +1025,11 @@ module.exports =
 	                    if (result !== undefined) overriddenElement = result;
 	                }
 	            }
+
 	            this.gl.useProgram(program);
+	            var progressLoctation = this.gl.getUniformLocation(program, 'progress');
+	            this.gl.uniform1f(progressLoctation, progress);
+
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            if (overriddenElement !== undefined) {
 	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);
