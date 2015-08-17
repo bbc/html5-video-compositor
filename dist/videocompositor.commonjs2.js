@@ -650,7 +650,7 @@ module.exports =
 	        value: function createEffectShaderProgram(gl, effect) {
 	            var vertexShaderSource = "            uniform float progress;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;                        void main() {                v_progress = progress;                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
 
-	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord)*vec4(v_progress,v_progress,v_progress,1.0);            }";
+	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }";
 
 	            if (effect !== undefined) {
 	                if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
