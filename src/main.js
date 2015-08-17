@@ -777,7 +777,7 @@ VideoCompositor.Effects = {
                             void main(){\
                                 float alpha = 1.0;\
                                 if ((v_progress * v_duration) > (v_duration - 1.0)){\
-                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 2.0));\
+                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));\
                                 }\
                                 gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
                             }"

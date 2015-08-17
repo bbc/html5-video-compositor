@@ -772,7 +772,7 @@ module.exports =
 	    },
 	    "FADEOUT1SEC": {
 	        "id": "fadeinout",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 2.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
 	    },
 	    "FADEOUT2SEC": {
 	        "id": "fadeinout",
