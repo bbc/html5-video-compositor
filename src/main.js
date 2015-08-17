@@ -69,8 +69,6 @@ class VideoCompositor {
                     mediaSource.seek(currentTime);
                 });
 
-                
-
             }else{
                //If the mediaSource is loaded then we seek to the proper bit
                 this._mediaSources.get(mediaSourceID).seek(currentTime);
@@ -505,13 +503,15 @@ class VideoCompositor {
     static createEffectShaderProgram(gl, effect){
         let vertexShaderSource = "\
             uniform float progress;\
+            uniform float duration;\
             attribute vec2 a_position;\
             attribute vec2 a_texCoord;\
             varying vec2 v_texCoord;\
             varying float v_progress;\
-            \
+            varying float v_duration;\
             void main() {\
                 v_progress = progress;\
+                v_duration = duration;\
                 gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);\
                 v_texCoord = a_texCoord;\
             }";
@@ -521,6 +521,7 @@ class VideoCompositor {
             uniform sampler2D u_image;\
             varying vec2 v_texCoord;\
             varying float v_progress;\
+            varying float v_duration;\
             void main(){\
                 gl_FragColor = texture2D(u_image, v_texCoord);\
             }";
@@ -694,6 +695,108 @@ VideoCompositor.Effects = {
                         pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
                         gl_FragColor = pixel;\
                     }"
+            },
+    "FADEINOUT1SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if (v_progress * v_duration < 1.0){\
+                                    alpha = v_progress * v_duration;\
+                                }\
+                                if ((v_progress * v_duration) > (v_duration - 1.0)){\
+                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
+            },
+    "FADEINOUT2SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if (v_progress * v_duration < 2.0){\
+                                    alpha = (v_progress * v_duration)/2.0;\
+                                }\
+                                if ((v_progress * v_duration) > (v_duration - 2.0)){\
+                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
+            },
+    "FADEIN1SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if (v_progress * v_duration < 1.0){\
+                                    alpha = v_progress * v_duration;\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
+            },
+    "FADEIN2SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if (v_progress * v_duration < 2.0){\
+                                    alpha = (v_progress * v_duration)/2.0;\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
+            },
+    "FADEOUT1SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if ((v_progress * v_duration) > (v_duration - 1.0)){\
+                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 2.0));\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
+            },
+    "FADEOUT2SEC": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if ((v_progress * v_duration) > (v_duration - 2.0)){\
+                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }"
             }
 };
 

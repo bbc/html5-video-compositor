@@ -76,13 +76,18 @@
                         {type:"video", start:11, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":0.0}
                         ],
                     [{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
-                    [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}]
+                    [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
+                    [{type:"image", start:0, duration:15, src:"assets/background.png", id:"bg"}]
 
                 ],
                 "effects":{
                     "greenscreen-filter":{
                         "inputs":["greenscreen video", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
+                    },
+                    "fadeinout-1":{
+                        "inputs":["earth"],
+                        "effect":VideoCompositor.Effects.FADEINOUT2SEC
                     }
                 },
                 "transitions":{

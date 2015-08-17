@@ -130,8 +130,9 @@ class MediaSource {
         
         this.gl.useProgram(program);
         let progressLoctation = this.gl.getUniformLocation(program, "progress");
+        let durationLoctation = this.gl.getUniformLocation(program, "duration");
         this.gl.uniform1f(progressLoctation, progress);
-        
+        this.gl.uniform1f(durationLoctation, this.duration);
         
         
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);

@@ -648,9 +648,9 @@ module.exports =
 	    }, {
 	        key: "createEffectShaderProgram",
 	        value: function createEffectShaderProgram(gl, effect) {
-	            var vertexShaderSource = "            uniform float progress;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;                        void main() {                v_progress = progress;                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
+	            var vertexShaderSource = "            uniform float progress;            uniform float duration;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main() {                v_progress = progress;                v_duration = duration;                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
 
-	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }";
+	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }";
 
 	            if (effect !== undefined) {
 	                if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
@@ -753,6 +753,30 @@ module.exports =
 	    "GREENSCREEN": {
 	        "id": "greenscreen-filter",
 	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > 0.2 && y < 0.8){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }"
+	    },
+	    "FADEINOUT1SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	    },
+	    "FADEINOUT2SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = (v_progress * v_duration)/2.0;                                }                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	    },
+	    "FADEIN1SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	    },
+	    "FADEIN2SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = (v_progress * v_duration)/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	    },
+	    "FADEOUT1SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 2.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	    },
+	    "FADEOUT2SEC": {
+	        "id": "fadeinout",
+	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
 	    }
 	};
 
@@ -1028,7 +1052,9 @@ module.exports =
 
 	            this.gl.useProgram(program);
 	            var progressLoctation = this.gl.getUniformLocation(program, 'progress');
+	            var durationLoctation = this.gl.getUniformLocation(program, 'duration');
 	            this.gl.uniform1f(progressLoctation, progress);
+	            this.gl.uniform1f(durationLoctation, this.duration);
 
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            if (overriddenElement !== undefined) {
