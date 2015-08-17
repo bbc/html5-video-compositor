@@ -697,7 +697,7 @@ VideoCompositor.Effects = {
                     }"
             },
     "FADEINOUT1SEC": {
-                        "id":"fadeinout",
+                        "id":"fadeinout1sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
@@ -716,7 +716,7 @@ VideoCompositor.Effects = {
                             }"
             },
     "FADEINOUT2SEC": {
-                        "id":"fadeinout",
+                        "id":"fadeinout2sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
@@ -726,7 +726,7 @@ VideoCompositor.Effects = {
                             void main(){\
                                 float alpha = 1.0;\
                                 if (v_progress * v_duration < 2.0){\
-                                    alpha = (v_progress * v_duration)/2.0;\
+                                    alpha = ((v_progress * v_duration)+0.001)/2.0;\
                                 }\
                                 if ((v_progress * v_duration) > (v_duration - 2.0)){\
                                     alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;\
@@ -735,7 +735,7 @@ VideoCompositor.Effects = {
                             }"
             },
     "FADEIN1SEC": {
-                        "id":"fadeinout",
+                        "id":"fadein1sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
@@ -751,7 +751,7 @@ VideoCompositor.Effects = {
                             }"
             },
     "FADEIN2SEC": {
-                        "id":"fadeinout",
+                        "id":"fadein2sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
@@ -761,13 +761,13 @@ VideoCompositor.Effects = {
                             void main(){\
                                 float alpha = 1.0;\
                                 if (v_progress * v_duration < 2.0){\
-                                    alpha = (v_progress * v_duration)/2.0;\
+                                    alpha = ((v_progress * v_duration)+0.001)/2.0;\
                                 }\
                                 gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
                             }"
             },
     "FADEOUT1SEC": {
-                        "id":"fadeinout",
+                        "id":"fadeout1sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
@@ -783,7 +783,7 @@ VideoCompositor.Effects = {
                             }"
             },
     "FADEOUT2SEC": {
-                        "id":"fadeinout",
+                        "id":"fadeout2sec",
                         "fragmentShader":"\
                             precision mediump float;\
                             uniform sampler2D u_image;\
