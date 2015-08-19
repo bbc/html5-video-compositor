@@ -573,9 +573,9 @@ class VideoCompositor {
         let playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
         let pixelsPerSecond = w / playlistDuration;
         let mediaSourceStyle = {
-            "video":["#a5a", "#e9e"],
-            "image":["#5aa", "#9ee"],
-            "canvas":["#aa5", "#ee9"]
+            "video":["#572A72", "#3C1255"],
+            "image":["#7D9F35", "#577714"],
+            "canvas":["#AA9639", "#806D15"]
         };
 
 

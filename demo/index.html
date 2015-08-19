@@ -20,8 +20,8 @@
                 subdomains: '1234',
                 attribution: 'Tiles Courtesy of MapQuest'
             }).addTo(earth);
-            earth.canvas.width = 680;
-            earth.canvas.height = 320;
+            earth.canvas.width = 1280;
+            earth.canvas.height = 720;
             earthDiv.removeChild(earth.canvas);
             var prevEarthTime = null;
             requestAnimationFrame(function spinEarth(earthTime){
@@ -63,8 +63,8 @@
             * Set up the video compositor 
             */
             var canvas = document.getElementById('player-canvas');
-            canvas.width = 680;
-            canvas.height = 320;
+            canvas.width = 1280;
+            canvas.height = 720;
 
             var videoCompositor = new VideoCompositor(canvas);
 
@@ -72,8 +72,9 @@
                 "tracks":[
                     [
                         {type:"video", start:0, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video", "volume":0.0}, 
-                        {type:"video", start:6, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":0.0},
-                        {type:"video", start:11, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":0.0}
+                        {type:"video", sourceStart:4, start:4, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":0.0}, 
+                        {type:"video", start:10, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":0.0},
+                        {type:"video", start:18, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":0.0}
                         ],
                     [{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
                     [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
@@ -82,7 +83,7 @@
                 ],
                 "effects":{
                     "greenscreen-filter":{
-                        "inputs":["greenscreen video", "greenscreen video2", "greenscreen video3"],
+                        "inputs":["greenscreen video","greenscreen video1", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     },
                     "fadeinout-1":{

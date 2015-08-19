@@ -700,9 +700,9 @@ module.exports =
 	            var playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
 	            var pixelsPerSecond = w / playlistDuration;
 	            var mediaSourceStyle = {
-	                "video": ["#a5a", "#e9e"],
-	                "image": ["#5aa", "#9ee"],
-	                "canvas": ["#aa5", "#ee9"]
+	                "video": ["#572A72", "#3C1255"],
+	                "image": ["#7D9F35", "#577714"],
+	                "canvas": ["#AA9639", "#806D15"]
 	            };
 
 	            ctx.clearRect(0, 0, w, h);
