@@ -62,8 +62,8 @@ class VideoSource extends MediaSource{
 
 
     }
-    render(program, progress){
-        super.render(program, progress);
+    render(program, renderParameters){
+        super.render(program, renderParameters);
     }
     destroy(){
         this.element.pause();

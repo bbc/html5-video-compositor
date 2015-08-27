@@ -25,12 +25,12 @@ class MediaSource {
         }
 
 
-        /*var positionLocation = gl.getAttribLocation(program, "a_position");
-        var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
+        /*let positionLocation = gl.getAttribLocation(program, "a_position");
+        let texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
         
         //Hard Code these for now, but this is baaaaaad
-        var positionLocation = 0;
-        var texCoordLocation = 1;
+        let positionLocation = 0;
+        let texCoordLocation = 1;
         
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable ( gl.BLEND) ;
@@ -45,7 +45,7 @@ class MediaSource {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         
 
-        var buffer = gl.createBuffer();
+        let buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.enableVertexAttribArray(positionLocation);
         gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
@@ -67,7 +67,7 @@ class MediaSource {
     play(){
         //console.log("Playing", this.id);
         if (this.playing === false){
-            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+            for (let i = 0; i < this.mediaSourceListeners.length; i++) {
                 if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this);
             }    
         }
@@ -76,19 +76,19 @@ class MediaSource {
     pause(){
         console.debug("Pausing", this.id);
         this.playing = false;
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this);
         }
     }
     seek(seekTime){
         //this.currentTime = seekTime;
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this, seekTime);
         }
     }
     isReady(){
-        var listenerReady = true;
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+        let listenerReady = true;
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].isReady === 'function'){
                 if (this.mediaSourceListeners[i].isReady(this) === false){
                     listenerReady = false;
@@ -100,7 +100,7 @@ class MediaSource {
     }
     load(){
         console.debug("Loading", this.id);
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load(this);
         }
         if (this.element !== undefined) {
@@ -110,29 +110,34 @@ class MediaSource {
     }
     destroy(){
         console.debug("Destroying", this.id);
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);
         }
         if (this.disposeOfElementOnDestroy){
             delete this.element;  
         }
     }
-    render(program, progress){
+    render(program, renderParameters){
         //renders the media source to the WebGL context using the pased program
-        var overriddenElement;
-        for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+
+        let overriddenElement;
+        for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].render === 'function'){
-                var result =  this.mediaSourceListeners[i].render(this, progress);
+                let result =  this.mediaSourceListeners[i].render(this, progress);
                 if (result !== undefined) overriddenElement = result;
             }
         }
 
-        
         this.gl.useProgram(program);
-        let progressLoctation = this.gl.getUniformLocation(program, "progress");
-        let durationLoctation = this.gl.getUniformLocation(program, "duration");
-        this.gl.uniform1f(progressLoctation, progress);
-        this.gl.uniform1f(durationLoctation, this.duration);
+        let renderParametersKeys = Object.keys(renderParameters);
+        for (let index in renderParametersKeys){
+            let key = renderParametersKeys[index];
+
+            let parameterLoctation = this.gl.getUniformLocation(program, key);
+            if (parameterLoctation !== -1){
+                this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+            }
+        }
         
         
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);

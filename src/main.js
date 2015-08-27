@@ -186,6 +186,16 @@ class VideoCompositor {
         return mediaSources;
     }
 
+    _getEffectFromMediaSource(mediaSourceID){
+        let effects = this._playlist.effects;
+        for (let effectKey of Object.keys(effects)){
+            let effect = effects[effectKey];
+            if (effect.inputs.indexOf(mediaSourceID) > -1){
+                return effect;
+            }
+        }
+        return undefined;
+    }
 
     _getEffectShaderProgramForMediaSource(mediaSourceID){
         let effects = this._playlist.effects;
@@ -384,11 +394,19 @@ class VideoCompositor {
             mediaSource.play();
 
             let effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
-
+            let effect = this._getEffectFromMediaSource(mediaSourceID);
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
 
+            let renderParameters = {"progress":progress, "duration":mediaSource.duration};
+            if (effect !== undefined) {
+                if (effect.parameters !== undefined){
+                    for (let key in effect.parameters) {
+                        renderParameters[key] = effect.parameters[key];
+                    }
+                }
+            }
 
-            mediaSource.render(effectShaderProgram, progress);
+            mediaSource.render(effectShaderProgram, renderParameters);
             //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
         }
         this._currentTime += dt;
@@ -547,6 +565,7 @@ class VideoCompositor {
        
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
+            console.log(gl.getProgramParameter(program, gl.LINK_STATUS));
             throw {"error":4,"msg":"Can't link shader program for track", toString:function(){return this.msg;}};
         }
         return program;
@@ -695,6 +714,51 @@ VideoCompositor.Effects = {
                         pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
                         gl_FragColor = pixel;\
                     }"
+            },
+    "FADEINOUT": {
+                        "id":"fadeinout",
+                        "fragmentShader":"\
+                            precision mediump float;\
+                            uniform sampler2D u_image;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            varying float v_inTime;\
+                            varying float v_outTime;\
+                            void main(){\
+                                float alpha = 1.0;\
+                                if (v_progress * v_duration < v_inTime){\
+                                    alpha = (v_progress * v_duration)/(v_inTime+0.001);\
+                                }\
+                                if ((v_progress * v_duration) > (v_duration - v_outTime)){\
+                                    alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);\
+                                }\
+                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+                            }",
+                        "vertexShader":"\
+                            uniform float progress;\
+                            uniform float duration;\
+                            uniform float inTime;\
+                            uniform float outTime;\
+                            attribute vec2 a_position;\
+                            attribute vec2 a_texCoord;\
+                            varying vec2 v_texCoord;\
+                            varying float v_progress;\
+                            varying float v_duration;\
+                            varying float v_inTime;\
+                            varying float v_outTime;\
+                            void main() {\
+                                v_progress = progress;\
+                                v_duration = duration;\
+                                v_inTime = inTime;\
+                                v_outTime = outTime;\
+                                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);\
+                                v_texCoord = a_texCoord;\
+                            }",
+                        "defaultParameters":{
+                            "inTime":1.0,
+                            "outTime":1.0
+                        }
             },
     "FADEINOUT1SEC": {
                         "id":"fadeinout1sec",

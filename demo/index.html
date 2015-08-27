@@ -63,8 +63,8 @@
             * Set up the video compositor 
             */
             var canvas = document.getElementById('player-canvas');
-            canvas.width = 1280;
-            canvas.height = 720;
+            canvas.width = 640;
+            canvas.height = 360;
 
             var videoCompositor = new VideoCompositor(canvas);
 
@@ -88,7 +88,11 @@
                     },
                     "fadeinout-1":{
                         "inputs":["earth"],
-                        "effect":VideoCompositor.Effects.FADEINOUT2SEC
+                        "effect":VideoCompositor.Effects.FADEINOUT,
+                        "parameters":{
+                            "inTime": 11,
+                            "outTime": 1
+                        }
                     }
                 },
                 "transitions":{
