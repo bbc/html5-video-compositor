@@ -88,30 +88,7 @@
                     },
                     "fadeinout-1":{
                         "inputs":["earth"],
-                        "effect":VideoCompositor.Effects.FADEINOUT,
-                        "parameters":{
-                            "inTime": 11,
-                            "outTime": 1
-                        }
-                    }
-                },
-                "transitions":{
-                    "xfade-1":{
-                        "inputs":["greenscreen video","earth"],
-                        "effect":{
-                            "id":"crossfade-filter",
-                            "inputNumber":2,
-                            "fragmentShader":"\
-                                precision mediump float;\
-                                uniform sampler2D u_image;\
-                                varying vec2 v_texCoord;\
-                                void main(){\
-                                    vec4 pixel = texture2D(u_image, v_texCoord);\
-                                    pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
-                                    pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
-                                    gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
-                                }"
-                        }
+                        "effect":VideoCompositor.Effects.FADEINOUT2SEC,
                     }
                 }
             };

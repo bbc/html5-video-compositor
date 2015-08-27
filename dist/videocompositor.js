@@ -503,7 +503,15 @@ var VideoCompositor =
 
 	                var renderParameters = { "progress": progress, "duration": mediaSource.duration };
 	                if (effect !== undefined) {
+
+	                    if (effect.effect.defaultParameters !== undefined) {
+	                        //Set-up default parameters
+	                        for (var key in effect.effect.defaultParameters) {
+	                            renderParameters[key] = effect.effect.defaultParameters[key];
+	                        }
+	                    }
 	                    if (effect.parameters !== undefined) {
+	                        //Set-up custom parameters
 	                        for (var key in effect.parameters) {
 	                            renderParameters[key] = effect.parameters[key];
 	                        }
@@ -775,18 +783,32 @@ var VideoCompositor =
 	    return VideoCompositor;
 	})();
 
+	VideoCompositor.VertexShaders = {
+	    DEFAULT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALEINOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    INOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALE: "        uniform float progress;        uniform float duration;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"
+	};
+
+	VideoCompositor.FragementShaders = {
+	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
+	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
+	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
+	    "FADEINOUT": "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }"
+	};
+
 	VideoCompositor.Effects = {
 	    "MONOCHROME": {
 	        "id": "monochrome-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": VideoCompositor.FragementShaders.MONOCHROME
 	    },
 	    "SEPIA": {
 	        "id": "sepia-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": VideoCompositor.FragementShaders.SEPIA
 	    },
 	    "BITCRUNCH": {
 	        "id": "bitcrunch-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                        pixel = pixel/vec4(8.0,8.0,8.0,8.0);                        gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                    }"
+	        "fragmentShader": VideoCompositor.FragementShaders.BITCRUNCH
 	    },
 	    //Green screen color =  r = 62, g = 178, b = 31
 	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
@@ -800,36 +822,66 @@ var VideoCompositor =
 	    },
 	    "FADEINOUT": {
 	        "id": "fadeinout",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            varying float v_inTime;                            varying float v_outTime;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < v_inTime){                                    alpha = (v_progress * v_duration)/(v_inTime+0.001);                                }                                if ((v_progress * v_duration) > (v_duration - v_outTime)){                                    alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }",
-	        "vertexShader": "                            uniform float progress;                            uniform float duration;                            uniform float inTime;                            uniform float outTime;                            attribute vec2 a_position;                            attribute vec2 a_texCoord;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            varying float v_inTime;                            varying float v_outTime;                            void main() {                                v_progress = progress;                                v_duration = duration;                                v_inTime = inTime;                                v_outTime = outTime;                                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                                v_texCoord = a_texCoord;                            }",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
 	        "defaultParameters": {
 	            "inTime": 1.0,
 	            "outTime": 1.0
 	        }
 	    },
 	    "FADEINOUT1SEC": {
-	        "id": "fadeinout1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 1.0
+	        }
 	    },
 	    "FADEINOUT2SEC": {
-	        "id": "fadeinout2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = ((v_progress * v_duration)+0.001)/2.0;                                }                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 2.0
+	        }
 	    },
 	    "FADEIN1SEC": {
-	        "id": "fadein1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 0.0
+	        }
 	    },
 	    "FADEIN2SEC": {
-	        "id": "fadein2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = ((v_progress * v_duration)+0.001)/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 0.0
+	        }
 	    },
 	    "FADEOUT1SEC": {
-	        "id": "fadeout1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 1.0
+	        }
 	    },
 	    "FADEOUT2SEC": {
-	        "id": "fadeout2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragementShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 2.0
+	        }
 	    }
 	};
 
