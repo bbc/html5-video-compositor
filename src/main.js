@@ -713,7 +713,7 @@ VideoCompositor.VertexShaders = {
 };
 
 
-VideoCompositor.FragementShaders = {
+VideoCompositor.FragmentShaders = {
     MONOCHROME: "\
         precision mediump float;\
         uniform sampler2D u_image;\
@@ -772,15 +772,15 @@ VideoCompositor.FragementShaders = {
 VideoCompositor.Effects = {
     "MONOCHROME":{
                 "id":"monochrome-filter",
-                "fragmentShader": VideoCompositor.FragementShaders.MONOCHROME
+                "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
             },
     "SEPIA":{
                 "id":"sepia-filter",
-                "fragmentShader": VideoCompositor.FragementShaders.SEPIA
+                "fragmentShader": VideoCompositor.FragmentShaders.SEPIA
             },
     "BITCRUNCH":{
                 "id":"bitcrunch-filter",
-                "fragmentShader":VideoCompositor.FragementShaders.BITCRUNCH
+                "fragmentShader":VideoCompositor.FragmentShaders.BITCRUNCH
             },
     //Green screen color =  r = 62, g = 178, b = 31
     //Normalised         = r = 0.243, g= 0.698, b = 0.122
@@ -834,7 +834,7 @@ VideoCompositor.Effects = {
             },
     "FADEINOUT": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":1.0,
@@ -843,7 +843,7 @@ VideoCompositor.Effects = {
             },
     "FADEINOUT1SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":1.0,
@@ -852,7 +852,7 @@ VideoCompositor.Effects = {
             },
     "FADEINOUT2SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":2.0,
@@ -861,7 +861,7 @@ VideoCompositor.Effects = {
             },
     "FADEIN1SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":1.0,
@@ -870,7 +870,7 @@ VideoCompositor.Effects = {
             },
     "FADEIN2SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":2.0,
@@ -879,7 +879,7 @@ VideoCompositor.Effects = {
             },
     "FADEOUT1SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":0.0,
@@ -888,7 +888,7 @@ VideoCompositor.Effects = {
             },
     "FADEOUT2SEC": {
                         "id":"fadeinout",
-                        "fragmentShader":VideoCompositor.FragementShaders.FADEINOUT,
+                        "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
                         "vertexShader": VideoCompositor.VertexShaders.INOUT,
                         "defaultParameters":{
                             "inTime":0.0,

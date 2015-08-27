@@ -213,6 +213,40 @@ module.exports =
 	            return mediaSources;
 	        }
 	    }, {
+	        key: "_getEffectFromMediaSource",
+	        value: function _getEffectFromMediaSource(mediaSourceID) {
+	            var effects = this._playlist.effects;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = Object.keys(effects)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var effectKey = _step.value;
+
+	                    var effect = effects[effectKey];
+	                    if (effect.inputs.indexOf(mediaSourceID) > -1) {
+	                        return effect;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            return undefined;
+	        }
+	    }, {
 	        key: "_getEffectShaderProgramForMediaSource",
 	        value: function _getEffectShaderProgramForMediaSource(mediaSourceID) {
 	            var effects = this._playlist.effects;
@@ -223,13 +257,13 @@ module.exports =
 	                return defaultEffectShader;
 	            }
 
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
 
 	            try {
-	                for (var _iterator = Object.keys(effects)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var effectKey = _step.value;
+	                for (var _iterator2 = Object.keys(effects)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var effectKey = _step2.value;
 
 	                    var effect = effects[effectKey];
 	                    if (effect.inputs.indexOf(mediaSourceID) > -1) {
@@ -245,16 +279,16 @@ module.exports =
 	                    }
 	                }
 	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
 	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
+	                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                        _iterator2["return"]();
 	                    }
 	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
 	                    }
 	                }
 	            }
@@ -333,13 +367,13 @@ module.exports =
 
 	            //Get the transitions whose video sources are currently playing
 
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
+	            var _iteratorNormalCompletion3 = true;
+	            var _didIteratorError3 = false;
+	            var _iteratorError3 = undefined;
 
 	            try {
-	                for (var _iterator2 = Object.keys(this._playlist.transitions)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                    var transitionID = _step2.value;
+	                for (var _iterator3 = Object.keys(this._playlist.transitions)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                    var transitionID = _step3.value;
 
 	                    var transition = this._playlist.transitions[transitionID];
 	                    var areInputsCurrentlyPlaying = true;
@@ -361,16 +395,16 @@ module.exports =
 	                    }
 	                }
 	            } catch (err) {
-	                _didIteratorError2 = true;
-	                _iteratorError2 = err;
+	                _didIteratorError3 = true;
+	                _iteratorError3 = err;
 	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                        _iterator2["return"]();
+	                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                        _iterator3["return"]();
 	                    }
 	                } finally {
-	                    if (_didIteratorError2) {
-	                        throw _iteratorError2;
+	                    if (_didIteratorError3) {
+	                        throw _iteratorError3;
 	                    }
 	                }
 	            }
@@ -464,10 +498,27 @@ module.exports =
 	                mediaSource.play();
 
 	                var effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
-
+	                var effect = this._getEffectFromMediaSource(mediaSourceID);
 	                var progress = (this._currentTime - currentlyPlaying[i].start) / currentlyPlaying[i].duration;
 
-	                mediaSource.render(effectShaderProgram, progress);
+	                var renderParameters = { "progress": progress, "duration": mediaSource.duration };
+	                if (effect !== undefined) {
+
+	                    if (effect.effect.defaultParameters !== undefined) {
+	                        //Set-up default parameters
+	                        for (var key in effect.effect.defaultParameters) {
+	                            renderParameters[key] = effect.effect.defaultParameters[key];
+	                        }
+	                    }
+	                    if (effect.parameters !== undefined) {
+	                        //Set-up custom parameters
+	                        for (var key in effect.parameters) {
+	                            renderParameters[key] = effect.parameters[key];
+	                        }
+	                    }
+	                }
+
+	                mediaSource.render(effectShaderProgram, renderParameters);
 	                //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
 	            }
 	            this._currentTime += dt;
@@ -672,6 +723,7 @@ module.exports =
 	            gl.linkProgram(program);
 
 	            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	                console.log(gl.getProgramParameter(program, gl.LINK_STATUS));
 	                throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
 	                        return this.msg;
 	                    } };
@@ -731,18 +783,32 @@ module.exports =
 	    return VideoCompositor;
 	})();
 
+	VideoCompositor.VertexShaders = {
+	    DEFAULT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALEINOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    INOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALE: "        uniform float progress;        uniform float duration;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"
+	};
+
+	VideoCompositor.FragmentShaders = {
+	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
+	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
+	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
+	    "FADEINOUT": "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }"
+	};
+
 	VideoCompositor.Effects = {
 	    "MONOCHROME": {
 	        "id": "monochrome-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
 	    },
 	    "SEPIA": {
 	        "id": "sepia-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                        pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                        gl_FragColor = pixel;                    }"
+	        "fragmentShader": VideoCompositor.FragmentShaders.SEPIA
 	    },
 	    "BITCRUNCH": {
 	        "id": "bitcrunch-filter",
-	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                        pixel = pixel/vec4(8.0,8.0,8.0,8.0);                        gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                    }"
+	        "fragmentShader": VideoCompositor.FragmentShaders.BITCRUNCH
 	    },
 	    //Green screen color =  r = 62, g = 178, b = 31
 	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
@@ -754,29 +820,68 @@ module.exports =
 	        "id": "greenscreen-filter",
 	        "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > 0.2 && y < 0.8){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }"
 	    },
+	    "FADEINOUT": {
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 1.0
+	        }
+	    },
 	    "FADEINOUT1SEC": {
-	        "id": "fadeinout1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 1.0
+	        }
 	    },
 	    "FADEINOUT2SEC": {
-	        "id": "fadeinout2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = ((v_progress * v_duration)+0.001)/2.0;                                }                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 2.0
+	        }
 	    },
 	    "FADEIN1SEC": {
-	        "id": "fadein1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 1.0){                                    alpha = v_progress * v_duration;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 0.0
+	        }
 	    },
 	    "FADEIN2SEC": {
-	        "id": "fadein2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if (v_progress * v_duration < 2.0){                                    alpha = ((v_progress * v_duration)+0.001)/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 0.0
+	        }
 	    },
 	    "FADEOUT1SEC": {
-	        "id": "fadeout1sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 1.0)){                                    alpha = 1.0 - ((v_progress * v_duration) - (v_duration - 1.0));                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 1.0
+	        }
 	    },
 	    "FADEOUT2SEC": {
-	        "id": "fadeout2sec",
-	        "fragmentShader": "                            precision mediump float;                            uniform sampler2D u_image;                            varying vec2 v_texCoord;                            varying float v_progress;                            varying float v_duration;                            void main(){                                float alpha = 1.0;                                if ((v_progress * v_duration) > (v_duration - 2.0)){                                    alpha = (2.0 - ((v_progress * v_duration) - (v_duration - 2.0)))/2.0;                                }                                gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                            }"
+	        "id": "fadeinout",
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 2.0
+	        }
 	    }
 	};
 
@@ -882,8 +987,8 @@ module.exports =
 	        }
 	    }, {
 	        key: "render",
-	        value: function render(program, progress) {
-	            _get(Object.getPrototypeOf(VideoSource.prototype), "render", this).call(this, program, progress);
+	        value: function render(program, renderParameters) {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "render", this).call(this, program, renderParameters);
 	        }
 	    }, {
 	        key: "destroy",
@@ -944,8 +1049,8 @@ module.exports =
 	            this.element = properties.element;
 	        }
 
-	        /*var positionLocation = gl.getAttribLocation(program, "a_position");
-	        var texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
+	        /*let positionLocation = gl.getAttribLocation(program, "a_position");
+	        let texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
 
 	        //Hard Code these for now, but this is baaaaaad
 	        var positionLocation = 0;
@@ -1040,9 +1145,10 @@ module.exports =
 	        }
 	    }, {
 	        key: 'render',
-	        value: function render(program, progress) {
+	        value: function render(program, renderParameters) {
 	            //renders the media source to the WebGL context using the pased program
-	            var overriddenElement;
+
+	            var overriddenElement = undefined;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].render === 'function') {
 	                    var result = this.mediaSourceListeners[i].render(this, progress);
@@ -1051,10 +1157,15 @@ module.exports =
 	            }
 
 	            this.gl.useProgram(program);
-	            var progressLoctation = this.gl.getUniformLocation(program, 'progress');
-	            var durationLoctation = this.gl.getUniformLocation(program, 'duration');
-	            this.gl.uniform1f(progressLoctation, progress);
-	            this.gl.uniform1f(durationLoctation, this.duration);
+	            var renderParametersKeys = Object.keys(renderParameters);
+	            for (var index in renderParametersKeys) {
+	                var key = renderParametersKeys[index];
+
+	                var parameterLoctation = this.gl.getUniformLocation(program, key);
+	                if (parameterLoctation !== -1) {
+	                    this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+	                }
+	            }
 
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            if (overriddenElement !== undefined) {
@@ -1148,8 +1259,8 @@ module.exports =
 	        }
 	    }, {
 	        key: "render",
-	        value: function render(program, progress) {
-	            _get(Object.getPrototypeOf(ImageSource.prototype), "render", this).call(this, program, progress);
+	        value: function render(program, renderParameters) {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "render", this).call(this, program, renderParameters);
 	        }
 	    }]);
 
@@ -1231,8 +1342,8 @@ module.exports =
 	        }
 	    }, {
 	        key: "render",
-	        value: function render(program, progress) {
-	            _get(Object.getPrototypeOf(CanvasSource.prototype), "render", this).call(this, program, progress);
+	        value: function render(program, renderParameters) {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "render", this).call(this, program, renderParameters);
 	        }
 	    }]);
 
