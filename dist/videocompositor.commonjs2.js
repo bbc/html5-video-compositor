@@ -1151,7 +1151,7 @@ module.exports =
 	            var overriddenElement = undefined;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].render === 'function') {
-	                    var result = this.mediaSourceListeners[i].render(this, progress);
+	                    var result = this.mediaSourceListeners[i].render(this, renderParameters);
 	                    if (result !== undefined) overriddenElement = result;
 	                }
 	            }

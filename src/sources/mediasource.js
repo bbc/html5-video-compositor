@@ -123,7 +123,7 @@ class MediaSource {
         let overriddenElement;
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].render === 'function'){
-                let result =  this.mediaSourceListeners[i].render(this, progress);
+                let result =  this.mediaSourceListeners[i].render(this, renderParameters);
                 if (result !== undefined) overriddenElement = result;
             }
         }
