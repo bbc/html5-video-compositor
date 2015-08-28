@@ -188,7 +188,9 @@ class VideoCompositor {
 
     _getEffectFromMediaSource(mediaSourceID){
         let effects = this._playlist.effects;
-        for (let effectKey of Object.keys(effects)){
+        let effectKeys = Object.keys(effects);
+        for (let i =0; i < effectKeys.length; i++){
+            let effectKey = effectKeys[i];
             let effect = effects[effectKey];
             if (effect.inputs.indexOf(mediaSourceID) > -1){
                 return effect;
@@ -207,7 +209,8 @@ class VideoCompositor {
         }
 
         let effectKeys = Object.keys(effects);
-        for (let i =0; i < effectKeys.length(); i++){
+        console.log(effectKeys);
+        for (let i =0; i < effectKeys.length; i++){
             let effectKey = effectKeys[i];
             let effect = effects[effectKey];
             if (effect.inputs.indexOf(mediaSourceID) > -1){
@@ -296,7 +299,8 @@ class VideoCompositor {
 
 
         let transitionKeys = Object.keys(this._playlist.transitions);
-        for (let i = 0; i < transitionKeys.length(); i++){
+        console.log(transitionKeys);
+        for (let i = 0; i < transitionKeys.length; i++){
             let transitionID = transitionKeys[i];
 
             let transition = this._playlist.transitions[transitionID];

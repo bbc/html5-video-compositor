@@ -216,34 +216,14 @@ module.exports =
 	        key: "_getEffectFromMediaSource",
 	        value: function _getEffectFromMediaSource(mediaSourceID) {
 	            var effects = this._playlist.effects;
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
-
-	            try {
-	                for (var _iterator = Object.keys(effects)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var effectKey = _step.value;
-
-	                    var effect = effects[effectKey];
-	                    if (effect.inputs.indexOf(mediaSourceID) > -1) {
-	                        return effect;
-	                    }
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
+	            var effectKeys = Object.keys(effects);
+	            for (var i = 0; i < effectKeys.length; i++) {
+	                var effectKey = effectKeys[i];
+	                var effect = effects[effectKey];
+	                if (effect.inputs.indexOf(mediaSourceID) > -1) {
+	                    return effect;
 	                }
 	            }
-
 	            return undefined;
 	        }
 	    }, {
@@ -258,7 +238,8 @@ module.exports =
 	            }
 
 	            var effectKeys = Object.keys(effects);
-	            for (var i = 0; i < effectKeys.length(); i++) {
+	            console.log(effectKeys);
+	            for (var i = 0; i < effectKeys.length; i++) {
 	                var effectKey = effectKeys[i];
 	                var effect = effects[effectKey];
 	                if (effect.inputs.indexOf(mediaSourceID) > -1) {
@@ -349,7 +330,8 @@ module.exports =
 	            //Get the transitions whose video sources are currently playing
 
 	            var transitionKeys = Object.keys(this._playlist.transitions);
-	            for (var i = 0; i < transitionKeys.length(); i++) {
+	            console.log(transitionKeys);
+	            for (var i = 0; i < transitionKeys.length; i++) {
 	                var transitionID = transitionKeys[i];
 
 	                var transition = this._playlist.transitions[transitionID];
