@@ -209,7 +209,6 @@ class VideoCompositor {
         }
 
         let effectKeys = Object.keys(effects);
-        console.log(effectKeys);
         for (let i =0; i < effectKeys.length; i++){
             let effectKey = effectKeys[i];
             let effect = effects[effectKey];
@@ -299,7 +298,6 @@ class VideoCompositor {
 
 
         let transitionKeys = Object.keys(this._playlist.transitions);
-        console.log(transitionKeys);
         for (let i = 0; i < transitionKeys.length; i++){
             let transitionID = transitionKeys[i];
 
@@ -581,7 +579,6 @@ class VideoCompositor {
        
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
-            console.log(gl.getProgramParameter(program, gl.LINK_STATUS));
             throw {"error":4,"msg":"Can't link shader program for track", toString:function(){return this.msg;}};
         }
         return program;

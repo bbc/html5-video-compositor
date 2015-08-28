@@ -238,7 +238,6 @@ module.exports =
 	            }
 
 	            var effectKeys = Object.keys(effects);
-	            console.log(effectKeys);
 	            for (var i = 0; i < effectKeys.length; i++) {
 	                var effectKey = effectKeys[i];
 	                var effect = effects[effectKey];
@@ -330,7 +329,6 @@ module.exports =
 	            //Get the transitions whose video sources are currently playing
 
 	            var transitionKeys = Object.keys(this._playlist.transitions);
-	            console.log(transitionKeys);
 	            for (var i = 0; i < transitionKeys.length; i++) {
 	                var transitionID = transitionKeys[i];
 
@@ -668,7 +666,6 @@ module.exports =
 	            gl.linkProgram(program);
 
 	            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	                console.log(gl.getProgramParameter(program, gl.LINK_STATUS));
 	                throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
 	                        return this.msg;
 	                    } };
