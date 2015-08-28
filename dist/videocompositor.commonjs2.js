@@ -896,16 +896,18 @@ module.exports =
 	        key: "play",
 	        value: function play() {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "play", this).call(this);
-	            this.element.play();
+	            if (this.element.readyState > 0) this.element.play();
 	        }
 	    }, {
 	        key: "seek",
 	        value: function seek(time) {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
-	            if (time - this.start < 0 || time > this.start + this.duration) {
-	                this.element.currentTime = this.sourceStart;
-	            } else {
-	                this.element.currentTime = time - this.start + this.sourceStart;
+	            if (this.element.readyState > 0) {
+	                if (time - this.start < 0 || time > this.start + this.duration) {
+	                    this.element.currentTime = this.sourceStart;
+	                } else {
+	                    this.element.currentTime = time - this.start + this.sourceStart;
+	                }
 	            }
 	        }
 	    }, {

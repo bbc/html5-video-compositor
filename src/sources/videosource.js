@@ -14,15 +14,18 @@ class VideoSource extends MediaSource{
     }
     play(){
         super.play();
-        this.element.play();
+        if (this.element.readyState > 0)this.element.play();
     }
     seek(time){
         super.seek();
-        if ((time - this.start) < 0 || time >(this.start+this.duration)){
-            this.element.currentTime = this.sourceStart;
-        } else {
-            this.element.currentTime = (time - this.start) + this.sourceStart;
+        if (this.element.readyState > 0){
+            if ((time - this.start) < 0 || time >(this.start+this.duration)){
+                this.element.currentTime = this.sourceStart;
+            } else {
+                this.element.currentTime = (time - this.start) + this.sourceStart;
+            }
         }
+        
     }
     pause(){
         super.pause();
