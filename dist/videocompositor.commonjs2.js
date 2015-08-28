@@ -257,38 +257,19 @@ module.exports =
 	                return defaultEffectShader;
 	            }
 
-	            var _iteratorNormalCompletion2 = true;
-	            var _didIteratorError2 = false;
-	            var _iteratorError2 = undefined;
-
-	            try {
-	                for (var _iterator2 = Object.keys(effects)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                    var effectKey = _step2.value;
-
-	                    var effect = effects[effectKey];
-	                    if (effect.inputs.indexOf(mediaSourceID) > -1) {
-	                        //Found effect for mediaSourceID
-	                        //Check if program for effect is compiled.
-	                        if (this._effectShaderPrograms.has(effect.effect.id)) {
-	                            return this._effectShaderPrograms.get(effect.effect.id);
-	                        } else {
-	                            var effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
-	                            this._effectShaderPrograms.set(effect.effect.id, effectShader);
-	                            return effectShader;
-	                        }
-	                    }
-	                }
-	            } catch (err) {
-	                _didIteratorError2 = true;
-	                _iteratorError2 = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                        _iterator2["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError2) {
-	                        throw _iteratorError2;
+	            var effectKeys = Object.keys(effects);
+	            for (var i = 0; i < effectKeys.length(); i++) {
+	                var effectKey = effectKeys[i];
+	                var effect = effects[effectKey];
+	                if (effect.inputs.indexOf(mediaSourceID) > -1) {
+	                    //Found effect for mediaSourceID
+	                    //Check if program for effect is compiled.
+	                    if (this._effectShaderPrograms.has(effect.effect.id)) {
+	                        return this._effectShaderPrograms.get(effect.effect.id);
+	                    } else {
+	                        var effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
+	                        this._effectShaderPrograms.set(effect.effect.id, effectShader);
+	                        return effectShader;
 	                    }
 	                }
 	            }
@@ -367,45 +348,27 @@ module.exports =
 
 	            //Get the transitions whose video sources are currently playing
 
-	            var _iteratorNormalCompletion3 = true;
-	            var _didIteratorError3 = false;
-	            var _iteratorError3 = undefined;
+	            var transitionKeys = Object.keys(this._playlist.transitions);
+	            for (var i = 0; i < transitionKeys.length(); i++) {
+	                var transitionID = transitionKeys[i];
 
-	            try {
-	                for (var _iterator3 = Object.keys(this._playlist.transitions)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                    var transitionID = _step3.value;
-
-	                    var transition = this._playlist.transitions[transitionID];
-	                    var areInputsCurrentlyPlaying = true;
-	                    for (var j = 0; j < transition.inputs.length; j++) {
-	                        var id = transition.inputs[j];
-	                        if (currentlyPlayingIDs.indexOf(id) === -1) {
-	                            areInputsCurrentlyPlaying = false;
-	                            break;
-	                        }
-	                    }
-	                    if (areInputsCurrentlyPlaying) {
-	                        var activeTransition = { transition: transition, transitionID: transitionID, mediaSources: [] };
-
-	                        for (var j = 0; j < transition.inputs.length; j++) {
-	                            activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
-	                        }
-
-	                        activeTransitions.push(activeTransition);
+	                var transition = this._playlist.transitions[transitionID];
+	                var areInputsCurrentlyPlaying = true;
+	                for (var j = 0; j < transition.inputs.length; j++) {
+	                    var id = transition.inputs[j];
+	                    if (currentlyPlayingIDs.indexOf(id) === -1) {
+	                        areInputsCurrentlyPlaying = false;
+	                        break;
 	                    }
 	                }
-	            } catch (err) {
-	                _didIteratorError3 = true;
-	                _iteratorError3 = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                        _iterator3["return"]();
+	                if (areInputsCurrentlyPlaying) {
+	                    var activeTransition = { transition: transition, transitionID: transitionID, mediaSources: [] };
+
+	                    for (var j = 0; j < transition.inputs.length; j++) {
+	                        activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
 	                    }
-	                } finally {
-	                    if (_didIteratorError3) {
-	                        throw _iteratorError3;
-	                    }
+
+	                    activeTransitions.push(activeTransition);
 	                }
 	            }
 

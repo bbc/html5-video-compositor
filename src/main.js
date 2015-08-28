@@ -206,8 +206,9 @@ class VideoCompositor {
             return defaultEffectShader;
         }
 
-        for (let effectKey of Object.keys(effects)){
-            
+        let effectKeys = Object.keys(effects);
+        for (let i =0; i < effectKeys.length(); i++){
+            let effectKey = effectKeys[i];
             let effect = effects[effectKey];
             if (effect.inputs.indexOf(mediaSourceID) > -1){
                 //Found effect for mediaSourceID
@@ -294,7 +295,10 @@ class VideoCompositor {
         //Get the transitions whose video sources are currently playing
 
 
-        for (let transitionID of Object.keys(this._playlist.transitions)){
+        let transitionKeys = Object.keys(this._playlist.transitions);
+        for (let i = 0; i < transitionKeys.length(); i++){
+            let transitionID = transitionKeys[i];
+
             let transition = this._playlist.transitions[transitionID];
             let areInputsCurrentlyPlaying = true;
             for (let j = 0; j < transition.inputs.length; j++) {
