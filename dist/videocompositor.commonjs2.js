@@ -854,6 +854,14 @@ module.exports =
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
+	function eventOneTime(element, type, callback) {
+	    element.addEventListener(type, function (e) {
+	        e.target.removeEventListener(e.type, arguments.callee);
+	        console.log("One time!");
+	        return callback(e);
+	    });
+	}
+
 	var VideoSource = (function (_MediaSource) {
 	    function VideoSource(properties, gl) {
 	        _classCallCheck(this, VideoSource);
@@ -881,13 +889,22 @@ module.exports =
 	        key: "seek",
 	        value: function seek(time) {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
-	            if (this.element.readyState > 0) {
-	                if (time - this.start < 0 || time > this.start + this.duration) {
-	                    this.element.currentTime = this.sourceStart;
+	            var _this = this;
+
+	            var seekVideo = function seekVideo() {
+	                if (_this.element.readyState > 0) {
+	                    if (time - _this.start < 0 || time > _this.start + _this.duration) {
+	                        _this.element.currentTime = _this.sourceStart;
+	                    } else {
+	                        _this.element.currentTime = time - _this.start + _this.sourceStart;
+	                    }
 	                } else {
-	                    this.element.currentTime = time - this.start + this.sourceStart;
+	                    //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.
+	                    eventOneTime(_this.element, "readystatechange", seekVideo);
 	                }
-	            }
+	            };
+
+	            seekVideo();
 	        }
 	    }, {
 	        key: "pause",

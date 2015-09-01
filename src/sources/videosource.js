@@ -1,5 +1,14 @@
 import MediaSource from "./mediasource";
 
+
+function eventOneTime(element, type, callback){
+    element.addEventListener(type, function(e){
+        e.target.removeEventListener(e.type, arguments.callee);
+        console.log("One time!");
+        return callback(e);
+    });         
+}
+
 class VideoSource extends MediaSource{
     constructor(properties, gl){
         super(properties, gl);
@@ -18,14 +27,22 @@ class VideoSource extends MediaSource{
     }
     seek(time){
         super.seek();
-        if (this.element.readyState > 0){
-            if ((time - this.start) < 0 || time >(this.start+this.duration)){
-                this.element.currentTime = this.sourceStart;
-            } else {
-                this.element.currentTime = (time - this.start) + this.sourceStart;
-            }
-        }
+        let _this = this;
         
+        let seekVideo = function(){
+            if (_this.element.readyState > 0){
+                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){
+                    _this.element.currentTime = _this.sourceStart;
+                } else {
+                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;
+                }
+            } else {
+                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.
+                eventOneTime(_this.element, "readystatechange", seekVideo);
+            }
+        };
+
+        seekVideo();  
     }
     pause(){
         super.pause();
