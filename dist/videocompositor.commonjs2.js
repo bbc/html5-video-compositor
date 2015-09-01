@@ -883,7 +883,17 @@ module.exports =
 	        key: "play",
 	        value: function play() {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "play", this).call(this);
-	            if (this.element.readyState > 0) this.element.play();
+	            var _this = this;
+
+	            var playVideo = function playVideo() {
+	                if (_this.element.readyState > 0) {
+	                    _this.element.play();
+	                } else {
+	                    eventOneTime(_this.element, "readystatechange", playVideo);
+	                }
+	            };
+
+	            playVideo();
 	        }
 	    }, {
 	        key: "seek",

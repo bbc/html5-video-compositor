@@ -23,12 +23,22 @@ class VideoSource extends MediaSource{
     }
     play(){
         super.play();
-        if (this.element.readyState > 0)this.element.play();
+        let _this = this;
+
+        let playVideo = function(){
+            if (_this.element.readyState > 0){
+                _this.element.play();
+            } else {
+                eventOneTime(_this.element, "readystatechange", playVideo);
+            }
+        };
+
+        playVideo();
     }
     seek(time){
         super.seek();
         let _this = this;
-        
+
         let seekVideo = function(){
             if (_this.element.readyState > 0){
                 if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){
