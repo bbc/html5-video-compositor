@@ -2,10 +2,12 @@ import MediaSource from "./mediasource";
 
 
 function eventOneTime(element, type, callback){
-    element.addEventListener(type, function(e){
-        e.target.removeEventListener(e.type, arguments.callee);
+    let handleEvent = function(e){
+        e.target.removeEventListener(e.type, handleEvent);
         return callback(e);
-    });         
+    };
+
+    element.addEventListener(type, handleEvent, false);         
 }
 
 class VideoSource extends MediaSource{
@@ -26,10 +28,12 @@ class VideoSource extends MediaSource{
 
         let playVideo = function(){
             if (_this.element.readyState > 0){
+                _this.ready = true;
                 _this.element.play();
             } else {
                 console.debug("Can't play video due to readyState");
-                eventOneTime(_this.element, "readystatechange", playVideo);
+                _this.ready = false;
+                eventOneTime(_this.element, "canplay", playVideo);
             }
         };
 
@@ -41,6 +45,7 @@ class VideoSource extends MediaSource{
 
         let seekVideo = function(){
             if (_this.element.readyState > 0){
+                _this.ready = true;
                 if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){
                     _this.element.currentTime = _this.sourceStart;
                 } else {
@@ -49,7 +54,8 @@ class VideoSource extends MediaSource{
             } else {
                 //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.
                 console.debug("Can't seek video due to readyState");
-                eventOneTime(_this.element, "readystatechange", seekVideo);
+                _this.ready = false;
+                eventOneTime(_this.element, "canplay", seekVideo);
             }
         };
 
