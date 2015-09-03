@@ -188,6 +188,7 @@ class VideoCompositor {
 
     _getEffectFromMediaSource(mediaSourceID){
         let effects = this._playlist.effects;
+        if (effects === undefined) return undefined;
         let effectKeys = Object.keys(effects);
         for (let i =0; i < effectKeys.length; i++){
             let effectKey = effectKeys[i];
