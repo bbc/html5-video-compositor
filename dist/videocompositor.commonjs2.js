@@ -734,6 +734,7 @@ module.exports =
 	};
 
 	VideoCompositor.FragmentShaders = {
+	    DEFAULT: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }",
 	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
 	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
 	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
@@ -741,6 +742,17 @@ module.exports =
 	};
 
 	VideoCompositor.Effects = {
+	    "OFFSETSCALE": {
+	        "id": "offsetscale-filter",
+	        "fragmentShader": VideoCompositor.FragmentShaders.DEFAULT,
+	        "vertexShader": VideoCompositor.VertexShaders.OFFSETSCALE,
+	        "defaultParameters": {
+	            "scaleX": 1.0,
+	            "scaleY": 1.0,
+	            "offsetX": 0.0,
+	            "offsetY": 0.0
+	        }
+	    },
 	    "MONOCHROME": {
 	        "id": "monochrome-filter",
 	        "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME

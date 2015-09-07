@@ -720,6 +720,15 @@ VideoCompositor.VertexShaders = {
 
 
 VideoCompositor.FragmentShaders = {
+    DEFAULT:"\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            void main(){\
+                gl_FragColor = texture2D(u_image, v_texCoord);\
+            }",
     MONOCHROME: "\
         precision mediump float;\
         uniform sampler2D u_image;\
@@ -776,6 +785,17 @@ VideoCompositor.FragmentShaders = {
 
 
 VideoCompositor.Effects = {
+    "OFFSETSCALE" :{
+        "id":"offsetscale-filter",
+        "fragmentShader":VideoCompositor.FragmentShaders.DEFAULT,
+        "vertexShader": VideoCompositor.VertexShaders.OFFSETSCALE,
+        "defaultParameters":{
+            "scaleX":1.0,
+            "scaleY":1.0,
+            "offsetX":0.0,
+            "offsetY":0.0
+        }
+    },
     "MONOCHROME":{
                 "id":"monochrome-filter",
                 "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
