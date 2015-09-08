@@ -1,3 +1,5 @@
+//Matthew Shotton, R&D User Experince,© BBC 2015
+
 import VideoSource from "./sources/videosource.js";
 import ImageSource from "./sources/imagesource.js";
 import CanvasSource from "./sources/canvassource.js";

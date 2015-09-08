@@ -45,6 +45,8 @@ module.exports =
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
@@ -847,6 +849,7 @@ module.exports =
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//Matthew Shotton, R&D User Experince,© BBC 2015
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
@@ -1002,6 +1005,8 @@ module.exports =
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
 
 	'use strict';
 
@@ -1189,6 +1194,7 @@ module.exports =
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//Matthew Shotton, R&D User Experince,© BBC 2015
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
@@ -1273,6 +1279,7 @@ module.exports =
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
+	//Matthew Shotton, R&D User Experince,© BBC 2015
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {

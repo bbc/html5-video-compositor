@@ -1,3 +1,4 @@
+//Matthew Shotton, R&D User Experince,© BBC 2015
 import MediaSource from "./mediasource";
 
 class CanvasSource extends MediaSource{
