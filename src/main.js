@@ -35,12 +35,14 @@ class VideoCompositor {
         this._playlist = undefined;
         this._eventMappings = new Map();
         this._effectShaderPrograms = new Map();
+        this._effectShaderTextures = new Map();
         this._transitionShaderPrograms = new Map();
         this._mediaSourceListeners = new Map();
+        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
 
         //Setup the default shader effect
         let defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
-        this._effectShaderPrograms.set("default", defaultEffectShader);
+        this._effectShaderPrograms.set("default", {effect:defaultEffectShader, id:"default",textures:[]});
 
         this._currentTime = 0;
         this.duration = 0;
@@ -202,7 +204,55 @@ class VideoCompositor {
         return undefined;
     }
 
-    _getEffectShaderProgramForMediaSource(mediaSourceID){
+    _loadTextures(effect){
+        if (effect.parameters === undefined) return [];
+        let parameterKeys = Object.keys(effect.parameters);
+        let gl = this._ctx;
+        let textures = [];
+        for (let i = 0; i < parameterKeys.length; i++) {
+            let key = parameterKeys[i];
+            let parameter = effect.parameters[key];
+            if (typeof parameter !== "number"){
+                let texture = gl.createTexture();
+                textures.push(texture);                
+            }
+        }
+
+        this._refreshTextures(effect, textures);
+        return textures;
+    }
+
+    _refreshTextures(effect, textures){
+        let textureOffset = 1;
+        let gl = this._ctx;
+
+        if (effect.parameters === undefined) return;
+
+        let parameterKeys = Object.keys(effect.parameters);
+        for (let i = 0; i < parameterKeys.length; i++) {
+            let key = parameterKeys[i];
+            let parameter = effect.parameters[key];
+            if (typeof parameter !== "number"){
+
+                let texture = textures[textureOffset-1];
+                gl.activeTexture(gl.TEXTURE0 + textureOffset);
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);
+                textureOffset += 1;
+            }  
+        }
+
+        //for (var i = 0; i < effect.parameters.length; i++) {
+            //var parameter = effect.parameters[key];
+        //};
+
+    }
+
+    _getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID){
         let effects = this._playlist.effects;
         let defaultEffectShader = this._effectShaderPrograms.get("default");
 
@@ -219,11 +269,14 @@ class VideoCompositor {
                 //Found effect for mediaSourceID
                 //Check if program for effect is compiled.
                 if (this._effectShaderPrograms.has(effect.effect.id)){
-                    return this._effectShaderPrograms.get(effect.effect.id);
+                    var result = this._effectShaderPrograms.get(effect.effect.id);
+                    this._refreshTextures(effect, result.textures);
+                    return result;
                 }else {
                     let effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
-                    this._effectShaderPrograms.set(effect.effect.id, effectShader);
-                    return effectShader;
+                    let textures = this._loadTextures(effect);
+                    this._effectShaderPrograms.set(effect.effect.id, {effect:effectShader, textures:textures, id:effect.effect.id});
+                    return this._effectShaderPrograms.get(effect.effect.id);
                 }
             }
         }
@@ -402,7 +455,10 @@ class VideoCompositor {
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
 
-            let effectShaderProgram = this._getEffectShaderProgramForMediaSource(mediaSourceID);
+            let {effect:effectShaderProgram, textures:textures, id:currentEffectId} = this._getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID);
+            if (textures.length > this._max_number_of_textures -1){
+                console.error("Warning, too many texture inputs for effect",currentEffectId);
+            }
             let effect = this._getEffectFromMediaSource(mediaSourceID);
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
 
@@ -422,8 +478,7 @@ class VideoCompositor {
                     }
                 }
             }
-
-            mediaSource.render(effectShaderProgram, renderParameters);
+            mediaSource.render(effectShaderProgram, renderParameters, textures);
             //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
         }
         this._currentTime += dt;
@@ -643,8 +698,6 @@ VideoCompositor.VertexShaders = {
     DEFAULT: "\
         uniform float progress;\
         uniform float duration;\
-        uniform float inTime;\
-        uniform float outTime;\
         attribute vec2 a_position;\
         attribute vec2 a_texCoord;\
         varying vec2 v_texCoord;\

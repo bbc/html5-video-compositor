@@ -35,8 +35,8 @@ class ImageSource extends MediaSource{
         }
         this.element.src = this.src;
     }
-    render(program,  renderParameters){
-        super.render(program,  renderParameters);
+    render(program,  renderParameters, textures){
+        super.render(program,  renderParameters, textures);
     }
 }
 

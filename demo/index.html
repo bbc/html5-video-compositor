@@ -68,6 +68,10 @@
 
             var videoCompositor = new VideoCompositor(canvas);
 
+
+            var testImage = new Image();
+            testImage.src = "/assets/image.jpg";
+
             var playlist = {
                 "tracks":[
                     [
@@ -86,9 +90,25 @@
                         "inputs":["greenscreen video","greenscreen video1", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     },
-                    "fadeinout-1":{
+                    "texuretest-1":{
                         "inputs":["earth"],
-                        "effect":VideoCompositor.Effects.FADEINOUT2SEC,
+                        "effect":{
+                            fragmentShader:"\
+                                precision mediump float;\
+                                uniform sampler2D u_image;\
+                                uniform sampler2D image;\
+                                varying vec2 v_texCoord;\
+                                varying float v_progress;\
+                                varying float v_duration;\
+                                void main(){\
+                                    vec4 color0 = texture2D(u_image, v_texCoord);\
+                                    vec4 color1 = texture2D(image, v_texCoord);\
+                                    gl_FragColor = color1 + color0;\
+                                }"
+                        },
+                        "parameters":{
+                            "image": testImage
+                        }
                     }
                 }
             };

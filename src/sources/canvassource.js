@@ -35,8 +35,8 @@ class CanvasSource extends MediaSource{
         this.ready = true;
         this.onready(this);
     }
-    render(program,  renderParameters){
-        super.render(program,  renderParameters);
+    render(program,  renderParameters, textures){
+        super.render(program,  renderParameters, textures);
     }
 }
 

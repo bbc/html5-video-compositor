@@ -125,9 +125,8 @@ class MediaSource {
             delete this.element;  
         }
     }
-    render(program, renderParameters){
+    render(program, renderParameters, textures){
         //renders the media source to the WebGL context using the pased program
-
         let overriddenElement;
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if (typeof this.mediaSourceListeners[i].render === 'function'){
@@ -138,16 +137,26 @@ class MediaSource {
 
         this.gl.useProgram(program);
         let renderParametersKeys = Object.keys(renderParameters);
+        let textureOffset = 1;
         for (let index in renderParametersKeys){
             let key = renderParametersKeys[index];
-
             let parameterLoctation = this.gl.getUniformLocation(program, key);
             if (parameterLoctation !== -1){
-                this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+                if (typeof renderParameters[key] === "number"){
+                    this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+                }
+                else{
+                    //Is a texture
+                    this.gl.activeTexture(this.gl.TEXTURE0 + textureOffset);
+                    this.gl.uniform1i(parameterLoctation, textureOffset);
+                    this.gl.bindTexture(this.gl.TEXTURE_2D, textures[textureOffset-1]);
+                }
             }
         }
         
-        
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        let textureLocation = this.gl.getUniformLocation(program, "u_image");
+        this.gl.uniform1i(textureLocation, 0);
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
         if (overriddenElement !== undefined){
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);
