@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BBC R&ampD Video Compositor</title>
+</head>
+<body>
+    <script type="text/javascript" src="../dist/videocompositor.js"></script>
+    <script type="text/javascript" src="./lib/three.min.js"></script>
+    <script src="http://www.webglearth.com/v2/api.js"></script>
+    <script type="text/javascript">
+        var earth = undefined;
+        window.onload = function () {
+
+
+
+            /*
+            * Set up the video compositor 
+            */
+            var canvas = document.getElementById('player-canvas');
+            canvas.width = 640;
+            canvas.height = 360;
+
+            var videoCompositor = new VideoCompositor(canvas);
+
+            var lutSelect = document.getElementById("lut-select");
+            var lutSrcList = ["/assets/lut.png", "/assets/bronze.png", "/assets/dark.png", "/assets/scifi.png", "/assets/vivid.png"];
+            var lutImages = {};
+            for (var i = 0; i < lutSrcList.length; i++) {
+                var image = new Image();
+                image.src = lutSrcList[i];
+                lutImages[lutSrcList[i]] = image;
+
+                var opt = document.createElement("option");
+                opt.value = lutSrcList[i];
+                opt.innerHTML = lutSrcList[i];
+                lutSelect.appendChild(opt);
+            }
+
+
+
+            var testImage = new Image();
+            testImage.src = "/assets/lut.png";
+
+            var playlist = {
+                "tracks":[
+                    [
+                        {type:"video", start:0, duration:420, src:"assets/test.mp4", id:"video", "volume":0.0}
+                        ],
+                    [{type:"image", start:0, duration:420, src:"assets/background.png", id:"bg"}]
+
+                ],
+                "effects":{
+                    "texuretest-1":{
+                        "inputs":["video"],
+                        "effect":VideoCompositor.Effects.LUTSQAURE64X64,
+                        "parameters":{
+                            "lut": testImage
+                        }
+                    }
+                }
+            };
+
+
+            lutSelect.onchange = function(){
+                var index = lutSelect.options[lutSelect.selectedIndex].value;
+                console.log(index);
+                console.log(lutImages[index]);
+                playlist.effects["texuretest-1"].parameters.lut = lutImages[index];
+            };
+
+            //videoCompositor.registerMediaSourceListener("earth", testListener);
+
+
+            var duration = VideoCompositor.calculatePlaylistDuration(playlist);
+            console.log("Playlist Duration", duration);
+            videoCompositor.playlist = playlist;
+            //videoCompositor.play();
+
+            videoCompositor.addEventListener("seek", function(data){
+                console.log("Current Time",data);
+            }, false);
+            
+            videoCompositor.addEventListener("ended", function(data){
+                console.log("Playlist Ended",data);
+            }, false);
+
+            /*
+            * Wire the buttons into controlling the video compositor.
+            */
+            var playButton = document.getElementById("play-button");
+            var pauseButton = document.getElementById("pause-button");
+            playButton.onclick = function(){
+                videoCompositor.play();
+            };
+            pauseButton.onclick = function(){
+                videoCompositor.pause();
+            };
+
+            /*
+            * Create an interactive visualisation canvas.
+            */
+            var visualisationCanvas = document.getElementById("visualisation-canvas");
+            visualisationCanvas.height = 20;
+            visualisationCanvas.width = canvas.width;
+            //Setup up a render function so we can update the playhead position.
+            function render () {
+                VideoCompositor.renderPlaylist(playlist, visualisationCanvas, videoCompositor.currentTime);            
+                requestAnimationFrame(render);
+            }
+            requestAnimationFrame(render);
+            //catch mouse events to we can scrub through the timeline.
+            visualisationCanvas.addEventListener("mousedown", function(evt){
+                var x;
+                if (evt.x!= undefined){
+                    x = evt.x - visualisationCanvas.offsetLeft;
+                }else{
+                    //Fix for firefox
+                    x = evt.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;          
+                }
+
+                var secondsPerPixel = videoCompositor.duration / visualisationCanvas.width;
+                videoCompositor.currentTime = secondsPerPixel*x;
+                //videoCompositor.play();
+
+            }, false);
+
+        };
+    </script>
+    <canvas id="player-canvas"></canvas>
+    <br>
+    <canvas id="visualisation-canvas"></canvas>
+    <br>
+    <button id="play-button">Play</button>
+    <button id="pause-button">Pause</button>
+    <p>Look-up Table Select
+    <select id="lut-select">
+        
+    </select>
+    </p>
+    <br>
+    <div id="earth_div"></div>
+
+</body>
+</html>

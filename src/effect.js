@@ -38,9 +38,6 @@ function loadTextures(playlistEffectObject, gl){
 }
 
 
-
-
-
 function compileShader(gl, shaderSource, shaderType) {
     let shader = gl.createShader(shaderType);
     gl.shaderSource(shader, shaderSource);
@@ -67,7 +64,6 @@ function createShaderProgram(gl, vertexShaderSource, fragmentShaderSource){
     }
     return program;
 }
-
 
 
 class Effect {
