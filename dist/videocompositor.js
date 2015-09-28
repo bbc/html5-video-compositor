@@ -73,6 +73,10 @@ var VideoCompositor =
 
 	var _sourcesCanvassourceJs2 = _interopRequireDefault(_sourcesCanvassourceJs);
 
+	var _effectmanagerJs = __webpack_require__(7);
+
+	var _effectmanagerJs2 = _interopRequireDefault(_effectmanagerJs);
+
 	var updateables = [];
 	var previousTime = undefined;
 	var mediaSourceMapping = new Map();
@@ -100,18 +104,14 @@ var VideoCompositor =
 	        this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
 	        this._playing = false;
 	        this._mediaSources = new Map();
-	        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+	        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
 	        this._playlist = undefined;
 	        this._eventMappings = new Map();
-	        this._effectShaderPrograms = new Map();
-	        this._effectShaderTextures = new Map();
-	        this._transitionShaderPrograms = new Map();
 	        this._mediaSourceListeners = new Map();
 	        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
 
 	        //Setup the default shader effect
-	        var defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
-	        this._effectShaderPrograms.set("default", { effect: defaultEffectShader, id: "default", textures: [] });
+	        this._effectManager = new _effectmanagerJs2["default"](this._ctx);
 
 	        this._currentTime = 0;
 	        this.duration = 0;
@@ -215,104 +215,6 @@ var VideoCompositor =
 	                return a.start - b.start;
 	            });
 	            return mediaSources;
-	        }
-	    }, {
-	        key: "_getEffectFromMediaSource",
-	        value: function _getEffectFromMediaSource(mediaSourceID) {
-	            var effects = this._playlist.effects;
-	            if (effects === undefined) return undefined;
-	            var effectKeys = Object.keys(effects);
-	            for (var i = 0; i < effectKeys.length; i++) {
-	                var effectKey = effectKeys[i];
-	                var effect = effects[effectKey];
-	                if (effect.inputs.indexOf(mediaSourceID) > -1) {
-	                    return effect;
-	                }
-	            }
-	            return undefined;
-	        }
-	    }, {
-	        key: "_loadTextures",
-	        value: function _loadTextures(effect) {
-	            if (effect.parameters === undefined) return [];
-	            var parameterKeys = Object.keys(effect.parameters);
-	            var gl = this._ctx;
-	            var textures = [];
-	            for (var i = 0; i < parameterKeys.length; i++) {
-	                var key = parameterKeys[i];
-	                var parameter = effect.parameters[key];
-	                if (typeof parameter !== "number") {
-	                    var texture = gl.createTexture();
-	                    textures.push(texture);
-	                }
-	            }
-
-	            this._refreshTextures(effect, textures);
-	            return textures;
-	        }
-	    }, {
-	        key: "_refreshTextures",
-	        value: function _refreshTextures(effect, textures) {
-	            var textureOffset = 1;
-	            var gl = this._ctx;
-
-	            if (effect.parameters === undefined) return;
-
-	            var parameterKeys = Object.keys(effect.parameters);
-	            for (var i = 0; i < parameterKeys.length; i++) {
-	                var key = parameterKeys[i];
-	                var parameter = effect.parameters[key];
-	                if (typeof parameter !== "number") {
-
-	                    var texture = textures[textureOffset - 1];
-	                    gl.activeTexture(gl.TEXTURE0 + textureOffset);
-	                    gl.bindTexture(gl.TEXTURE_2D, texture);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-	                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);
-	                    textureOffset += 1;
-	                }
-	            }
-
-	            //for (var i = 0; i < effect.parameters.length; i++) {
-	            //var parameter = effect.parameters[key];
-	            //};
-	        }
-	    }, {
-	        key: "_getEffectShaderProgramAndTexturesForMediaSource",
-	        value: function _getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID) {
-	            var effects = this._playlist.effects;
-	            var defaultEffectShader = this._effectShaderPrograms.get("default");
-
-	            if (effects === undefined) {
-	                //No effects defined so just use default shader
-	                return defaultEffectShader;
-	            }
-
-	            var effectKeys = Object.keys(effects);
-	            for (var i = 0; i < effectKeys.length; i++) {
-	                var effectKey = effectKeys[i];
-	                var effect = effects[effectKey];
-	                if (effect.inputs.indexOf(mediaSourceID) > -1) {
-	                    //Found effect for mediaSourceID
-	                    //Check if program for effect is compiled.
-	                    if (this._effectShaderPrograms.has(effect.effect.id)) {
-	                        var result = this._effectShaderPrograms.get(effect.effect.id);
-	                        this._refreshTextures(effect, result.textures);
-	                        return result;
-	                    } else {
-	                        var effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
-	                        var textures = this._loadTextures(effect);
-	                        this._effectShaderPrograms.set(effect.effect.id, { effect: effectShader, textures: textures, id: effect.effect.id });
-	                        return this._effectShaderPrograms.get(effect.effect.id);
-	                    }
-	                }
-	            }
-
-	            //if wer get top this point no suitable effect shader was found so just return the default
-	            return defaultEffectShader;
 	        }
 	    }, {
 	        key: "_loadMediaSource",
@@ -486,10 +388,13 @@ var VideoCompositor =
 	                return;
 	            }
 
+	            //Update the effects
+	            this._effectManager.updateEffects(this._playlist.effects);
+
 	            //Play mediaSources on the currently playing queue.
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
-	            var activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+	            //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
 	            this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
 
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
@@ -497,36 +402,17 @@ var VideoCompositor =
 	                var mediaSource = this._mediaSources.get(mediaSourceID);
 	                mediaSource.play();
 
-	                var _getEffectShaderProgramAndTexturesForMediaSource2 = this._getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID);
-
-	                var effectShaderProgram = _getEffectShaderProgramAndTexturesForMediaSource2.effect;
-	                var textures = _getEffectShaderProgramAndTexturesForMediaSource2.textures;
-	                var currentEffectId = _getEffectShaderProgramAndTexturesForMediaSource2.id;
-
-	                if (textures.length > this._max_number_of_textures - 1) {
-	                    console.error("Warning, too many texture inputs for effect", currentEffectId);
-	                }
-	                var effect = this._getEffectFromMediaSource(mediaSourceID);
 	                var progress = (this._currentTime - currentlyPlaying[i].start) / currentlyPlaying[i].duration;
-
+	                //get the base render parameters
 	                var renderParameters = { "progress": progress, "duration": mediaSource.duration };
-	                if (effect !== undefined) {
-
-	                    if (effect.effect.defaultParameters !== undefined) {
-	                        //Set-up default parameters
-	                        for (var key in effect.effect.defaultParameters) {
-	                            renderParameters[key] = effect.effect.defaultParameters[key];
-	                        }
-	                    }
-	                    if (effect.parameters !== undefined) {
-	                        //Set-up custom parameters
-	                        for (var key in effect.parameters) {
-	                            renderParameters[key] = effect.parameters[key];
-	                        }
-	                    }
+	                //find the effect associated with the current mediasource
+	                var effect = this._effectManager.getEffectForInputId(mediaSourceID);
+	                //merge the base parameters with any custom ones
+	                for (var key in effect.parameters) {
+	                    renderParameters[key] = effect.parameters[key];
 	                }
-	                mediaSource.render(effectShaderProgram, renderParameters, textures);
-	                //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
+
+	                mediaSource.render(effect.program, renderParameters, effect.textures);
 	            }
 	            this._currentTime += dt;
 	        }
@@ -702,51 +588,6 @@ var VideoCompositor =
 	                    }
 	                }
 	            }
-	        }
-	    }, {
-	        key: "createEffectShaderProgram",
-	        value: function createEffectShaderProgram(gl, effect) {
-	            var vertexShaderSource = "            uniform float progress;            uniform float duration;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main() {                v_progress = progress;                v_duration = duration;                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);                v_texCoord = a_texCoord;            }";
-
-	            var fragmentShaderSource = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }";
-
-	            if (effect !== undefined) {
-	                if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
-	                if (effect.effect.vertexShader !== undefined) vertexShaderSource = effect.effect.vertexShader;
-	            }
-
-	            var program = VideoCompositor.createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-	            return program;
-	        }
-	    }, {
-	        key: "createShaderProgram",
-	        value: function createShaderProgram(gl, vertexShaderSource, fragmentShaderSource) {
-	            var vertexShader = VideoCompositor.compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
-	            var fragmentShader = VideoCompositor.compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
-	            var program = gl.createProgram();
-
-	            gl.attachShader(program, vertexShader);
-	            gl.attachShader(program, fragmentShader);
-	            gl.linkProgram(program);
-
-	            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	                throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
-	                        return this.msg;
-	                    } };
-	            }
-	            return program;
-	        }
-	    }, {
-	        key: "compileShader",
-	        value: function compileShader(gl, shaderSource, shaderType) {
-	            var shader = gl.createShader(shaderType);
-	            gl.shaderSource(shader, shaderSource);
-	            gl.compileShader(shader);
-	            var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-	            if (!success) {
-	                throw "could not compile shader:" + gl.getShaderInfoLog(shader);
-	            }
-	            return shader;
 	        }
 	    }, {
 	        key: "renderPlaylist",
@@ -1427,6 +1268,231 @@ var VideoCompositor =
 	})(_mediasource2["default"]);
 
 	exports["default"] = CanvasSource;
+	module.exports = exports["default"];
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function refreshTextures(playlistEffectObject, textures, gl) {
+	    var textureOffset = 1;
+
+	    if (playlistEffectObject.parameters === undefined) return;
+
+	    var parameterKeys = Object.keys(playlistEffectObject.parameters);
+	    for (var i = 0; i < parameterKeys.length; i++) {
+	        var key = parameterKeys[i];
+	        var parameter = playlistEffectObject.parameters[key];
+	        if (typeof parameter !== "number") {
+	            var texture = textures[textureOffset - 1];
+	            gl.activeTexture(gl.TEXTURE0 + textureOffset);
+	            gl.bindTexture(gl.TEXTURE_2D, texture);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);
+	            textureOffset += 1;
+	        }
+	    }
+	}
+
+	function loadTextures(playlistEffectObject, gl) {
+	    if (playlistEffectObject.parameters === undefined) return [];
+	    var parameterKeys = Object.keys(playlistEffectObject.parameters);
+	    var textures = [];
+	    for (var i = 0; i < parameterKeys.length; i++) {
+	        var key = parameterKeys[i];
+	        var parameter = playlistEffectObject.parameters[key];
+	        if (typeof parameter !== "number") {
+	            var texture = gl.createTexture();
+	            textures.push(texture);
+	        }
+	    }
+	    refreshTextures(playlistEffectObject, textures, gl);
+	    return textures;
+	}
+
+	function compileShader(gl, shaderSource, shaderType) {
+	    var shader = gl.createShader(shaderType);
+	    gl.shaderSource(shader, shaderSource);
+	    gl.compileShader(shader);
+	    var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+	    if (!success) {
+	        throw "could not compile shader:" + gl.getShaderInfoLog(shader);
+	    }
+	    return shader;
+	}
+
+	function createShaderProgram(gl, vertexShaderSource, fragmentShaderSource) {
+	    var vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+	    var fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
+	    var program = gl.createProgram();
+
+	    gl.attachShader(program, vertexShader);
+	    gl.attachShader(program, fragmentShader);
+	    gl.linkProgram(program);
+
+	    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	        throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
+	                return this.msg;
+	            } };
+	    }
+	    return program;
+	}
+
+	var Effect = (function () {
+	    function Effect(playlistEffectObject, gl) {
+	        _classCallCheck(this, Effect);
+
+	        this.gl = gl;
+	        this.vertexShaderSrc = playlistEffectObject.effect.vertexShader;
+	        if (this.vertexShaderSrc === undefined) {
+	            this.vertexShaderSrc = "                uniform float progress;                uniform float duration;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main() {                    v_progress = progress;                    v_duration = duration;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }";
+	        }
+	        this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;
+	        if (this.fragmentShaderSrc === undefined) {
+	            this.fragmentShaderSrc = "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main(){                    gl_FragColor = texture2D(u_image, v_texCoord);                }";
+	        }
+
+	        this.parameters = playlistEffectObject.parameters;
+	        if (this.parameters === undefined) {
+	            this.parameters = {};
+	        }
+	        if (playlistEffectObject.effect.defaultParameters !== undefined) {
+	            for (var key in playlistEffectObject.effect.defaultParameters) {
+	                this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+	            }
+	        }
+	        this.inputs = playlistEffectObject.inputs;
+	        if (this.inputs === undefined) {
+	            this.inputs = [];
+	        }
+
+	        this.textures = loadTextures(playlistEffectObject, this.gl);
+	        this.program = createShaderProgram(this.gl, this.vertexShaderSrc, this.fragmentShaderSrc);
+	    }
+
+	    _createClass(Effect, [{
+	        key: "update",
+	        value: function update(playlistEffectObject) {
+	            refreshTextures(playlistEffectObject, this.textures, this.gl);
+	            this.inputs = playlistEffectObject.inputs;
+	            if (this.inputs === undefined) {
+	                this.inputs = [];
+	            }
+	        }
+	    }]);
+
+	    return Effect;
+	})();
+
+	exports["default"] = Effect;
+	module.exports = exports["default"];
+
+/***/ },
+/* 6 */,
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _effectJs = __webpack_require__(5);
+
+	var _effectJs2 = _interopRequireDefault(_effectJs);
+
+	var EffectManager = (function () {
+	    function EffectManager(gl) {
+	        _classCallCheck(this, EffectManager);
+
+	        this.effects = new Map();
+	        this.gl = gl;
+	        //Setup the default effect
+	        this.newEffect("default", { "effect": {} });
+	    }
+
+	    _createClass(EffectManager, [{
+	        key: "newEffect",
+	        value: function newEffect(id, playlistEffectObject) {
+	            //The playlist effect object is the representation of the effect stored in the playlist object
+	            var effect = new _effectJs2["default"](playlistEffectObject, this.gl);
+	            this.effects.set(id, effect);
+	        }
+	    }, {
+	        key: "updateEffects",
+	        value: function updateEffects(playlistEffectObjects) {
+	            if (playlistEffectObjects === undefined) return;
+	            for (var key in playlistEffectObjects) {
+	                if (this.effects.has(key)) {
+	                    //udpate the effect
+	                    this.effects.get(key).update(playlistEffectObjects[key]);
+	                } else {
+	                    //create the effect
+	                    this.newEffect(key, playlistEffectObjects[key]);
+	                }
+	            }
+	            //TODO clean-up effects that don't exist
+	        }
+	    }, {
+	        key: "getEffectForInputId",
+	        value: function getEffectForInputId(inputId) {
+	            var effectIdList = this.effects.keys();
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = effectIdList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var key = _step.value;
+
+	                    var effect = this.effects.get(key);
+	                    if (effect.inputs.indexOf(inputId) > -1) {
+	                        return effect;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            return this.effects.get("default");
+	        }
+	    }]);
+
+	    return EffectManager;
+	})();
+
+	exports["default"] = EffectManager;
 	module.exports = exports["default"];
 
 /***/ }

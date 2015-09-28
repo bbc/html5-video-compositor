@@ -3,6 +3,7 @@
 import VideoSource from "./sources/videosource.js";
 import ImageSource from "./sources/imagesource.js";
 import CanvasSource from "./sources/canvassource.js";
+import EffectManager from "./effectmanager.js";
 
 let updateables = [];
 let previousTime;
@@ -31,18 +32,14 @@ class VideoCompositor {
         this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
         this._playing = false;
         this._mediaSources = new Map();
-        this._mediaSourcePreloadNumber = 2; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
         this._playlist = undefined;
         this._eventMappings = new Map();
-        this._effectShaderPrograms = new Map();
-        this._effectShaderTextures = new Map();
-        this._transitionShaderPrograms = new Map();
         this._mediaSourceListeners = new Map();
         this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
 
         //Setup the default shader effect
-        let defaultEffectShader = VideoCompositor.createEffectShaderProgram(this._ctx);
-        this._effectShaderPrograms.set("default", {effect:defaultEffectShader, id:"default",textures:[]});
+        this._effectManager = new EffectManager(this._ctx);
 
         this._currentTime = 0;
         this.duration = 0;
@@ -188,101 +185,6 @@ class VideoCompositor {
             return a.start - b.start;
         });
         return mediaSources;
-    }
-
-    _getEffectFromMediaSource(mediaSourceID){
-        let effects = this._playlist.effects;
-        if (effects === undefined) return undefined;
-        let effectKeys = Object.keys(effects);
-        for (let i =0; i < effectKeys.length; i++){
-            let effectKey = effectKeys[i];
-            let effect = effects[effectKey];
-            if (effect.inputs.indexOf(mediaSourceID) > -1){
-                return effect;
-            }
-        }
-        return undefined;
-    }
-
-    _loadTextures(effect){
-        if (effect.parameters === undefined) return [];
-        let parameterKeys = Object.keys(effect.parameters);
-        let gl = this._ctx;
-        let textures = [];
-        for (let i = 0; i < parameterKeys.length; i++) {
-            let key = parameterKeys[i];
-            let parameter = effect.parameters[key];
-            if (typeof parameter !== "number"){
-                let texture = gl.createTexture();
-                textures.push(texture);                
-            }
-        }
-
-        this._refreshTextures(effect, textures);
-        return textures;
-    }
-
-    _refreshTextures(effect, textures){
-        let textureOffset = 1;
-        let gl = this._ctx;
-
-        if (effect.parameters === undefined) return;
-
-        let parameterKeys = Object.keys(effect.parameters);
-        for (let i = 0; i < parameterKeys.length; i++) {
-            let key = parameterKeys[i];
-            let parameter = effect.parameters[key];
-            if (typeof parameter !== "number"){
-
-                let texture = textures[textureOffset-1];
-                gl.activeTexture(gl.TEXTURE0 + textureOffset);
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);
-                textureOffset += 1;
-            }  
-        }
-
-        //for (var i = 0; i < effect.parameters.length; i++) {
-            //var parameter = effect.parameters[key];
-        //};
-
-    }
-
-    _getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID){
-        let effects = this._playlist.effects;
-        let defaultEffectShader = this._effectShaderPrograms.get("default");
-
-        if (effects === undefined){
-            //No effects defined so just use default shader
-            return defaultEffectShader;
-        }
-
-        let effectKeys = Object.keys(effects);
-        for (let i =0; i < effectKeys.length; i++){
-            let effectKey = effectKeys[i];
-            let effect = effects[effectKey];
-            if (effect.inputs.indexOf(mediaSourceID) > -1){
-                //Found effect for mediaSourceID
-                //Check if program for effect is compiled.
-                if (this._effectShaderPrograms.has(effect.effect.id)){
-                    var result = this._effectShaderPrograms.get(effect.effect.id);
-                    this._refreshTextures(effect, result.textures);
-                    return result;
-                }else {
-                    let effectShader = VideoCompositor.createEffectShaderProgram(this._ctx, effect);
-                    let textures = this._loadTextures(effect);
-                    this._effectShaderPrograms.set(effect.effect.id, {effect:effectShader, textures:textures, id:effect.effect.id});
-                    return this._effectShaderPrograms.get(effect.effect.id);
-                }
-            }
-        }
-
-        //if wer get top this point no suitable effect shader was found so just return the default
-        return defaultEffectShader;
     }
 
     _loadMediaSource(mediaSourceReference, onReadyCallback){
@@ -442,11 +344,14 @@ class VideoCompositor {
         }
 
 
+        //Update the effects
+        this._effectManager.updateEffects(this._playlist.effects);
+
         //Play mediaSources on the currently playing queue.
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
 
-        let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+        //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
         this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
         
 
@@ -455,36 +360,21 @@ class VideoCompositor {
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
 
-            let {effect:effectShaderProgram, textures:textures, id:currentEffectId} = this._getEffectShaderProgramAndTexturesForMediaSource(mediaSourceID);
-            if (textures.length > this._max_number_of_textures -1){
-                console.error("Warning, too many texture inputs for effect",currentEffectId);
-            }
-            let effect = this._getEffectFromMediaSource(mediaSourceID);
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
-
+            //get the base render parameters
             let renderParameters = {"progress":progress, "duration":mediaSource.duration};
-            if (effect !== undefined) {
-                
-                if (effect.effect.defaultParameters !== undefined){
-                //Set-up default parameters
-                    for (let key in effect.effect.defaultParameters) {
-                        renderParameters[key] = effect.effect.defaultParameters[key];
-                    }
-                }
-                if (effect.parameters !== undefined){
-                    //Set-up custom parameters
-                    for (let key in effect.parameters) {
-                        renderParameters[key] = effect.parameters[key];
-                    }
-                }
+            //find the effect associated with the current mediasource
+            let effect = this._effectManager.getEffectForInputId(mediaSourceID);
+            //merge the base parameters with any custom ones
+            for (let key in effect.parameters) {
+                renderParameters[key] = effect.parameters[key];
             }
-            mediaSource.render(effectShaderProgram, renderParameters, textures);
-            //this._ctx.drawImage(mediaSource.render(), 0, 0, w, h);
+
+            mediaSource.render(effect.program, renderParameters, effect.textures);
+
         }
         this._currentTime += dt;
     }
-
-
 
     static calculateTrackDuration(track){
         let maxPlayheadPosition = 0;
@@ -583,75 +473,6 @@ class VideoCompositor {
                 }
             }
         }
-    }
-
-
-
-
-
-
-    static createEffectShaderProgram(gl, effect){
-        let vertexShaderSource = "\
-            uniform float progress;\
-            uniform float duration;\
-            attribute vec2 a_position;\
-            attribute vec2 a_texCoord;\
-            varying vec2 v_texCoord;\
-            varying float v_progress;\
-            varying float v_duration;\
-            void main() {\
-                v_progress = progress;\
-                v_duration = duration;\
-                gl_Position = vec4(2.0*a_position-1.0, 0.0, 1.0);\
-                v_texCoord = a_texCoord;\
-            }";
-
-        let fragmentShaderSource = "\
-            precision mediump float;\
-            uniform sampler2D u_image;\
-            varying vec2 v_texCoord;\
-            varying float v_progress;\
-            varying float v_duration;\
-            void main(){\
-                gl_FragColor = texture2D(u_image, v_texCoord);\
-            }";
-
-        if (effect !== undefined){
-            if (effect.effect.fragmentShader !== undefined) fragmentShaderSource = effect.effect.fragmentShader;
-            if (effect.effect.vertexShader !== undefined) vertexShaderSource = effect.effect.vertexShader;    
-        }
-        
-        let program = VideoCompositor.createShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-        return program;
-    }
-
-
-    static createShaderProgram(gl, vertexShaderSource, fragmentShaderSource){
-        let vertexShader = VideoCompositor.compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
-        let fragmentShader = VideoCompositor.compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
-        let program = gl.createProgram();
-
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-       
-
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
-            throw {"error":4,"msg":"Can't link shader program for track", toString:function(){return this.msg;}};
-        }
-        return program;
-    }
-
-
-    static compileShader(gl, shaderSource, shaderType) {
-        let shader = gl.createShader(shaderType);
-        gl.shaderSource(shader, shaderSource);
-        gl.compileShader(shader);
-        let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-        if (!success) {
-            throw "could not compile shader:" + gl.getShaderInfoLog(shader);
-        }
-        return shader;
     }
 
 
