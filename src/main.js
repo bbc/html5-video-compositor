@@ -4,6 +4,7 @@ import VideoSource from "./sources/videosource.js";
 import ImageSource from "./sources/imagesource.js";
 import CanvasSource from "./sources/canvassource.js";
 import EffectManager from "./effectmanager.js";
+import AudioManager from "./audiomanager.js";
 
 let updateables = [];
 let previousTime;
@@ -27,7 +28,7 @@ update();
 
 
 class VideoCompositor {
-    constructor(canvas){
+    constructor(canvas, audioCtx){
         this._canvas = canvas;
         this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
         this._playing = false;
@@ -38,8 +39,8 @@ class VideoCompositor {
         this._mediaSourceListeners = new Map();
         this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
 
-        //Setup the default shader effect
         this._effectManager = new EffectManager(this._ctx);
+        this._audioManger = new AudioManager(audioCtx);
 
         this._currentTime = 0;
         this.duration = 0;
@@ -66,7 +67,6 @@ class VideoCompositor {
             if (this._mediaSources.has(mediaSourceID) === false){
                 
                 this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
-                    //let mediaSource = _this._mediaSources.get(mediaSourceID);
                     mediaSource.seek(currentTime);
                 });
 
@@ -141,6 +141,15 @@ class VideoCompositor {
         }else{
             this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
         }
+    }
+
+    getAudioContext(){
+        return this._audioManger.getAudioContext();
+    }
+
+    getAudioNodeForTrack(track){
+        let audioNode = this._audioManger.createAudioNodeFromTrack(track);
+        return audioNode;
     }
 
     _dispatchEvents(evt){
@@ -346,6 +355,9 @@ class VideoCompositor {
 
         //Update the effects
         this._effectManager.updateEffects(this._playlist.effects);
+
+        //Update the audio
+        this._audioManger.update(this._mediaSources);
 
         //Play mediaSources on the currently playing queue.
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last

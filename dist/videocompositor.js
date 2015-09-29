@@ -1,2 +1,1622 @@
-var VideoCompositor=function(e){function t(i){if(r[i])return r[i].exports;var a=r[i]={exports:{},id:i,loaded:!1};return e[i].call(a.exports,a,a.exports,t),a.loaded=!0,a.exports}var r={};return t.m=e,t.c=r,t.p="",t(0)}([function(e,t,r){"use strict";function i(e){return e&&e.__esModule?e:{"default":e}}function a(e,t){if(Array.isArray(e))return e;if(Symbol.iterator in Object(e)){var r=[],i=!0,a=!1,o=void 0;try{for(var n,s=e[Symbol.iterator]();!(i=(n=s.next()).done)&&(r.push(n.value),!t||r.length!==t);i=!0);}catch(u){a=!0,o=u}finally{try{!i&&s["return"]&&s["return"]()}finally{if(a)throw o}}return r}throw new TypeError("Invalid attempt to destructure non-iterable instance")}function o(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e){m.push(e)}function s(e){void 0===_&&(_=e);for(var t=(e-_)/1e3,r=0;r<m.length;r++)m[r].update(t);_=e,requestAnimationFrame(s)}Object.defineProperty(t,"__esModule",{value:!0});var u=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),l=r(1),c=i(l),f=r(3),d=i(f),v=r(4),h=i(v),g=r(5),p=i(g),m=[],_=void 0,y=new Map;y.set("video",c["default"]).set("image",d["default"]).set("canvas",h["default"]),s();var S=function(){function e(t){o(this,e),this._canvas=t,this._ctx=this._canvas.getContext("experimental-webgl",{preserveDrawingBuffer:!0,alpha:!1}),this._playing=!1,this._mediaSources=new Map,this._mediaSourcePreloadNumber=4,this._playlist=void 0,this._eventMappings=new Map,this._mediaSourceListeners=new Map,this._max_number_of_textures=this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS),this._effectManager=new p["default"](this._ctx),this._currentTime=0,this.duration=0,n(this)}return u(e,[{key:"play",value:function(){this._playing=!0;var e=new CustomEvent("play",{detail:{data:this._currentTime,instance:this}});this._canvas.dispatchEvent(e)}},{key:"pause",value:function(){this._playing=!1,this._mediaSources.forEach(function(e){e.pause()});var e=new CustomEvent("pause",{detail:{data:this._currentTime,instance:this}});this._canvas.dispatchEvent(e)}},{key:"addEventListener",value:function(e,t){this._eventMappings.has(e)?this._eventMappings.get(e).push(t):this._eventMappings.set(e,[t]),this._canvas.addEventListener(e,this._dispatchEvents,!1)}},{key:"removeEventListener",value:function(e,t){if(this._eventMappings.has(e)){var r=this._eventMappings.get(e),i=r.indexOf(t);if(-1!==i)return r.splice(i,1),!0}return!1}},{key:"registerMediaSourceListener",value:function(e,t){this._mediaSourceListeners.has(e)?this._mediaSourceListeners.get(e).push(t):this._mediaSourceListeners.set(e,[t])}},{key:"_dispatchEvents",value:function(e){for(var t=0;t<e.detail.instance._eventMappings.get(e.type).length;t++)e.detail.instance._eventMappings.get(e.type)[t](e.detail.data)}},{key:"_getPlaylistPlayingStatusAtTime",value:function(e,t){for(var r=[],i=[],a=[],o=0;o<e.tracks.length;o++)for(var n=e.tracks[o],s=0;s<n.length;s++){var u=n[s],l=u.start+u.duration;t>l?a.push(u):t>u.start&&l>t?i.push(u):t<=u.start&&r.push(u)}return[r,i,a]}},{key:"_sortMediaSourcesByStartTime",value:function(e){return e.sort(function(e,t){return e.start-t.start}),e}},{key:"_loadMediaSource",value:function(e,t){void 0===t&&(t=function(){});var r=[];switch(this._mediaSourceListeners.has(e.id)&&(r=this._mediaSourceListeners.get(e.id)),e.type){case"video":var i=new c["default"](e,this._ctx);i.onready=t,i.mediaSourceListeners=r,i.load(),this._mediaSources.set(e.id,i);break;case"image":var a=new d["default"](e,this._ctx);a.onready=t,a.mediaSourceListeners=r,a.load(),this._mediaSources.set(e.id,a);break;case"canvas":var o=new h["default"](e,this._ctx);o.onready=t,o.mediaSourceListeners=r,o.load(),this._mediaSources.set(e.id,o);break;default:throw{error:5,msg:"mediaSourceReference "+e.id+" has unrecognized type "+e.type,toString:function(){return this.msg}}}}},{key:"_calculateMediaSourcesOverlap",value:function(e){for(var t=0,r=void 0,i=0;i<e.length;i++){var a=e[i];a.start>t&&(t=a.start);var o=a.start+a.duration;(void 0===r||r>o)&&(r=o)}return[t,r]}},{key:"_calculateActiveTransitions",value:function(e,t){if(void 0===this._playlist||this._playing===!1)return[];if(void 0===this._playlist.transitions)return[];for(var r=[],i=0;i<e.length;i++)r.push(e[i].id);for(var o=[],n=Object.keys(this._playlist.transitions),i=0;i<n.length;i++){for(var s=n[i],u=this._playlist.transitions[s],l=!0,c=0;c<u.inputs.length;c++){var f=u.inputs[c];if(-1===r.indexOf(f)){l=!1;break}}if(l){for(var d={transition:u,transitionID:s,mediaSources:[]},c=0;c<u.inputs.length;c++)d.mediaSources.push(this._mediaSources.get(u.inputs[c]));o.push(d)}}for(var i=0;i<o.length;i++){var v=o[i].mediaSources,h=this._calculateMediaSourcesOverlap(v),g=a(h,2),p=g[0],m=g[1],_=(t-p)/(m-p);o[i].progress=_}return o}},{key:"update",value:function(e){if(void 0!==this._playlist&&this._playing!==!1){var t=this._getPlaylistPlayingStatusAtTime(this._playlist,this._currentTime),r=a(t,3),i=r[0],o=r[1],n=r[2];if(i=this._sortMediaSourcesByStartTime(i),0===i.length&&0===o.length){this.pause();var s=new CustomEvent("ended",{detail:{data:this.currentTime,instance:this}});return this.currentTime=0,void this._canvas.dispatchEvent(s)}for(var u=0;u<this._mediaSourcePreloadNumber&&u!==i.length;u++)this._mediaSources.has(i[u].id)===!1&&this._loadMediaSource(i[u]);for(var u=0;u<n.length;u++){var l=n[u];if(this._mediaSources.has(l.id)){var c=this._mediaSources.get(l.id);c.destroy(),this._mediaSources["delete"](l.id)}}for(var f=!0,u=0;u<o.length;u++){var d=o[u].id;this._mediaSources.has(d)?this._mediaSources.get(d).isReady()||(f=!1):(this._loadMediaSource(o[u]),f=!1)}if(f!==!1){this._effectManager.updateEffects(this._playlist.effects),o.reverse(),this._ctx.viewport(0,0,this._ctx.canvas.width,this._ctx.canvas.height);for(var u=0;u<o.length;u++){var d=o[u].id,c=this._mediaSources.get(d);c.play();var v=(this._currentTime-o[u].start)/o[u].duration,h={progress:v,duration:c.duration},g=this._effectManager.getEffectForInputId(d);for(var p in g.parameters)h[p]=g.parameters[p];c.render(g.program,h,g.textures)}this._currentTime+=e}}}},{key:"currentTime",set:function(e){if(console.debug("Seeking to",e),void 0!==this._playlist){var t=this._getPlaylistPlayingStatusAtTime(this._playlist,e),r=a(t,3),i=(r[0],r[1]);r[2];this._mediaSources.forEach(function(e){e.destroy()}),this._mediaSources.clear();for(var o=0;o<i.length;o++){var n=i[o].id;this._mediaSources.has(n)===!1?this._loadMediaSource(i[o],function(t){t.seek(e)}):this._mediaSources.get(n).seek(e)}this._currentTime=e;var s=new CustomEvent("seek",{detail:{data:e,instance:this}});this._canvas.dispatchEvent(s)}},get:function(){return this._currentTime}},{key:"playlist",set:function(t){e.validatePlaylist(t),this.duration=e.calculatePlaylistDuration(t),this._playlist=t,this._mediaSources.forEach(function(e){e.destroy()}),this._mediaSources.clear()}}],[{key:"calculateTrackDuration",value:function(e){for(var t=0,r=0;r<e.length;r++){var i=e[r].start+e[r].duration;i>t&&(t=i)}return t}},{key:"calculatePlaylistDuration",value:function(t){for(var r=0,i=0;i<t.tracks.length;i++){var a=t.tracks[i],o=e.calculateTrackDuration(a);o>r&&(r=o)}return r}},{key:"validatePlaylist",value:function(e){for(var t=new Map,r=0;r<e.tracks.length;r++)for(var i=e.tracks[r],a=0;a<i.length;a++){var o=i[a];if(t.has(o.id))throw{error:1,msg:"MediaSourceReference "+o.id+" in track "+r+" has a duplicate ID.",toString:function(){return this.msg}};t.set(o.id,!0)}for(var r=0;r<e.tracks.length;r++)for(var i=e.tracks[r],a=0;a<i.length;a++){var o=i[a];if(void 0===o.id)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" is missing a id property",toString:function(){return this.msg}};if(void 0===o.start)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" is missing a start property",toString:function(){return this.msg}};if(void 0===o.duration)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" is missing a duration property",toString:function(){return this.msg}};if(void 0===o.type)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" is missing a type property",toString:function(){return this.msg}};if(void 0!==o.src&&void 0!==o.element)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" has both a src and element, it must have one or the other",toString:function(){return this.msg}};if(void 0===o.src&&void 0===o.element)throw{error:2,msg:"MediaSourceReference "+o.id+" in track "+r+" has neither a src or an element, it must have one or the other",toString:function(){return this.msg}}}for(var r=0;r<e.tracks.length;r++)for(var i=e.tracks[r],n=0,a=0;a<i.length;a++){var o=i[a];if(o.start<n)throw{error:3,msg:"MediaSourceReferences "+o.id+" in track "+r+" starts before previous MediaSourceReference",toString:function(){return this.msg}};n=o.start}for(var r=0;r<e.tracks.length;r++)for(var i=e.tracks[r],s=void 0,a=0;a<i.length;a++){var o=i[a];if(void 0!==s){var u=s.start+s.duration,l=o.start;if(u>l)throw{error:4,msg:"Track MediaSourceReferences overlap. MediaSourceReference "+s.id+" in track "+r+" finishes after MediaSourceReference "+o.id+" starts.",toString:function(){return this.msg}}}else s=o}}},{key:"renderPlaylist",value:function(t,r,i){var a=r.getContext("2d"),o=r.width,n=r.height,s=n/t.tracks.length,u=e.calculatePlaylistDuration(t),l=o/u,c={video:["#572A72","#3C1255"],image:["#7D9F35","#577714"],canvas:["#AA9639","#806D15"]};a.clearRect(0,0,o,n),a.fillStyle="#999";for(var f=0;f<t.tracks.length;f++)for(var d=t.tracks[f],v=0;v<d.length;v++){var h=d[v],g=h.duration*l,p=s,m=h.start*l,_=s*f;a.fillStyle=c[h.type][v%c[h.type].length],a.fillRect(m,_,g,p),a.fill()}void 0!==i&&(a.fillStyle="#000",a.fillRect(i*l,0,1,n))}}]),e}();S.VertexShaders={DEFAULT:"        uniform float progress;        uniform float duration;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",OFFSETSCALEINOUT:"        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",INOUT:"        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",OFFSETSCALE:"        uniform float progress;        uniform float duration;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"},S.FragmentShaders={DEFAULT:"            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }",MONOCHROME:"        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",SEPIA:"        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",BITCRUNCH:"        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",FADEINOUT:"        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }",LUTSQAURE64X64:"            precision mediump float;            uniform sampler2D u_image;            uniform sampler2D lut;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                vec4 original_color = texture2D(u_image, v_texCoord);                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                float b = floor((original_color[2] * 63.0) + 0.5);                float b_x = mod(b, 8.0);                float b_y = floor((b / 8.0) + 0.5);                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                gl_FragColor = lut_color;            }"},S.Effects={OFFSETSCALE:{fragmentShader:S.FragmentShaders.DEFAULT,vertexShader:S.VertexShaders.OFFSETSCALE,defaultParameters:{scaleX:1,scaleY:1,offsetX:0,offsetY:0}},MONOCHROME:{fragmentShader:S.FragmentShaders.MONOCHROME},SEPIA:{fragmentShader:S.FragmentShaders.SEPIA},BITCRUNCH:{fragmentShader:S.FragmentShaders.BITCRUNCH},GREENSCREENMAD:{fragmentShader:"            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                ;                alpha = (v+u)*10.0 +2.0;                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                pixel = pixel/vec4(2.0,2.0,2.0,2.0);                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                gl_FragColor = pixel;            }"},GREENSCREEN:{fragmentShader:"            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                if (y > 0.2 && y < 0.8){                    alpha = (v+u)*40.0 +2.0;                }                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                gl_FragColor = pixel;            }"},FADEINOUT:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:1,outTime:1}},FADEINOUT1SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:1,outTime:1}},FADEINOUT2SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:2,outTime:2}},FADEIN1SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:1,outTime:0}},FADEIN2SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:2,outTime:0}},FADEOUT1SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:0,outTime:1}},FADEOUT2SEC:{fragmentShader:S.FragmentShaders.FADEINOUT,vertexShader:S.VertexShaders.INOUT,defaultParameters:{inTime:0,outTime:2}},LUTSQAURE64X64:{fragmentShader:S.FragmentShaders.LUTSQAURE64X64}},t["default"]=S,e.exports=t["default"]},function(e,t,r){"use strict";function i(e){return e&&e.__esModule?e:{"default":e}}function a(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(e.__proto__=t)}function n(e,t,r){var i=function a(e){return e.target.removeEventListener(e.type,a),r(e)};e.addEventListener(t,i,!1)}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),u=function(e,t,r){for(var i=!0;i;){var a=e,o=t,n=r;s=l=u=void 0,i=!1,null===a&&(a=Function.prototype);var s=Object.getOwnPropertyDescriptor(a,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(n)}var l=Object.getPrototypeOf(a);if(null===l)return void 0;e=l,t=o,r=n,i=!0}},l=r(2),c=i(l),f=function(e){function t(e,r){a(this,t),u(Object.getPrototypeOf(t.prototype),"constructor",this).call(this,e,r),this.sourceStart=0,this._volume=1,void 0!==e.sourceStart&&(this.sourceStart=e.sourceStart),void 0!==e.volume&&(this._volume=e.volume)}return o(t,e),s(t,[{key:"play",value:function(){u(Object.getPrototypeOf(t.prototype),"play",this).call(this);var e=this,r=function i(){e.element.readyState>0?(e.ready=!0,e.element.play()):(console.debug("Can't play video due to readyState"),e.ready=!1,n(e.element,"canplay",i))};r()}},{key:"seek",value:function(e){u(Object.getPrototypeOf(t.prototype),"seek",this).call(this);var r=this,i=function a(){r.element.readyState>0?(r.ready=!0,e-r.start<0||e>r.start+r.duration?r.element.currentTime=r.sourceStart:r.element.currentTime=e-r.start+r.sourceStart):(console.debug("Can't seek video due to readyState"),r.ready=!1,n(r.element,"canplay",a))};i()}},{key:"pause",value:function(){u(Object.getPrototypeOf(t.prototype),"pause",this).call(this),this.element.pause()}},{key:"load",value:function(){if(u(Object.getPrototypeOf(t.prototype),"load",this).call(this))return this.seek(0),this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,this.element),this.ready=!0,void this.onready(this);this.element=document.createElement("video"),this.element.src=this.src,this.element.volume=this._volume,this.element.preload="auto",this.element.load();var e=this;this.element.addEventListener("loadeddata",function(){e.element.currentTime=e.sourceStart,e.seek(0),e.gl.texImage2D(e.gl.TEXTURE_2D,0,e.gl.RGBA,e.gl.RGBA,e.gl.UNSIGNED_BYTE,e.element),e.ready=!0,e.onready(e)},!1)}},{key:"render",value:function(e,r,i){u(Object.getPrototypeOf(t.prototype),"render",this).call(this,e,r,i)}},{key:"destroy",value:function(){this.element.pause(),this.disposeOfElementOnDestroy&&(this.element.src="",this.element.removeAttribute("src")),u(Object.getPrototypeOf(t.prototype),"destroy",this).call(this)}}]),t}(c["default"]);t["default"]=f,e.exports=t["default"]},function(e,t){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),a=function(){function e(t,i){r(this,e),this.gl=i,this.id=t.id,this.duration=t.duration,this.start=t.start,this.playing=!1,this.ready=!1,this.element=void 0,this.src=void 0,this.texture=void 0,this.mediaSourceListeners=[],this.disposeOfElementOnDestroy=!1,void 0!==t.src?(this.disposeOfElementOnDestroy=!0,this.src=t.src):(this.disposeOfElementOnDestroy=!1,this.element=t.element);var a=0,o=1;i.blendFunc(i.SRC_ALPHA,i.ONE_MINUS_SRC_ALPHA),i.enable(i.BLEND),this.texture=i.createTexture(),i.bindTexture(i.TEXTURE_2D,this.texture),i.pixelStorei(i.UNPACK_FLIP_Y_WEBGL,!0),i.texParameteri(i.TEXTURE_2D,i.TEXTURE_WRAP_S,i.CLAMP_TO_EDGE),i.texParameteri(i.TEXTURE_2D,i.TEXTURE_WRAP_T,i.CLAMP_TO_EDGE),i.texParameteri(i.TEXTURE_2D,i.TEXTURE_MIN_FILTER,i.NEAREST),i.texParameteri(i.TEXTURE_2D,i.TEXTURE_MAG_FILTER,i.NEAREST);var n=i.createBuffer();i.bindBuffer(i.ARRAY_BUFFER,n),i.enableVertexAttribArray(a),i.vertexAttribPointer(a,2,i.FLOAT,!1,0,0),i.bufferData(i.ARRAY_BUFFER,new Float32Array([1,1,0,1,1,0,1,0,0,1,0,0]),i.STATIC_DRAW),i.enableVertexAttribArray(o),i.vertexAttribPointer(o,2,i.FLOAT,!1,0,0)}return i(e,[{key:"play",value:function(){if(this.playing===!1)for(var e=0;e<this.mediaSourceListeners.length;e++)"function"==typeof this.mediaSourceListeners[e].play&&this.mediaSourceListeners[e].play(this);this.playing=!0}},{key:"pause",value:function(){console.debug("Pausing",this.id),this.playing=!1;for(var e=0;e<this.mediaSourceListeners.length;e++)"function"==typeof this.mediaSourceListeners[e].pause&&this.mediaSourceListeners[e].pause(this)}},{key:"seek",value:function(e){for(var t=0;t<this.mediaSourceListeners.length;t++)"function"==typeof this.mediaSourceListeners[t].seek&&this.mediaSourceListeners[t].seek(this,e)}},{key:"isReady",value:function(){for(var e=!0,t=0;t<this.mediaSourceListeners.length;t++)"function"==typeof this.mediaSourceListeners[t].isReady&&this.mediaSourceListeners[t].isReady(this)===!1&&(e=!1);return e===!0&&this.ready===!0?!0:!1}},{key:"load",value:function(){console.debug("Loading",this.id);for(var e=0;e<this.mediaSourceListeners.length;e++)"function"==typeof this.mediaSourceListeners[e].load&&this.mediaSourceListeners[e].load(this);return void 0!==this.element?!0:!1}},{key:"destroy",value:function(){console.debug("Destroying",this.id);for(var e=0;e<this.mediaSourceListeners.length;e++)"function"==typeof this.mediaSourceListeners[e].destroy&&this.mediaSourceListeners[e].destroy(this);this.disposeOfElementOnDestroy&&delete this.element}},{key:"render",value:function(e,t,r){for(var i=void 0,a=0;a<this.mediaSourceListeners.length;a++)if("function"==typeof this.mediaSourceListeners[a].render){var o=this.mediaSourceListeners[a].render(this,t);void 0!==o&&(i=o)}this.gl.useProgram(e);var n=Object.keys(t),s=1;for(var u in n){var l=n[u],c=this.gl.getUniformLocation(e,l);-1!==c&&("number"==typeof t[l]?this.gl.uniform1f(c,t[l]):(this.gl.activeTexture(this.gl.TEXTURE0+s),this.gl.uniform1i(c,s),this.gl.bindTexture(this.gl.TEXTURE_2D,r[s-1])))}this.gl.activeTexture(this.gl.TEXTURE0);var f=this.gl.getUniformLocation(e,"u_image");this.gl.uniform1i(f,0),this.gl.bindTexture(this.gl.TEXTURE_2D,this.texture),void 0!==i?this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,i):this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,this.element),this.gl.drawArrays(this.gl.TRIANGLES,0,6)}},{key:"onready",value:function(e){}}]),e}();t["default"]=a,e.exports=t["default"]},function(e,t,r){"use strict";function i(e){return e&&e.__esModule?e:{"default":e}}function a(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(e.__proto__=t)}Object.defineProperty(t,"__esModule",{value:!0});var n=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),s=function(e,t,r){for(var i=!0;i;){var a=e,o=t,n=r;s=l=u=void 0,i=!1,null===a&&(a=Function.prototype);var s=Object.getOwnPropertyDescriptor(a,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(n)}var l=Object.getPrototypeOf(a);if(null===l)return void 0;e=l,t=o,r=n,i=!0}},u=r(2),l=i(u),c=function(e){function t(e,r){a(this,t),s(Object.getPrototypeOf(t.prototype),"constructor",this).call(this,e,r)}return o(t,e),n(t,[{key:"play",value:function(){s(Object.getPrototypeOf(t.prototype),"play",this).call(this)}},{key:"seek",value:function(e){s(Object.getPrototypeOf(t.prototype),"seek",this).call(this,e)}},{key:"pause",value:function(){s(Object.getPrototypeOf(t.prototype),"pause",this).call(this)}},{key:"load",value:function(){if(s(Object.getPrototypeOf(t.prototype),"load",this).call(this))return this.seek(0),this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,this.element),this.ready=!0,void this.onready(this);this.element=new Image;var e=this;this.element.onload=function(){e.gl.texImage2D(e.gl.TEXTURE_2D,0,e.gl.RGBA,e.gl.RGBA,e.gl.UNSIGNED_BYTE,e.element),e.ready=!0,e.onready(e)},this.element.src=this.src}},{key:"render",value:function(e,r,i){s(Object.getPrototypeOf(t.prototype),"render",this).call(this,e,r,i)}}]),t}(l["default"]);t["default"]=c,e.exports=t["default"]},function(e,t,r){"use strict";function i(e){return e&&e.__esModule?e:{"default":e}}function a(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(e.__proto__=t)}Object.defineProperty(t,"__esModule",{value:!0});var n=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),s=function(e,t,r){for(var i=!0;i;){var a=e,o=t,n=r;s=l=u=void 0,i=!1,null===a&&(a=Function.prototype);var s=Object.getOwnPropertyDescriptor(a,o);if(void 0!==s){if("value"in s)return s.value;var u=s.get;return void 0===u?void 0:u.call(n)}var l=Object.getPrototypeOf(a);if(null===l)return void 0;e=l,t=o,r=n,i=!0}},u=r(2),l=i(u),c=function(e){function t(e,r){a(this,t),s(Object.getPrototypeOf(t.prototype),"constructor",this).call(this,e,r),this.width=e.width,this.height=e.height}return o(t,e),n(t,[{key:"play",value:function(){s(Object.getPrototypeOf(t.prototype),"play",this).call(this)}},{key:"seek",value:function(e){s(Object.getPrototypeOf(t.prototype),"seek",this).call(this,e)}},{key:"pause",value:function(){s(Object.getPrototypeOf(t.prototype),"pause",this).call(this)}},{key:"load",value:function(){return s(Object.getPrototypeOf(t.prototype),"load",this).call(this)?(this.seek(0),this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,this.element),this.ready=!0,void this.onready(this)):(this.element=document.createElement("canvas"),this.element.width=this.width,this.element.height=this.height,this.gl.texImage2D(this.gl.TEXTURE_2D,0,this.gl.RGBA,this.gl.RGBA,this.gl.UNSIGNED_BYTE,this.element),this.ready=!0,void this.onready(this))}},{key:"render",value:function(e,r,i){s(Object.getPrototypeOf(t.prototype),"render",this).call(this,e,r,i)}}]),t}(l["default"]);t["default"]=c,e.exports=t["default"]},function(e,t,r){"use strict";function i(e){return e&&e.__esModule?e:{"default":e}}function a(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),n=r(6),s=i(n),u=function(){function e(t){a(this,e),this.effects=new Map,this.gl=t,this.newEffect("default",{effect:{}})}return o(e,[{key:"newEffect",value:function(e,t){var r=new s["default"](t,this.gl);this.effects.set(e,r)}},{key:"updateEffects",value:function(e){if(void 0!==e)for(var t in e)this.effects.has(t)?this.effects.get(t).update(e[t]):this.newEffect(t,e[t])}},{key:"getEffectForInputId",value:function(e){var t=this.effects.keys(),r=!0,i=!1,a=void 0;try{for(var o,n=t[Symbol.iterator]();!(r=(o=n.next()).done);r=!0){var s=o.value,u=this.effects.get(s);if(u.inputs.indexOf(e)>-1)return u}}catch(l){i=!0,a=l}finally{try{!r&&n["return"]&&n["return"]()}finally{if(i)throw a}}return this.effects.get("default")}}]),e}();t["default"]=u,e.exports=t["default"]},function(e,t){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function i(e,t,r){var i=1;if(void 0!==e.parameters)for(var a=Object.keys(e.parameters),o=0;o<a.length;o++){var n=a[o],s=e.parameters[n];if("number"!=typeof s){var u=t[i-1];r.activeTexture(r.TEXTURE0+i),r.bindTexture(r.TEXTURE_2D,u),r.texParameteri(r.TEXTURE_2D,r.TEXTURE_WRAP_S,r.CLAMP_TO_EDGE),r.texParameteri(r.TEXTURE_2D,r.TEXTURE_WRAP_T,r.CLAMP_TO_EDGE),r.texParameteri(r.TEXTURE_2D,r.TEXTURE_MIN_FILTER,r.NEAREST),r.texParameteri(r.TEXTURE_2D,r.TEXTURE_MAG_FILTER,r.NEAREST),r.texImage2D(r.TEXTURE_2D,0,r.RGBA,r.RGBA,r.UNSIGNED_BYTE,s),i+=1}}}function a(e,t){if(void 0===e.parameters)return[];for(var r=Object.keys(e.parameters),a=[],o=0;o<r.length;o++){var n=r[o],s=e.parameters[n];
-if("number"!=typeof s){var u=t.createTexture();a.push(u)}}return i(e,a,t),a}function o(e,t,r){var i=e.createShader(r);e.shaderSource(i,t),e.compileShader(i);var a=e.getShaderParameter(i,e.COMPILE_STATUS);if(!a)throw"could not compile shader:"+e.getShaderInfoLog(i);return i}function n(e,t,r){var i=o(e,t,e.VERTEX_SHADER),a=o(e,r,e.FRAGMENT_SHADER),n=e.createProgram();if(e.attachShader(n,i),e.attachShader(n,a),e.linkProgram(n),!e.getProgramParameter(n,e.LINK_STATUS))throw{error:4,msg:"Can't link shader program for track",toString:function(){return this.msg}};return n}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var r=0;r<t.length;r++){var i=t[r];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}return function(t,r,i){return r&&e(t.prototype,r),i&&e(t,i),t}}(),u=function(){function e(t,i){if(r(this,e),this.gl=i,this.vertexShaderSrc=t.effect.vertexShader,void 0===this.vertexShaderSrc&&(this.vertexShaderSrc="                uniform float progress;                uniform float duration;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main() {                    v_progress = progress;                    v_duration = duration;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }"),this.fragmentShaderSrc=t.effect.fragmentShader,void 0===this.fragmentShaderSrc&&(this.fragmentShaderSrc="                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main(){                    gl_FragColor = texture2D(u_image, v_texCoord);                }"),this.parameters=t.parameters,void 0===this.parameters&&(this.parameters={}),void 0!==t.effect.defaultParameters)for(var o in t.effect.defaultParameters)this.parameters[o]=t.effect.defaultParameters[o];this.inputs=t.inputs,void 0===this.inputs&&(this.inputs=[]),this.textures=a(t,this.gl),this.program=n(this.gl,this.vertexShaderSrc,this.fragmentShaderSrc)}return s(e,[{key:"update",value:function(e){i(e,this.textures,this.gl),this.inputs=e.inputs,void 0===this.inputs&&(this.inputs=[])}}]),e}();t["default"]=u,e.exports=t["default"]}]);
+var VideoCompositor =
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+
+
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _sourcesVideosourceJs = __webpack_require__(1);
+
+	var _sourcesVideosourceJs2 = _interopRequireDefault(_sourcesVideosourceJs);
+
+	var _sourcesImagesourceJs = __webpack_require__(3);
+
+	var _sourcesImagesourceJs2 = _interopRequireDefault(_sourcesImagesourceJs);
+
+	var _sourcesCanvassourceJs = __webpack_require__(4);
+
+	var _sourcesCanvassourceJs2 = _interopRequireDefault(_sourcesCanvassourceJs);
+
+	var _effectmanagerJs = __webpack_require__(5);
+
+	var _effectmanagerJs2 = _interopRequireDefault(_effectmanagerJs);
+
+	var _audiomanagerJs = __webpack_require__(7);
+
+	var _audiomanagerJs2 = _interopRequireDefault(_audiomanagerJs);
+
+	var updateables = [];
+	var previousTime = undefined;
+	var mediaSourceMapping = new Map();
+	mediaSourceMapping.set("video", _sourcesVideosourceJs2["default"]).set("image", _sourcesImagesourceJs2["default"]).set("canvas", _sourcesCanvassourceJs2["default"]);
+
+	function registerUpdateable(updateable) {
+	    updateables.push(updateable);
+	}
+	function update(time) {
+	    if (previousTime === undefined) previousTime = time;
+	    var dt = (time - previousTime) / 1000;
+	    for (var i = 0; i < updateables.length; i++) {
+	        updateables[i].update(dt);
+	    }
+	    previousTime = time;
+	    requestAnimationFrame(update);
+	}
+	update();
+
+	var VideoCompositor = (function () {
+	    function VideoCompositor(canvas, audioCtx) {
+	        _classCallCheck(this, VideoCompositor);
+
+	        this._canvas = canvas;
+	        this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
+	        this._playing = false;
+	        this._mediaSources = new Map();
+	        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+	        this._playlist = undefined;
+	        this._eventMappings = new Map();
+	        this._mediaSourceListeners = new Map();
+	        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
+
+	        this._effectManager = new _effectmanagerJs2["default"](this._ctx);
+	        this._audioManger = new _audiomanagerJs2["default"](audioCtx);
+
+	        this._currentTime = 0;
+	        this.duration = 0;
+	        registerUpdateable(this);
+	    }
+
+	    _createClass(VideoCompositor, [{
+	        key: "play",
+	        value: function play() {
+	            this._playing = true;
+	            var playEvent = new CustomEvent("play", { detail: { data: this._currentTime, instance: this } });
+	            this._canvas.dispatchEvent(playEvent);
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            this._playing = false;
+	            this._mediaSources.forEach(function (mediaSource) {
+	                mediaSource.pause();
+	            });
+	            var pauseEvent = new CustomEvent("pause", { detail: { data: this._currentTime, instance: this } });
+	            this._canvas.dispatchEvent(pauseEvent);
+	        }
+	    }, {
+	        key: "addEventListener",
+	        value: function addEventListener(type, func) {
+	            //Pass through any event listeners through to the underlying canvas rendering element
+	            //Catch any events and handle with a custom events dispatcher so things
+	            if (this._eventMappings.has(type)) {
+	                this._eventMappings.get(type).push(func);
+	            } else {
+	                this._eventMappings.set(type, [func]);
+	            }
+	            this._canvas.addEventListener(type, this._dispatchEvents, false);
+	        }
+	    }, {
+	        key: "removeEventListener",
+	        value: function removeEventListener(type, func) {
+	            if (this._eventMappings.has(type)) {
+	                var listenerArray = this._eventMappings.get(type);
+	                var listenerIndex = listenerArray.indexOf(func);
+	                if (listenerIndex !== -1) {
+	                    listenerArray.splice(listenerIndex, 1);
+	                    return true;
+	                }
+	            }
+	            return false;
+	        }
+	    }, {
+	        key: "registerMediaSourceListener",
+	        value: function registerMediaSourceListener(mediaSourceID, mediaSourceListener) {
+	            if (this._mediaSourceListeners.has(mediaSourceID)) {
+	                this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);
+	            } else {
+	                this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
+	            }
+	        }
+	    }, {
+	        key: "getAudioContext",
+	        value: function getAudioContext() {
+	            return this._audioManger.getAudioContext();
+	        }
+	    }, {
+	        key: "getAudioNodeForTrack",
+	        value: function getAudioNodeForTrack(track) {
+	            var audioNode = this._audioManger.createAudioNodeFromTrack(track);
+	            return audioNode;
+	        }
+	    }, {
+	        key: "_dispatchEvents",
+	        value: function _dispatchEvents(evt) {
+	            //Catch events and pass them on, mangling the detail property so it looks nice in the API
+	            for (var i = 0; i < evt.detail.instance._eventMappings.get(evt.type).length; i++) {
+	                evt.detail.instance._eventMappings.get(evt.type)[i](evt.detail.data);
+	            }
+	        }
+	    }, {
+	        key: "_getPlaylistPlayingStatusAtTime",
+	        value: function _getPlaylistPlayingStatusAtTime(playlist, playhead) {
+	            var toPlay = [];
+	            var currentlyPlaying = [];
+	            var finishedPlaying = [];
+
+	            //itterate tracks
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                for (var j = 0; j < track.length; j++) {
+	                    var segment = track[j];
+	                    var segmentEnd = segment.start + segment.duration;
+
+	                    if (playhead > segmentEnd) {
+	                        finishedPlaying.push(segment);
+	                        continue;
+	                    }
+	                    if (playhead > segment.start && playhead < segmentEnd) {
+	                        currentlyPlaying.push(segment);
+	                        continue;
+	                    }
+	                    if (playhead <= segment.start) {
+	                        toPlay.push(segment);
+	                        continue;
+	                    }
+	                }
+	            }
+
+	            return [toPlay, currentlyPlaying, finishedPlaying];
+	        }
+	    }, {
+	        key: "_sortMediaSourcesByStartTime",
+	        value: function _sortMediaSourcesByStartTime(mediaSources) {
+	            mediaSources.sort(function (a, b) {
+	                return a.start - b.start;
+	            });
+	            return mediaSources;
+	        }
+	    }, {
+	        key: "_loadMediaSource",
+	        value: function _loadMediaSource(mediaSourceReference, onReadyCallback) {
+	            if (onReadyCallback === undefined) onReadyCallback = function () {};
+	            var mediaSourceListeners = [];
+	            if (this._mediaSourceListeners.has(mediaSourceReference.id)) {
+	                mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);
+	            }
+
+	            switch (mediaSourceReference.type) {
+	                case "video":
+	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference, this._ctx);
+	                    video.onready = onReadyCallback;
+	                    video.mediaSourceListeners = mediaSourceListeners;
+	                    video.load();
+	                    this._mediaSources.set(mediaSourceReference.id, video);
+	                    break;
+	                case "image":
+	                    var image = new _sourcesImagesourceJs2["default"](mediaSourceReference, this._ctx);
+	                    image.onready = onReadyCallback;
+	                    image.mediaSourceListeners = mediaSourceListeners;
+	                    image.load();
+	                    this._mediaSources.set(mediaSourceReference.id, image);
+	                    break;
+	                case "canvas":
+	                    var canvas = new _sourcesCanvassourceJs2["default"](mediaSourceReference, this._ctx);
+	                    canvas.onready = onReadyCallback;
+	                    canvas.mediaSourceListeners = mediaSourceListeners;
+	                    canvas.load();
+	                    this._mediaSources.set(mediaSourceReference.id, canvas);
+	                    break;
+	                default:
+	                    throw { "error": 5, "msg": "mediaSourceReference " + mediaSourceReference.id + " has unrecognized type " + mediaSourceReference.type, toString: function toString() {
+	                            return this.msg;
+	                        } };
+	            }
+	        }
+	    }, {
+	        key: "_calculateMediaSourcesOverlap",
+	        value: function _calculateMediaSourcesOverlap(mediaSources) {
+	            var maxStart = 0.0;
+	            var minEnd = undefined;
+	            //calculate max start time
+	            for (var i = 0; i < mediaSources.length; i++) {
+	                var mediaSource = mediaSources[i];
+	                if (mediaSource.start > maxStart) {
+	                    maxStart = mediaSource.start;
+	                }
+	                var end = mediaSource.start + mediaSource.duration;
+	                if (minEnd === undefined || end < minEnd) {
+	                    minEnd = end;
+	                }
+	            }
+	            return [maxStart, minEnd];
+	        }
+	    }, {
+	        key: "_calculateActiveTransitions",
+	        value: function _calculateActiveTransitions(currentlyPlaying, currentTime) {
+	            if (this._playlist === undefined || this._playing === false) return [];
+	            if (this._playlist.transitions === undefined) return [];
+
+	            //Get the currently playing ID's
+	            var currentlyPlayingIDs = [];
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                currentlyPlayingIDs.push(currentlyPlaying[i].id);
+	            }
+
+	            var activeTransitions = [];
+
+	            //Get the transitions whose video sources are currently playing
+
+	            var transitionKeys = Object.keys(this._playlist.transitions);
+	            for (var i = 0; i < transitionKeys.length; i++) {
+	                var transitionID = transitionKeys[i];
+
+	                var transition = this._playlist.transitions[transitionID];
+	                var areInputsCurrentlyPlaying = true;
+	                for (var j = 0; j < transition.inputs.length; j++) {
+	                    var id = transition.inputs[j];
+	                    if (currentlyPlayingIDs.indexOf(id) === -1) {
+	                        areInputsCurrentlyPlaying = false;
+	                        break;
+	                    }
+	                }
+	                if (areInputsCurrentlyPlaying) {
+	                    var activeTransition = { transition: transition, transitionID: transitionID, mediaSources: [] };
+
+	                    for (var j = 0; j < transition.inputs.length; j++) {
+	                        activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
+	                    }
+
+	                    activeTransitions.push(activeTransition);
+	                }
+	            }
+
+	            //Calculate the progress through the transition
+	            for (var i = 0; i < activeTransitions.length; i++) {
+	                var mediaSources = activeTransitions[i].mediaSources;
+
+	                var _calculateMediaSourcesOverlap2 = this._calculateMediaSourcesOverlap(mediaSources);
+
+	                var _calculateMediaSourcesOverlap22 = _slicedToArray(_calculateMediaSourcesOverlap2, 2);
+
+	                var overlapStart = _calculateMediaSourcesOverlap22[0];
+	                var overlapEnd = _calculateMediaSourcesOverlap22[1];
+
+	                var progress = (currentTime - overlapStart) / (overlapEnd - overlapStart);
+	                activeTransitions[i].progress = progress;
+	            }
+
+	            return activeTransitions;
+	        }
+	    }, {
+	        key: "update",
+	        value: function update(dt) {
+	            if (this._playlist === undefined || this._playing === false) return;
+
+	            var _getPlaylistPlayingStatusAtTime2 = this._getPlaylistPlayingStatusAtTime(this._playlist, this._currentTime);
+
+	            var _getPlaylistPlayingStatusAtTime22 = _slicedToArray(_getPlaylistPlayingStatusAtTime2, 3);
+
+	            var toPlay = _getPlaylistPlayingStatusAtTime22[0];
+	            var currentlyPlaying = _getPlaylistPlayingStatusAtTime22[1];
+	            var finishedPlaying = _getPlaylistPlayingStatusAtTime22[2];
+
+	            toPlay = this._sortMediaSourcesByStartTime(toPlay);
+
+	            //Check if we've finished playing and then stop
+	            if (toPlay.length === 0 && currentlyPlaying.length === 0) {
+	                this.pause();
+	                var endedEvent = new CustomEvent("ended", { detail: { data: this.currentTime, instance: this } });
+	                this.currentTime = 0;
+	                this._canvas.dispatchEvent(endedEvent);
+	                return;
+	            }
+
+	            //Preload mediaSources
+	            for (var i = 0; i < this._mediaSourcePreloadNumber; i++) {
+	                if (i === toPlay.length) break;
+	                if (this._mediaSources.has(toPlay[i].id) === false) {
+	                    this._loadMediaSource(toPlay[i]);
+	                }
+	            }
+
+	            //Clean-up any mediaSources which have already been played
+	            for (var i = 0; i < finishedPlaying.length; i++) {
+	                var mediaSourceReference = finishedPlaying[i];
+	                if (this._mediaSources.has(mediaSourceReference.id)) {
+	                    var mediaSource = this._mediaSources.get(mediaSourceReference.id);
+	                    mediaSource.destroy();
+	                    this._mediaSources["delete"](mediaSourceReference.id);
+	                }
+	            }
+
+	            //Make sure all mediaSources are ready to play
+	            var ready = true;
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceID = currentlyPlaying[i].id;
+	                //check that currently playing mediaSource exists
+	                if (!this._mediaSources.has(mediaSourceID)) {
+	                    //if not load it
+	                    this._loadMediaSource(currentlyPlaying[i]);
+	                    ready = false;
+	                    continue;
+	                }
+	                if (!this._mediaSources.get(mediaSourceID).isReady()) ready = false;
+	            }
+	            //if all the sources aren't ready, exit function before rendering or advancing clock.
+	            if (ready === false) {
+	                return;
+	            }
+
+	            //Update the effects
+	            this._effectManager.updateEffects(this._playlist.effects);
+
+	            //Update the audio
+	            this._audioManger.update(this._mediaSources);
+
+	            //Play mediaSources on the currently playing queue.
+	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
+
+	            //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+	            this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
+
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceID = currentlyPlaying[i].id;
+	                var mediaSource = this._mediaSources.get(mediaSourceID);
+	                mediaSource.play();
+
+	                var progress = (this._currentTime - currentlyPlaying[i].start) / currentlyPlaying[i].duration;
+	                //get the base render parameters
+	                var renderParameters = { "progress": progress, "duration": mediaSource.duration };
+	                //find the effect associated with the current mediasource
+	                var effect = this._effectManager.getEffectForInputId(mediaSourceID);
+	                //merge the base parameters with any custom ones
+	                for (var key in effect.parameters) {
+	                    renderParameters[key] = effect.parameters[key];
+	                }
+
+	                mediaSource.render(effect.program, renderParameters, effect.textures);
+	            }
+	            this._currentTime += dt;
+	        }
+	    }, {
+	        key: "currentTime",
+	        set: function set(currentTime) {
+	            console.debug("Seeking to", currentTime);
+	            if (this._playlist === undefined) {
+	                return;
+	            }
+
+	            var _getPlaylistPlayingStatusAtTime3 = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
+
+	            var _getPlaylistPlayingStatusAtTime32 = _slicedToArray(_getPlaylistPlayingStatusAtTime3, 3);
+
+	            var toPlay = _getPlaylistPlayingStatusAtTime32[0];
+	            var currentlyPlaying = _getPlaylistPlayingStatusAtTime32[1];
+	            var finishedPlaying = _getPlaylistPlayingStatusAtTime32[2];
+
+	            //clean-up any currently playing mediaSources
+	            this._mediaSources.forEach(function (mediaSource) {
+	                mediaSource.destroy();
+	            });
+	            this._mediaSources.clear();
+
+	            //Load mediaSources
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceID = currentlyPlaying[i].id;
+	                //If the media source isn't loaded then we start loading it.
+	                if (this._mediaSources.has(mediaSourceID) === false) {
+
+	                    this._loadMediaSource(currentlyPlaying[i], function (mediaSource) {
+	                        mediaSource.seek(currentTime);
+	                    });
+	                } else {
+	                    //If the mediaSource is loaded then we seek to the proper bit
+	                    this._mediaSources.get(mediaSourceID).seek(currentTime);
+	                }
+	            }
+
+	            this._currentTime = currentTime;
+	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
+	            this._canvas.dispatchEvent(seekEvent);
+	        },
+	        get: function get() {
+	            return this._currentTime;
+	        }
+	    }, {
+	        key: "playlist",
+	        set: function set(playlist) {
+	            VideoCompositor.validatePlaylist(playlist);
+	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
+	            this._playlist = playlist;
+	            //clean-up any currently playing mediaSources
+	            this._mediaSources.forEach(function (mediaSource) {
+	                mediaSource.destroy();
+	            });
+	            this._mediaSources.clear();
+	        }
+	    }], [{
+	        key: "calculateTrackDuration",
+	        value: function calculateTrackDuration(track) {
+	            var maxPlayheadPosition = 0;
+	            for (var j = 0; j < track.length; j++) {
+	                var playheadPosition = track[j].start + track[j].duration;
+	                if (playheadPosition > maxPlayheadPosition) {
+	                    maxPlayheadPosition = playheadPosition;
+	                }
+	            }
+	            return maxPlayheadPosition;
+	        }
+	    }, {
+	        key: "calculatePlaylistDuration",
+	        value: function calculatePlaylistDuration(playlist) {
+	            var maxTrackDuration = 0;
+
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                var trackDuration = VideoCompositor.calculateTrackDuration(track);
+	                if (trackDuration > maxTrackDuration) {
+	                    maxTrackDuration = trackDuration;
+	                }
+	            }
+
+	            return maxTrackDuration;
+	        }
+	    }, {
+	        key: "validatePlaylist",
+	        value: function validatePlaylist(playlist) {
+	            /*     
+	            This function validates a passed playlist, making sure it matches a 
+	            number of properties a playlist must have to be OK.
+	             * Error 1. MediaSourceReferences have a unique ID        
+	            * Error 2. The playlist media sources have all the expected properties.
+	            * Error 3. MediaSourceReferences in single track are sequential.
+	            * Error 4. MediaSourceReferences in single track don't overlap
+	            */
+
+	            //Error 1. MediaSourceReferences have a unique ID
+	            var IDs = new Map();
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                for (var j = 0; j < track.length; j++) {
+	                    var MediaSourceReference = track[j];
+	                    if (IDs.has(MediaSourceReference.id)) {
+	                        throw { "error": 1, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has a duplicate ID.", toString: function toString() {
+	                                return this.msg;
+	                            } };
+	                    } else {
+	                        IDs.set(MediaSourceReference.id, true);
+	                    }
+	                }
+	            }
+
+	            //Error 2. The playlist MediaSourceReferences have all the expected properties.
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                for (var j = 0; j < track.length; j++) {
+	                    var MediaSourceReference = track[j];
+	                    if (MediaSourceReference.id === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " is missing a id property", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                    if (MediaSourceReference.start === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " is missing a start property", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                    if (MediaSourceReference.duration === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " is missing a duration property", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                    if (MediaSourceReference.type === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " is missing a type property", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                    if (MediaSourceReference.src !== undefined && MediaSourceReference.element !== undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has both a src and element, it must have one or the other", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                    if (MediaSourceReference.src === undefined && MediaSourceReference.element === undefined) throw { "error": 2, "msg": "MediaSourceReference " + MediaSourceReference.id + " in track " + i + " has neither a src or an element, it must have one or the other", toString: function toString() {
+	                            return this.msg;
+	                        } };
+	                }
+	            }
+
+	            // Error 3. MediaSourceReferences in single track are sequential.
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                var time = 0;
+	                for (var j = 0; j < track.length; j++) {
+	                    var MediaSourceReference = track[j];
+	                    if (MediaSourceReference.start < time) {
+	                        throw { "error": 3, "msg": "MediaSourceReferences " + MediaSourceReference.id + " in track " + i + " starts before previous MediaSourceReference", toString: function toString() {
+	                                return this.msg;
+	                            } };
+	                    }
+	                    time = MediaSourceReference.start;
+	                }
+	            }
+
+	            //Error 4. MediaSourceReferences in single track don't overlap
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                var previousMediaSourceReference = undefined;
+	                for (var j = 0; j < track.length; j++) {
+	                    var MediaSourceReference = track[j];
+	                    if (previousMediaSourceReference === undefined) {
+	                        previousMediaSourceReference = MediaSourceReference;
+	                        continue;
+	                    }
+	                    var previousEnd = previousMediaSourceReference.start + previousMediaSourceReference.duration;
+	                    var currentStart = MediaSourceReference.start;
+	                    if (previousEnd > currentStart) {
+	                        throw { "error": 4, "msg": "Track MediaSourceReferences overlap. MediaSourceReference " + previousMediaSourceReference.id + " in track " + i + " finishes after MediaSourceReference " + MediaSourceReference.id + " starts.", toString: function toString() {
+	                                return this.msg;
+	                            } };
+	                    }
+	                }
+	            }
+	        }
+	    }, {
+	        key: "renderPlaylist",
+	        value: function renderPlaylist(playlist, canvas, currentTime) {
+	            var ctx = canvas.getContext("2d");
+	            var w = canvas.width;
+	            var h = canvas.height;
+	            var trackHeight = h / playlist.tracks.length;
+	            var playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
+	            var pixelsPerSecond = w / playlistDuration;
+	            var mediaSourceStyle = {
+	                "video": ["#572A72", "#3C1255"],
+	                "image": ["#7D9F35", "#577714"],
+	                "canvas": ["#AA9639", "#806D15"]
+	            };
+
+	            ctx.clearRect(0, 0, w, h);
+	            ctx.fillStyle = "#999";
+	            for (var i = 0; i < playlist.tracks.length; i++) {
+	                var track = playlist.tracks[i];
+	                for (var j = 0; j < track.length; j++) {
+	                    var mediaSource = track[j];
+	                    var msW = mediaSource.duration * pixelsPerSecond;
+	                    var msH = trackHeight;
+	                    var msX = mediaSource.start * pixelsPerSecond;
+	                    var msY = trackHeight * i;
+	                    ctx.fillStyle = mediaSourceStyle[mediaSource.type][j % mediaSourceStyle[mediaSource.type].length];
+	                    ctx.fillRect(msX, msY, msW, msH);
+	                    ctx.fill();
+	                }
+	            }
+
+	            if (currentTime !== undefined) {
+	                ctx.fillStyle = "#000";
+	                ctx.fillRect(currentTime * pixelsPerSecond, 0, 1, h);
+	            }
+	        }
+	    }]);
+
+	    return VideoCompositor;
+	})();
+
+	VideoCompositor.VertexShaders = {
+	    DEFAULT: "        uniform float progress;        uniform float duration;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALEINOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    INOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALE: "        uniform float progress;        uniform float duration;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"
+	};
+
+	VideoCompositor.FragmentShaders = {
+	    DEFAULT: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }",
+	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
+	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
+	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
+	    "FADEINOUT": "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }",
+	    "LUTSQAURE64X64": "            precision mediump float;            uniform sampler2D u_image;            uniform sampler2D lut;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                vec4 original_color = texture2D(u_image, v_texCoord);                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                float b = floor((original_color[2] * 63.0) + 0.5);                float b_x = mod(b, 8.0);                float b_y = floor((b / 8.0) + 0.5);                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                gl_FragColor = lut_color;            }"
+	};
+
+	VideoCompositor.Effects = {
+	    "OFFSETSCALE": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.DEFAULT,
+	        "vertexShader": VideoCompositor.VertexShaders.OFFSETSCALE,
+	        "defaultParameters": {
+	            "scaleX": 1.0,
+	            "scaleY": 1.0,
+	            "offsetX": 0.0,
+	            "offsetY": 0.0
+	        }
+	    },
+	    "MONOCHROME": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
+	    },
+	    "SEPIA": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.SEPIA
+	    },
+	    "BITCRUNCH": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.BITCRUNCH
+	    },
+	    //Green screen color =  r = 62, g = 178, b = 31
+	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
+	    "GREENSCREENMAD": {
+	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                ;                alpha = (v+u)*10.0 +2.0;                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                pixel = pixel/vec4(2.0,2.0,2.0,2.0);                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                gl_FragColor = pixel;            }"
+	    },
+	    "GREENSCREEN": {
+	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                if (y > 0.2 && y < 0.8){                    alpha = (v+u)*40.0 +2.0;                }                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                gl_FragColor = pixel;            }"
+	    },
+	    "FADEINOUT": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 1.0
+	        }
+	    },
+	    "FADEINOUT1SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 1.0
+	        }
+	    },
+	    "FADEINOUT2SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 2.0
+	        }
+	    },
+	    "FADEIN1SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 1.0,
+	            "outTime": 0.0
+	        }
+	    },
+	    "FADEIN2SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 2.0,
+	            "outTime": 0.0
+	        }
+	    },
+	    "FADEOUT1SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 1.0
+	        }
+	    },
+	    "FADEOUT2SEC": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	        "defaultParameters": {
+	            "inTime": 0.0,
+	            "outTime": 2.0
+	        }
+	    },
+	    "LUTSQAURE64X64": {
+	        "fragmentShader": VideoCompositor.FragmentShaders.LUTSQAURE64X64
+	    }
+	};
+
+	exports["default"] = VideoCompositor;
+	module.exports = exports["default"];
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+	var _mediasource = __webpack_require__(2);
+
+	var _mediasource2 = _interopRequireDefault(_mediasource);
+
+	function eventOneTime(element, type, callback) {
+	    var handleEvent = function handleEvent(e) {
+	        e.target.removeEventListener(e.type, handleEvent);
+	        return callback(e);
+	    };
+
+	    element.addEventListener(type, handleEvent, false);
+	}
+
+	var VideoSource = (function (_MediaSource) {
+	    function VideoSource(properties, gl) {
+	        _classCallCheck(this, VideoSource);
+
+	        _get(Object.getPrototypeOf(VideoSource.prototype), "constructor", this).call(this, properties, gl);
+	        this.sourceStart = 0;
+	        this._volume = 1.0;
+	        if (properties.sourceStart !== undefined) {
+	            this.sourceStart = properties.sourceStart;
+	        }
+	        if (properties.volume !== undefined) {
+	            this._volume = properties.volume;
+	        }
+	    }
+
+	    _inherits(VideoSource, _MediaSource);
+
+	    _createClass(VideoSource, [{
+	        key: "play",
+	        value: function play() {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "play", this).call(this);
+	            var _this = this;
+
+	            var playVideo = function playVideo() {
+	                if (_this.element.readyState > 0) {
+	                    _this.ready = true;
+	                    _this.element.play();
+	                } else {
+	                    console.debug("Can't play video due to readyState");
+	                    _this.ready = false;
+	                    eventOneTime(_this.element, "canplay", playVideo);
+	                }
+	            };
+
+	            playVideo();
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
+	            var _this = this;
+
+	            var seekVideo = function seekVideo() {
+	                if (_this.element.readyState > 0) {
+	                    _this.ready = true;
+	                    if (time - _this.start < 0 || time > _this.start + _this.duration) {
+	                        _this.element.currentTime = _this.sourceStart;
+	                    } else {
+	                        _this.element.currentTime = time - _this.start + _this.sourceStart;
+	                    }
+	                } else {
+	                    //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.
+	                    console.debug("Can't seek video due to readyState");
+	                    _this.ready = false;
+	                    eventOneTime(_this.element, "canplay", seekVideo);
+	                }
+	            };
+
+	            seekVideo();
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "pause", this).call(this);
+	            this.element.pause();
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+
+	            if (_get(Object.getPrototypeOf(VideoSource.prototype), "load", this).call(this)) {
+	                //this.element.currentTime = this.sourceStart;
+	                this.seek(0);
+	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+	                this.ready = true;
+	                this.onready(this);
+	                return;
+	            }
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = document.createElement("video");
+	            //construct a fragement URL to cut the required segment from the source video
+	            this.element.src = this.src;
+	            this.element.volume = this._volume;
+	            this.element.preload = "auto";
+	            this.element.load();
+	            var _this = this;
+	            this.element.addEventListener("loadeddata", function () {
+	                _this.element.currentTime = _this.sourceStart;
+	                _this.seek(0);
+	                _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
+	                _this.ready = true;
+	                _this.onready(_this);
+	            }, false);
+	            /*this.element.addEventListener('seeked', function(){
+	                console.log("SEEKED");
+	                _this.ready = true;
+	                _this.onready(_this);
+	            })*/
+	        }
+	    }, {
+	        key: "render",
+	        value: function render(program, renderParameters, textures) {
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "render", this).call(this, program, renderParameters, textures);
+	        }
+	    }, {
+	        key: "destroy",
+	        value: function destroy() {
+	            this.element.pause();
+	            if (this.disposeOfElementOnDestroy) {
+	                this.element.src = "";
+	                this.element.removeAttribute("src");
+	            }
+	            _get(Object.getPrototypeOf(VideoSource.prototype), "destroy", this).call(this);
+	        }
+	    }]);
+
+	    return VideoSource;
+	})(_mediasource2["default"]);
+
+	exports["default"] = VideoSource;
+	module.exports = exports["default"];
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	var MediaSource = (function () {
+	    function MediaSource(properties, gl) {
+	        _classCallCheck(this, MediaSource);
+
+	        this.gl = gl;
+	        this.id = properties.id;
+	        this.duration = properties.duration;
+	        this.start = properties.start;
+	        this.playing = false;
+	        this.ready = false;
+	        this.element = undefined;
+	        this.src = undefined;
+	        this.texture = undefined;
+	        this.mediaSourceListeners = [];
+
+	        this.disposeOfElementOnDestroy = false;
+
+	        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
+	        if (properties.src !== undefined) {
+	            this.disposeOfElementOnDestroy = true;
+	            this.src = properties.src;
+	        } else {
+	            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
+	            this.disposeOfElementOnDestroy = false;
+	            this.element = properties.element;
+	        }
+
+	        /*let positionLocation = gl.getAttribLocation(program, "a_position");
+	        let texCoordLocation = gl.getAttribLocation(program, "a_texCoord");*/
+
+	        //Hard Code these for now, but this is baaaaaad
+	        var positionLocation = 0;
+	        var texCoordLocation = 1;
+
+	        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+	        gl.enable(gl.BLEND);
+	        // Create a texture.
+	        this.texture = gl.createTexture();
+	        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	        // Set the parameters so we can render any size image.
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+	        var buffer = gl.createBuffer();
+	        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+	        gl.enableVertexAttribArray(positionLocation);
+	        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+	        gl.bufferData(gl.ARRAY_BUFFER,
+	        /*new Float32Array([
+	            1.0, 1.0,
+	             -1.0, 1.0,
+	            1.0,  -1.0,
+	            1.0,  -1.0,
+	            -1.0, 1.0,
+	            -1.0, -1.0]),*/
+	        new Float32Array([1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]), gl.STATIC_DRAW);
+	        gl.enableVertexAttribArray(texCoordLocation);
+	        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+	    }
+
+	    _createClass(MediaSource, [{
+	        key: 'play',
+	        value: function play() {
+	            //console.log("Playing", this.id);
+	            if (this.playing === false) {
+	                for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                    if (typeof this.mediaSourceListeners[i].play === 'function') this.mediaSourceListeners[i].play(this);
+	                }
+	            }
+	            this.playing = true;
+	        }
+	    }, {
+	        key: 'pause',
+	        value: function pause() {
+	            console.debug('Pausing', this.id);
+	            this.playing = false;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].pause === 'function') this.mediaSourceListeners[i].pause(this);
+	            }
+	        }
+	    }, {
+	        key: 'seek',
+	        value: function seek(seekTime) {
+	            //this.currentTime = seekTime;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].seek === 'function') this.mediaSourceListeners[i].seek(this, seekTime);
+	            }
+	        }
+	    }, {
+	        key: 'isReady',
+	        value: function isReady() {
+	            var listenerReady = true;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].isReady === 'function') {
+	                    if (this.mediaSourceListeners[i].isReady(this) === false) {
+	                        listenerReady = false;
+	                    }
+	                }
+	            }
+	            if (listenerReady === true && this.ready === true) return true;
+	            return false;
+	        }
+	    }, {
+	        key: 'load',
+	        value: function load() {
+	            console.debug('Loading', this.id);
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].load === 'function') this.mediaSourceListeners[i].load(this);
+	            }
+	            if (this.element !== undefined) {
+	                return true;
+	            }
+	            return false;
+	        }
+	    }, {
+	        key: 'destroy',
+	        value: function destroy() {
+	            console.debug('Destroying', this.id);
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);
+	            }
+	            if (this.disposeOfElementOnDestroy) {
+	                delete this.element;
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render(program, renderParameters, textures) {
+	            //renders the media source to the WebGL context using the pased program
+	            var overriddenElement = undefined;
+	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
+	                if (typeof this.mediaSourceListeners[i].render === 'function') {
+	                    var result = this.mediaSourceListeners[i].render(this, renderParameters);
+	                    if (result !== undefined) overriddenElement = result;
+	                }
+	            }
+
+	            this.gl.useProgram(program);
+	            var renderParametersKeys = Object.keys(renderParameters);
+	            var textureOffset = 1;
+	            for (var index in renderParametersKeys) {
+	                var key = renderParametersKeys[index];
+	                var parameterLoctation = this.gl.getUniformLocation(program, key);
+	                if (parameterLoctation !== -1) {
+	                    if (typeof renderParameters[key] === 'number') {
+	                        this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+	                    } else {
+	                        //Is a texture
+	                        this.gl.activeTexture(this.gl.TEXTURE0 + textureOffset);
+	                        this.gl.uniform1i(parameterLoctation, textureOffset);
+	                        this.gl.bindTexture(this.gl.TEXTURE_2D, textures[textureOffset - 1]);
+	                    }
+	                }
+	            }
+
+	            this.gl.activeTexture(this.gl.TEXTURE0);
+	            var textureLocation = this.gl.getUniformLocation(program, 'u_image');
+	            this.gl.uniform1i(textureLocation, 0);
+	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+	            if (overriddenElement !== undefined) {
+	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);
+	            } else {
+	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+	            }
+	            this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+	        }
+	    }, {
+	        key: 'onready',
+	        value: function onready(mediaSource) {}
+	    }]);
+
+	    return MediaSource;
+	})();
+
+	exports['default'] = MediaSource;
+	module.exports = exports['default'];
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+	var _mediasource = __webpack_require__(2);
+
+	var _mediasource2 = _interopRequireDefault(_mediasource);
+
+	var ImageSource = (function (_MediaSource) {
+	    function ImageSource(properties, gl) {
+	        _classCallCheck(this, ImageSource);
+
+	        _get(Object.getPrototypeOf(ImageSource.prototype), "constructor", this).call(this, properties, gl);
+	    }
+
+	    _inherits(ImageSource, _MediaSource);
+
+	    _createClass(ImageSource, [{
+	        key: "play",
+	        value: function play() {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "play", this).call(this);
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "seek", this).call(this, time);
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "pause", this).call(this);
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+	            if (_get(Object.getPrototypeOf(ImageSource.prototype), "load", this).call(this)) {
+	                this.seek(0);
+	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+	                this.ready = true;
+	                // Upload the image into the texture.
+	                this.onready(this);
+	                return;
+	            };
+
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = new Image();
+	            var _this = this;
+	            this.element.onload = function () {
+	                _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
+	                _this.ready = true;
+	                _this.onready(_this);
+	            };
+	            this.element.src = this.src;
+	        }
+	    }, {
+	        key: "render",
+	        value: function render(program, renderParameters, textures) {
+	            _get(Object.getPrototypeOf(ImageSource.prototype), "render", this).call(this, program, renderParameters, textures);
+	        }
+	    }]);
+
+	    return ImageSource;
+	})(_mediasource2["default"]);
+
+	exports["default"] = ImageSource;
+	module.exports = exports["default"];
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//Matthew Shotton, R&D User Experince,© BBC 2015
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+	var _mediasource = __webpack_require__(2);
+
+	var _mediasource2 = _interopRequireDefault(_mediasource);
+
+	var CanvasSource = (function (_MediaSource) {
+	    function CanvasSource(properties, gl) {
+	        _classCallCheck(this, CanvasSource);
+
+	        _get(Object.getPrototypeOf(CanvasSource.prototype), "constructor", this).call(this, properties, gl);
+	        this.width = properties.width;
+	        this.height = properties.height;
+	    }
+
+	    _inherits(CanvasSource, _MediaSource);
+
+	    _createClass(CanvasSource, [{
+	        key: "play",
+	        value: function play() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "play", this).call(this);
+	        }
+	    }, {
+	        key: "seek",
+	        value: function seek(time) {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "seek", this).call(this, time);
+	        }
+	    }, {
+	        key: "pause",
+	        value: function pause() {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "pause", this).call(this);
+	        }
+	    }, {
+	        key: "load",
+	        value: function load() {
+	            //check if we're using an already instatiated element, if so don't do anything.
+	            if (_get(Object.getPrototypeOf(CanvasSource.prototype), "load", this).call(this)) {
+	                this.seek(0);
+	                this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+	                this.ready = true;
+	                this.onready(this);
+	                return;
+	            }
+
+	            //otherwise begin the loading process for this mediaSource
+	            this.element = document.createElement("canvas");
+	            this.element.width = this.width;
+	            this.element.height = this.height;
+	            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+	            this.ready = true;
+	            this.onready(this);
+	        }
+	    }, {
+	        key: "render",
+	        value: function render(program, renderParameters, textures) {
+	            _get(Object.getPrototypeOf(CanvasSource.prototype), "render", this).call(this, program, renderParameters, textures);
+	        }
+	    }]);
+
+	    return CanvasSource;
+	})(_mediasource2["default"]);
+
+	exports["default"] = CanvasSource;
+	module.exports = exports["default"];
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var _effectJs = __webpack_require__(6);
+
+	var _effectJs2 = _interopRequireDefault(_effectJs);
+
+	var EffectManager = (function () {
+	    function EffectManager(gl) {
+	        _classCallCheck(this, EffectManager);
+
+	        this.effects = new Map();
+	        this.gl = gl;
+	        //Setup the default effect
+	        this.newEffect("default", { "effect": {} });
+	    }
+
+	    _createClass(EffectManager, [{
+	        key: "newEffect",
+	        value: function newEffect(id, playlistEffectObject) {
+	            //The playlist effect object is the representation of the effect stored in the playlist object
+	            var effect = new _effectJs2["default"](playlistEffectObject, this.gl);
+	            this.effects.set(id, effect);
+	        }
+	    }, {
+	        key: "updateEffects",
+	        value: function updateEffects(playlistEffectObjects) {
+	            if (playlistEffectObjects === undefined) return;
+	            for (var key in playlistEffectObjects) {
+	                if (this.effects.has(key)) {
+	                    //udpate the effect
+	                    this.effects.get(key).update(playlistEffectObjects[key]);
+	                } else {
+	                    //create the effect
+	                    this.newEffect(key, playlistEffectObjects[key]);
+	                }
+	            }
+	            //TODO clean-up effects that don't exist
+	        }
+	    }, {
+	        key: "getEffectForInputId",
+	        value: function getEffectForInputId(inputId) {
+	            var effectIdList = this.effects.keys();
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = effectIdList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var key = _step.value;
+
+	                    var effect = this.effects.get(key);
+	                    if (effect.inputs.indexOf(inputId) > -1) {
+	                        return effect;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            return this.effects.get("default");
+	        }
+	    }]);
+
+	    return EffectManager;
+	})();
+
+	exports["default"] = EffectManager;
+	module.exports = exports["default"];
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function refreshTextures(playlistEffectObject, textures, gl) {
+	    var textureOffset = 1;
+
+	    if (playlistEffectObject.parameters === undefined) return;
+
+	    var parameterKeys = Object.keys(playlistEffectObject.parameters);
+	    for (var i = 0; i < parameterKeys.length; i++) {
+	        var key = parameterKeys[i];
+	        var parameter = playlistEffectObject.parameters[key];
+	        if (typeof parameter !== "number") {
+	            var texture = textures[textureOffset - 1];
+	            gl.activeTexture(gl.TEXTURE0 + textureOffset);
+	            gl.bindTexture(gl.TEXTURE_2D, texture);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);
+	            textureOffset += 1;
+	        }
+	    }
+	}
+
+	function loadTextures(playlistEffectObject, gl) {
+	    if (playlistEffectObject.parameters === undefined) return [];
+	    var parameterKeys = Object.keys(playlistEffectObject.parameters);
+	    var textures = [];
+	    for (var i = 0; i < parameterKeys.length; i++) {
+	        var key = parameterKeys[i];
+	        var parameter = playlistEffectObject.parameters[key];
+	        if (typeof parameter !== "number") {
+	            var texture = gl.createTexture();
+	            textures.push(texture);
+	        }
+	    }
+	    refreshTextures(playlistEffectObject, textures, gl);
+	    return textures;
+	}
+
+	function compileShader(gl, shaderSource, shaderType) {
+	    var shader = gl.createShader(shaderType);
+	    gl.shaderSource(shader, shaderSource);
+	    gl.compileShader(shader);
+	    var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+	    if (!success) {
+	        throw "could not compile shader:" + gl.getShaderInfoLog(shader);
+	    }
+	    return shader;
+	}
+
+	function createShaderProgram(gl, vertexShaderSource, fragmentShaderSource) {
+	    var vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+	    var fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
+	    var program = gl.createProgram();
+
+	    gl.attachShader(program, vertexShader);
+	    gl.attachShader(program, fragmentShader);
+	    gl.linkProgram(program);
+
+	    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+	        throw { "error": 4, "msg": "Can't link shader program for track", toString: function toString() {
+	                return this.msg;
+	            } };
+	    }
+	    return program;
+	}
+
+	var Effect = (function () {
+	    function Effect(playlistEffectObject, gl) {
+	        _classCallCheck(this, Effect);
+
+	        this.gl = gl;
+	        this.vertexShaderSrc = playlistEffectObject.effect.vertexShader;
+	        if (this.vertexShaderSrc === undefined) {
+	            this.vertexShaderSrc = "                uniform float progress;                uniform float duration;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main() {                    v_progress = progress;                    v_duration = duration;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }";
+	        }
+	        this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;
+	        if (this.fragmentShaderSrc === undefined) {
+	            this.fragmentShaderSrc = "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main(){                    gl_FragColor = texture2D(u_image, v_texCoord);                }";
+	        }
+
+	        this.parameters = playlistEffectObject.parameters;
+	        if (this.parameters === undefined) {
+	            this.parameters = {};
+	        }
+	        if (playlistEffectObject.effect.defaultParameters !== undefined) {
+	            for (var key in playlistEffectObject.effect.defaultParameters) {
+	                this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+	            }
+	        }
+	        this.inputs = playlistEffectObject.inputs;
+	        if (this.inputs === undefined) {
+	            this.inputs = [];
+	        }
+
+	        this.textures = loadTextures(playlistEffectObject, this.gl);
+	        this.program = createShaderProgram(this.gl, this.vertexShaderSrc, this.fragmentShaderSrc);
+	    }
+
+	    _createClass(Effect, [{
+	        key: "update",
+	        value: function update(playlistEffectObject) {
+	            refreshTextures(playlistEffectObject, this.textures, this.gl);
+	            this.inputs = playlistEffectObject.inputs;
+	            if (this.inputs === undefined) {
+	                this.inputs = [];
+	            }
+	        }
+	    }]);
+
+	    return Effect;
+	})();
+
+	exports["default"] = Effect;
+	module.exports = exports["default"];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function isIdInTrack(id, track) {
+	    for (var i = 0; i < track.length; i++) {
+	        if (track[i].id === id) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	function getTrackIndexsForId(id, tracks) {
+	    var trackIndexs = [];
+	    for (var i = 0; i < tracks.length; i++) {
+	        var track = tracks[i];
+	        if (isIdInTrack(id, track)) {
+	            trackIndexs.push(i);
+	        }
+	    }
+	    return trackIndexs;
+	}
+
+	var AudioManager = (function () {
+	    function AudioManager(audioCtx) {
+	        _classCallCheck(this, AudioManager);
+
+	        this.audioCtx = audioCtx;
+	        if (this.audioCtx === undefined) {
+	            this.audioCtx = new AudioContext();
+	        }
+	        this.tracks = [];
+	        this.audioNodes = new Map();
+	        this.audioOutputNodes = [];
+	    }
+
+	    _createClass(AudioManager, [{
+	        key: "createAudioNodeFromTrack",
+	        value: function createAudioNodeFromTrack(track) {
+	            this.tracks.push(track);
+	            var trackBus = this.audioCtx.createGain();
+	            this.audioOutputNodes.push(trackBus);
+	            return trackBus;
+	        }
+	    }, {
+	        key: "getAudioContext",
+	        value: function getAudioContext() {
+	            return this.audioCtx;
+	        }
+	    }, {
+	        key: "update",
+	        value: function update(mediaSources) {
+	            if (mediaSources === undefined) return;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = mediaSources.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var id = _step.value;
+
+	                    var mediaSource = mediaSources.get(id);
+	                    var trackIndexs = getTrackIndexsForId(id, this.tracks);
+	                    if (trackIndexs.length === 0) continue; //No mappings for this id
+
+	                    if (!this.audioNodes.has(id)) {
+	                        //if an AudioNode for this id does not exist, create it.
+	                        var audioNode = undefined;
+	                        try {
+	                            audioNode = this.audioCtx.createMediaElementSource(mediaSource.element);
+	                        } catch (err) {
+	                            continue;
+	                        }
+
+	                        this.audioNodes.set(id, audioNode);
+	                        //make the connections from the audio node to the appropriate output tracks
+	                        for (var i = 0; i < trackIndexs.length; i++) {
+	                            var trackIndex = trackIndexs[i];
+	                            audioNode.connect(this.audioOutputNodes[trackIndex]);
+	                        }
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+
+	    return AudioManager;
+	})();
+
+	exports["default"] = AudioManager;
+	module.exports = exports["default"];
+
+/***/ }
+/******/ ]);
