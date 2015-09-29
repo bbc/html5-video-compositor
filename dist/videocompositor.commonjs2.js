@@ -77,6 +77,10 @@ module.exports =
 
 	var _effectmanagerJs2 = _interopRequireDefault(_effectmanagerJs);
 
+	var _audiomanagerJs = __webpack_require__(7);
+
+	var _audiomanagerJs2 = _interopRequireDefault(_audiomanagerJs);
+
 	var updateables = [];
 	var previousTime = undefined;
 	var mediaSourceMapping = new Map();
@@ -97,7 +101,7 @@ module.exports =
 	update();
 
 	var VideoCompositor = (function () {
-	    function VideoCompositor(canvas) {
+	    function VideoCompositor(canvas, audioCtx) {
 	        _classCallCheck(this, VideoCompositor);
 
 	        this._canvas = canvas;
@@ -110,8 +114,8 @@ module.exports =
 	        this._mediaSourceListeners = new Map();
 	        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
 
-	        //Setup the default shader effect
 	        this._effectManager = new _effectmanagerJs2["default"](this._ctx);
+	        this._audioManger = new _audiomanagerJs2["default"](audioCtx);
 
 	        this._currentTime = 0;
 	        this.duration = 0;
@@ -168,6 +172,17 @@ module.exports =
 	            } else {
 	                this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
 	            }
+	        }
+	    }, {
+	        key: "getAudioContext",
+	        value: function getAudioContext() {
+	            return this._audioManger.getAudioContext();
+	        }
+	    }, {
+	        key: "getAudioNodeForTrack",
+	        value: function getAudioNodeForTrack(track) {
+	            var audioNode = this._audioManger.createAudioNodeFromTrack(track);
+	            return audioNode;
 	        }
 	    }, {
 	        key: "_dispatchEvents",
@@ -391,6 +406,9 @@ module.exports =
 	            //Update the effects
 	            this._effectManager.updateEffects(this._playlist.effects);
 
+	            //Update the audio
+	            this._audioManger.update(this._mediaSources);
+
 	            //Play mediaSources on the currently playing queue.
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
 
@@ -445,7 +463,6 @@ module.exports =
 	                if (this._mediaSources.has(mediaSourceID) === false) {
 
 	                    this._loadMediaSource(currentlyPlaying[i], function (mediaSource) {
-	                        //let mediaSource = _this._mediaSources.get(mediaSourceID);
 	                        mediaSource.seek(currentTime);
 	                    });
 	                } else {
@@ -1483,6 +1500,123 @@ module.exports =
 	})();
 
 	exports["default"] = Effect;
+	module.exports = exports["default"];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function isIdInTrack(id, track) {
+	    for (var i = 0; i < track.length; i++) {
+	        if (track[i].id === id) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+
+	function getTrackIndexsForId(id, tracks) {
+	    var trackIndexs = [];
+	    for (var i = 0; i < tracks.length; i++) {
+	        var track = tracks[i];
+	        if (isIdInTrack(id, track)) {
+	            trackIndexs.push(i);
+	        }
+	    }
+	    return trackIndexs;
+	}
+
+	var AudioManager = (function () {
+	    function AudioManager(audioCtx) {
+	        _classCallCheck(this, AudioManager);
+
+	        this.audioCtx = audioCtx;
+	        if (this.audioCtx === undefined) {
+	            this.audioCtx = new AudioContext();
+	        }
+	        this.tracks = [];
+	        this.audioNodes = new Map();
+	        this.audioOutputNodes = [];
+	    }
+
+	    _createClass(AudioManager, [{
+	        key: "createAudioNodeFromTrack",
+	        value: function createAudioNodeFromTrack(track) {
+	            this.tracks.push(track);
+	            var trackBus = this.audioCtx.createGain();
+	            this.audioOutputNodes.push(trackBus);
+	            return trackBus;
+	        }
+	    }, {
+	        key: "getAudioContext",
+	        value: function getAudioContext() {
+	            return this.audioCtx;
+	        }
+	    }, {
+	        key: "update",
+	        value: function update(mediaSources) {
+	            if (mediaSources === undefined) return;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = mediaSources.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var id = _step.value;
+
+	                    var mediaSource = mediaSources.get(id);
+	                    var trackIndexs = getTrackIndexsForId(id, this.tracks);
+	                    if (trackIndexs.length === 0) continue; //No mappings for this id
+
+	                    if (!this.audioNodes.has(id)) {
+	                        //if an AudioNode for this id does not exist, create it.
+	                        var audioNode = undefined;
+	                        try {
+	                            audioNode = this.audioCtx.createMediaElementSource(mediaSource.element);
+	                        } catch (err) {
+	                            continue;
+	                        }
+
+	                        this.audioNodes.set(id, audioNode);
+	                        //make the connections from the audio node to the appropriate output tracks
+	                        for (var i = 0; i < trackIndexs.length; i++) {
+	                            var trackIndex = trackIndexs[i];
+	                            audioNode.connect(this.audioOutputNodes[trackIndex]);
+	                        }
+	                    }
+	                }
+	                //TODO add test to make sure all id's for audio nodes stored in this.audioNodes exist in the current mediaSources, otherwise delete them.
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+
+	    return AudioManager;
+	})();
+
+	exports["default"] = AudioManager;
 	module.exports = exports["default"];
 
 /***/ }

@@ -123,7 +123,13 @@
 
             var audioCtx = videoCompositor.getAudioContext();
             var videoAudioNode = videoCompositor.getAudioNodeForTrack(playlist.tracks[0]);
+            var delayNode = audioCtx.createDelay();
+            delayNode.delayTime.value = 0.5;
+            videoAudioNode.gain.value = 0.2;
+            videoAudioNode.connect(delayNode);
             videoAudioNode.connect(audioCtx.destination);
+            delayNode.connect(audioCtx.destination);
+
 
 
             videoCompositor.addEventListener("seek", function(data){
