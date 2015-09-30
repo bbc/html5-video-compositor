@@ -654,12 +654,6 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "src/main.js~videocompositor#update",
-    "class/src/main.js~VideoCompositor.html#instance-method-update",
-    "src/main.js~VideoCompositor#update",
-    "method"
-  ],
-  [
     "src/main.js~videocompositor.calculateplaylistduration",
     "class/src/main.js~VideoCompositor.html#static-method-calculatePlaylistDuration",
     "src/main.js~VideoCompositor.calculatePlaylistDuration",

@@ -93,7 +93,7 @@ module.exports =
 	    if (previousTime === undefined) previousTime = time;
 	    var dt = (time - previousTime) / 1000;
 	    for (var i = 0; i < updateables.length; i++) {
-	        updateables[i].update(dt);
+	        updateables[i]._update(dt);
 	    }
 	    previousTime = time;
 	    requestAnimationFrame(update);
@@ -124,6 +124,21 @@ module.exports =
 
 	    _createClass(VideoCompositor, [{
 	        key: "play",
+
+	        /**
+	        * Play the playlist. If a pause() has been called previously playback will resume from that point.
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * var canvas = document.getElementById('canvas');
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * videoCompositor.play();
+	        */
 	        value: function play() {
 	            this._playing = true;
 	            var playEvent = new CustomEvent("play", { detail: { data: this._currentTime, instance: this } });
@@ -131,6 +146,24 @@ module.exports =
 	        }
 	    }, {
 	        key: "pause",
+
+	        /**
+	        * Pause playback of the playlist. Call play() to resume playing.
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * var canvas = document.getElementById('canvas');
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * videoCompositor.play();
+	        * 
+	        * setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds
+	        *
+	        */
 	        value: function pause() {
 	            this._playing = false;
 	            this._mediaSources.forEach(function (mediaSource) {
@@ -175,11 +208,55 @@ module.exports =
 	        }
 	    }, {
 	        key: "getAudioContext",
+
+	        /**
+	        * Returns the audio context that was either passed into the contstructor or created interally.
+	        * @example
+	        * var audioCtx = new AudioContext();
+	        * var videoCompositor = new VideoCompositor(canvas, audioCtx);
+	        * 
+	        * var returnedAudioContext = videoCompositor.getAudioContext();
+	        *
+	        * //returnedAudioContext and audiotCtx are the same object.
+	        * 
+	        * @example
+	        * var videoCompositor = new VideoCompositor(canvas); //Don't pass in an audio context
+	        *
+	        * var audioCtx = videoCompositor.getAudioContext();
+	        * //audioCtx was created inside the VideoCompositor constructor
+	        *
+	        * @return {AudioContext} The audio context used to create any nodes required by calls to getAudioNodeForTrack
+	        */
 	        value: function getAudioContext() {
 	            return this._audioManger.getAudioContext();
 	        }
 	    }, {
 	        key: "getAudioNodeForTrack",
+
+	        /**
+	        * Gets an audio bus for the given playlist track.
+	        *
+	        * In some instances you may want to feed the audio output of the media sources from a given track into a web audio API context. This function provides a mechanism for acquiring an audio GainNode which represents a "bus" of a given track.
+	        *
+	        * Note: In order for the media sources on a track to play correctly once you have an AudioNode for the track you must connect the Audio Node to the audio contexts destination (even if you want to mute them you must set the gain to 0 then connect them to the output).
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * 
+	        * var audioCtx = new AudioContext();
+	        * var canvas = document.getElementById("canvas");
+	        * var videoCompositor = new VideoCompositor(canvas, audioCtx);
+	        * videoCompositor.playlist = playlist;
+	        * var trackGainNode = videoCompositor.getAudioNodeForTrack(playlist.tracks[0]);
+	        * trackGainNode.gain.value = 0.0; // Mute the track
+	        * 
+	        * @param {Array} track - this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).
+	        * @return {GainNode} this is a web audio GainNode which has the ouput of any audio producing media sources from the passed track played out of it.
+	        */
 	        value: function getAudioNodeForTrack(track) {
 	            var audioNode = this._audioManger.createAudioNodeFromTrack(track);
 	            return audioNode;
@@ -344,8 +421,8 @@ module.exports =
 	            return activeTransitions;
 	        }
 	    }, {
-	        key: "update",
-	        value: function update(dt) {
+	        key: "_update",
+	        value: function _update(dt) {
 	            if (this._playlist === undefined || this._playing === false) return;
 
 	            var _getPlaylistPlayingStatusAtTime2 = this._getPlaylistPlayingStatusAtTime(this._playlist, this._currentTime);
@@ -436,6 +513,26 @@ module.exports =
 	        }
 	    }, {
 	        key: "currentTime",
+
+	        /**
+	        * Sets the current time through the playlist.
+	        *
+	        * Setting this is how you seek through the content. Should be frame accurate, but probably slow.
+	        * @param {number} time - The time to seek to in seconds.
+	        * 
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * var canvas = document.getElementById('canvas');
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * videoCompositor.currentTime = 3; //Skip three seconds in.
+	        * videoCompositor.play();
+	        */
 	        set: function set(currentTime) {
 	            console.debug("Seeking to", currentTime);
 	            if (this._playlist === undefined) {
@@ -475,6 +572,26 @@ module.exports =
 	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
 	            this._canvas.dispatchEvent(seekEvent);
 	        },
+
+	        /**
+	        * Get how far through the playlist has been played.
+	        *
+	        * Getting this value will give the current playhead position. Can be used for updating timelines.
+	        * @return {number} The time in seconds through the current playlist.
+	        * 
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * var canvas = document.getElementById('canvas');
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * var time = videoCompositor.currentTime;
+	        * //time === 0
+	        */
 	        get: function get() {
 	            return this._currentTime;
 	        }
@@ -492,6 +609,27 @@ module.exports =
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
+
+	        /**
+	        * Calculate the duration of the passed playlist track.
+	        *
+	        * Will return the time that the last media source in the track stops playing.
+	        * @param {Array} track - this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).
+	        * @return {number} The duration in seconds of the given track.
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
+	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
+	        *   ]
+	        * }
+	        * var track0Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[0]);
+	        * var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
+	        * //track0Duration === 8
+	        * //track1Duration === 10
+	        *
+	        * @todo Beacuse media source reference are stored in order this could implemented be far quicker.
+	        */
 	        value: function calculateTrackDuration(track) {
 	            var maxPlayheadPosition = 0;
 	            for (var j = 0; j < track.length; j++) {
@@ -504,6 +642,24 @@ module.exports =
 	        }
 	    }, {
 	        key: "calculatePlaylistDuration",
+
+	        /**
+	        * Calculate the duration of the passed playlist.
+	        *
+	        * Will return the time that the last media source in the longest track stops playing.
+	        * @param {Object} playlist - This is a playlist object.
+	        * @return {number} The duration in seconds of the given playlist.
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
+	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
+	        *   ]
+	        * }
+	        * var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
+	        * //playlistDuration === 10
+	        *
+	        */
 	        value: function calculatePlaylistDuration(playlist) {
 	            var maxTrackDuration = 0;
 
@@ -519,6 +675,33 @@ module.exports =
 	        }
 	    }, {
 	        key: "validatePlaylist",
+
+	        /**
+	        * Validate that the playlist is correct and playable.
+	        *
+	        * This static function will analyse a playlist and check for common errors. on encountering an error it will throw an exception. The errors it currently checks for are:
+	        *
+	        * Error 1. MediaSourceReferences have a unique ID        
+	        *
+	        * Error 2. The playlist media sources have all the expected properties.
+	        *
+	        * Error 3. MediaSourceReferences in single track are sequential.
+	        *
+	        * Error 4. MediaSourceReferences in single track don't overlap
+	        *
+	        * @param {Object} playlist - This is a playlist object.
+	        *
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:2, duration:4, src:"video2.mp4", id:"video2"}],
+	        *   ]
+	        * }
+	        * var playilstDuration = VideoCompositor.validatePlaylist(playlist);
+	        * //Will throw error 4 becuase mediaSourceReference video1 and video2 overlap by 2 seconds.
+	        *
+	        * @todo Better coverage of possible errors in a playlist.
+	        */
 	        value: function validatePlaylist(playlist) {
 	            /*     
 	            This function validates a passed playlist, making sure it matches a 
@@ -608,6 +791,27 @@ module.exports =
 	        }
 	    }, {
 	        key: "renderPlaylist",
+
+	        /**
+	        * Render a graphical representation of a playlist to a canvas.
+	        *
+	        * This function is useful for rendering a graphical display of a playlist to check MediaSourceReferences are aligned on tracks as you'd expect. It can also be called in an update loop with the currentTime of a VideoCompositor instance passed in to create a live timeline viewer.
+	        *
+	        *
+	        * @param {Object} playlist - This is a playlist object.
+	        * @param {Canvas} canvas - This is the canvas to render to.
+	        * @param {number} currentTime - The time at wich to render a playhead.
+	        *
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:2, duration:4, src:"video2.mp4", id:"video2"}],
+	        *   ]
+	        * }
+	        * var visualisationCanvas = document.getElementById("vis-canvas");
+	        * VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);
+	        *
+	        */
 	        value: function renderPlaylist(playlist, canvas, currentTime) {
 	            var ctx = canvas.getContext("2d");
 	            var w = canvas.width;

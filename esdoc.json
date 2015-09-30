@@ -1,4 +1,5 @@
 {
   "source": "./src",
-  "destination": "./doc"
+  "destination": "./doc",
+  "title": "HTML5 Video Compositor"
 }
