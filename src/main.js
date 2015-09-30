@@ -33,7 +33,7 @@ class VideoCompositor {
         this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
         this._playing = false;
         this._mediaSources = new Map();
-        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultaneous AJAX requests available.
         this._playlist = undefined;
         this._eventMappings = new Map();
         this._mediaSourceListeners = new Map();
@@ -124,6 +124,78 @@ class VideoCompositor {
         return this._currentTime;
     }
     
+    /**
+    * Set the playlist object to be played.
+    *
+    * Playlist objects describe a sequence of media sources to be played along with effects to be applied to them. They can be modified as they are being played to create dynamic or user customizable content.
+    * 
+    * At the top level playlist consist of tracks and effects. A track is an array of MediaSourceReferences. MediaSourceReference are an object which describe a piece of media to be played, the three fundamental MediaSourceRefernce types are "video", "image", and "canvas". Internally MediaSoureReferences are used to create MediaSources which are object that contain the underlying HTML element as well as handling loading and rendering of that element ot the output canvas.
+    *
+    * The order in which simultaneous individual tracks get rendered is determined by there index in the overall tracks list. A track at index 0 will be rendered after a track at index 1.
+    *
+    * Effects are objects consisting of GLSL vertex and fragment shaders, and a list of MediaSource ID's for them to be applied to.
+    * Effects get applied independently to any MediaSources in their input list.
+    *
+    * @param {Object} playlist - The playlist object to be played.
+    * 
+    * @example <caption>A simple playlist with a single track of a single 4 second video</caption>
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video.mp4", id:"video"}]
+    *   ]
+    * }
+    *
+    * @example <caption>Playing the first 4 seconds of two videos, one after the other</caption>
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video.mp4", id:"video"}, {type:"video", start:4, duration:4, src:"video1.mp4", id:"video1"}]
+    *   ]
+    * }
+    *
+    * @example <caption>Playing a 4 second segment from within a video (not the use of sourceStart)</caption>
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, sourceStart:10, duration:4, src:"video.mp4", id:"video"}]
+    *   ]
+    * }
+    * 
+    * @example <caption>A playlist with a 4 second video with a greenscreen effect applied rendered over a background image</caption>
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:10, src:"video.mp4", id:"gs-video"}],
+    *       [{type:"image", start:0, duration:10, src:"background.png", id:"background"}]
+    *   ]
+    *   effects:{
+    *       "green-screen":{                                  //A unique ID for this effect.
+    *           "inputs":["gs-video"],                        //The id of the video to apply the effect to.
+    *           "effect": VideoCompositor.Effects.GREENSCREEN //Use the built-in greenscreen effect shader.
+    *       }
+    *   }
+    * }
+    *
+    * @example <caption>A pseudo 2 second cross-fade between two videos.</caption>
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:10, src:"video1.mp4", id:"video1"}],
+    *       [                                                  {type:"video", start:8, duration:10, src:"video2.mp4", id:"video2"}]
+    *   ]
+    *   effects:{
+    *       "fade-out":{                                      //A unique ID for this effect.
+    *           "inputs":["video1"],                          //The id of the video to apply the effect to.
+    *           "effect": VideoCompositor.Effects.FADEOUT2SEC //Use the built-in fade-out effect shader.
+    *       },
+    *       "fade-in":{                                      //A unique ID for this effect.
+    *           "inputs":["video2"],                          //The id of the video to apply the effect to.
+    *           "effect": VideoCompositor.Effects.FADEIN2SEC //Use the built-in fade-in effect shader.
+    *       }
+    *   }
+    * }
+    */
     set playlist(playlist){
         VideoCompositor.validatePlaylist(playlist);
         this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
@@ -213,8 +285,8 @@ class VideoCompositor {
     }
 
     /**
-    * Returns the audio context that was either passed into the contstructor or created interally.
-    * @example
+    * Returns the audio context that was either passed into the constructor or created internally.
+    * @example <caption>Getting an audio context that was passed in</caption>
     * var audioCtx = new AudioContext();
     * var videoCompositor = new VideoCompositor(canvas, audioCtx);
     * 
@@ -222,7 +294,7 @@ class VideoCompositor {
     *
     * //returnedAudioContext and audiotCtx are the same object.
     * 
-    * @example
+    * @example <caption>Getting an AudioContext created internally</caption>
     * var videoCompositor = new VideoCompositor(canvas); //Don't pass in an audio context
     *
     * var audioCtx = videoCompositor.getAudioContext();
@@ -240,7 +312,7 @@ class VideoCompositor {
     * In some instances you may want to feed the audio output of the media sources from a given track into a web audio API context. This function provides a mechanism for acquiring an audio GainNode which represents a "bus" of a given track.
     *
     * Note: In order for the media sources on a track to play correctly once you have an AudioNode for the track you must connect the Audio Node to the audio contexts destination (even if you want to mute them you must set the gain to 0 then connect them to the output).
-    * @example
+    * @example <caption>Muting all videos on a single track</caption>
     * 
     * var playlist = {
     *   tracks:[
@@ -255,8 +327,8 @@ class VideoCompositor {
     * var trackGainNode = videoCompositor.getAudioNodeForTrack(playlist.tracks[0]);
     * trackGainNode.gain.value = 0.0; // Mute the track
     * 
-    * @param {Array} track - this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).
-    * @return {GainNode} this is a web audio GainNode which has the ouput of any audio producing media sources from the passed track played out of it.
+    * @param {Array} track - this is track which consist of an array object of MediaSourceReferences (typically a track from a playlist object).
+    * @return {GainNode} this is a web audio GainNode which has the output of any audio producing media sources from the passed track played out of it.
     */
     getAudioNodeForTrack(track){
         let audioNode = this._audioManger.createAudioNodeFromTrack(track);
@@ -503,7 +575,7 @@ class VideoCompositor {
     * Calculate the duration of the passed playlist track.
     *
     * Will return the time that the last media source in the track stops playing.
-    * @param {Array} track - this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).
+    * @param {Array} track - this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).
     * @return {number} The duration in seconds of the given track.
     * @example
     * var playlist = {
@@ -565,7 +637,7 @@ class VideoCompositor {
     /**
     * Validate that the playlist is correct and playable.
     *
-    * This static function will analyse a playlist and check for common errors. on encountering an error it will throw an exception. The errors it currently checks for are:
+    * This static function will analyze a playlist and check for common errors. on encountering an error it will throw an exception. The errors it currently checks for are:
     *
     * Error 1. MediaSourceReferences have a unique ID        
     *

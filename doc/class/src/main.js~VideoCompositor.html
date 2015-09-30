@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">VideoCompositor | API Document</title>
+  <title data-ice="title">VideoCompositor | HTML5 Video Compositor API Document</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -322,13 +322,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-set-playlist">playlist</a></span></span><span data-ice="signature">: <span>*</span></span>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-set-playlist">playlist</a></span></span><span data-ice="signature">(playlist: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>): <span>*</span></span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">Set the playlist object to be played.</div>
       </div>
     </td>
     <td>
@@ -385,7 +385,7 @@
       <div>
         
         
-        <div data-ice="description">Returns the audio context that was either passed into the contstructor or created interally.</div>
+        <div data-ice="description">Returns the audio context that was either passed into the constructor or created internally.</div>
       </div>
     </td>
     <td>
@@ -538,7 +538,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber550">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber622">source</a></span></span>
     </span>
   </h3>
 
@@ -622,7 +622,7 @@ var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber522">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber594">source</a></span></span>
     </span>
   </h3>
 
@@ -647,7 +647,7 @@ var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
       <td data-ice="name" data-depth="0">track</td>
       <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"><p>this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).</p>
+      <td data-ice="description"><p>this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).</p>
 </td>
     </tr>
 </tbody>
@@ -708,7 +708,7 @@ var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber686">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber758">source</a></span></span>
     </span>
   </h3>
 
@@ -794,7 +794,7 @@ VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber591">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber663">source</a></span></span>
     </span>
   </h3>
 
@@ -802,7 +802,7 @@ VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);</code></pre>
   
   
   <div data-ice="description"><p>Validate that the playlist is correct and playable.</p>
-<p>This static function will analyse a playlist and check for common errors. on encountering an error it will throw an exception. The errors it currently checks for are:</p>
+<p>This static function will analyze a playlist and check for common errors. on encountering an error it will throw an exception. The errors it currently checks for are:</p>
 <p>Error 1. MediaSourceReferences have a unique ID        </p>
 <p>Error 2. The playlist media sources have all the expected properties.</p>
 <p>Error 3. MediaSourceReferences in single track are sequential.</p>
@@ -1103,18 +1103,24 @@ var time = videoCompositor.currentTime;
     <span class="kind" data-ice="kind">set</span>
     
     
-    <span data-ice="name">playlist</span><span data-ice="signature">: <span>*</span></span>
+    <span data-ice="name">playlist</span><span data-ice="signature">(playlist: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>): <span>*</span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber127">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber199">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>Set the playlist object to be played.</p>
+<p>Playlist objects describe a sequence of media sources to be played along with effects to be applied to them. They can be modified as they are being played to create dynamic or user customizable content.</p>
+<p>At the top level playlist consist of tracks and effects. A track is an array of MediaSourceReferences. MediaSourceReference are an object which describe a piece of media to be played, the three fundamental MediaSourceRefernce types are &quot;video&quot;, &quot;image&quot;, and &quot;canvas&quot;. Internally MediaSoureReferences are used to create MediaSources which are object that contain the underlying HTML element as well as handling loading and rendering of that element ot the output canvas.</p>
+<p>The order in which simultaneous individual tracks get rendered is determined by there index in the overall tracks list. A track at index 0 will be rendered after a track at index 1.</p>
+<p>Effects are objects consisting of GLSL vertex and fragment shaders, and a list of MediaSource ID&apos;s for them to be applied to.
+Effects get applied independently to any MediaSources in their input list.</p>
+</div>
 
   
 
@@ -1129,7 +1135,73 @@ var time = videoCompositor.currentTime;
 
   
 
-  
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">A simple playlist with a single track of a single 4 second video</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video.mp4&quot;, id:&quot;video&quot;}]
+  ]
+}</code></pre>
+    </div>
+<div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">Playing the first 4 seconds of two videos, one after the other</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video.mp4&quot;, id:&quot;video&quot;}, {type:&quot;video&quot;, start:4, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;}]
+  ]
+}</code></pre>
+    </div>
+<div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">Playing a 4 second segment from within a video (not the use of sourceStart)</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, sourceStart:10, duration:4, src:&quot;video.mp4&quot;, id:&quot;video&quot;}]
+  ]
+}</code></pre>
+    </div>
+<div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">A playlist with a 4 second video with a greenscreen effect applied rendered over a background image</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:10, src:&quot;video.mp4&quot;, id:&quot;gs-video&quot;}],
+      [{type:&quot;image&quot;, start:0, duration:10, src:&quot;background.png&quot;, id:&quot;background&quot;}]
+  ]
+  effects:{
+      &quot;green-screen&quot;:{                                  //A unique ID for this effect.
+          &quot;inputs&quot;:[&quot;gs-video&quot;],                        //The id of the video to apply the effect to.
+          &quot;effect&quot;: VideoCompositor.Effects.GREENSCREEN //Use the built-in greenscreen effect shader.
+      }
+  }
+}</code></pre>
+    </div>
+<div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">A pseudo 2 second cross-fade between two videos.</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:10, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;}],
+      [                                                  {type:&quot;video&quot;, start:8, duration:10, src:&quot;video2.mp4&quot;, id:&quot;video2&quot;}]
+  ]
+  effects:{
+      &quot;fade-out&quot;:{                                      //A unique ID for this effect.
+          &quot;inputs&quot;:[&quot;video1&quot;],                          //The id of the video to apply the effect to.
+          &quot;effect&quot;: VideoCompositor.Effects.FADEOUT2SEC //Use the built-in fade-out effect shader.
+      },
+      &quot;fade-in&quot;:{                                      //A unique ID for this effect.
+          &quot;inputs&quot;:[&quot;video2&quot;],                          //The id of the video to apply the effect to.
+          &quot;effect&quot;: VideoCompositor.Effects.FADEIN2SEC //Use the built-in fade-in effect shader.
+      }
+  }
+}</code></pre>
+    </div>
+</div>
 
   
 
@@ -1150,7 +1222,7 @@ var time = videoCompositor.currentTime;
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber184">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber256">source</a></span></span>
     </span>
   </h3>
 
@@ -1212,14 +1284,14 @@ var time = videoCompositor.currentTime;
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber233">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber305">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  <div data-ice="description"><p>Returns the audio context that was either passed into the contstructor or created interally.</p>
+  <div data-ice="description"><p>Returns the audio context that was either passed into the constructor or created internally.</p>
 </div>
 
   
@@ -1250,7 +1322,7 @@ var time = videoCompositor.currentTime;
     <h4>Example:</h4>
     
   <div class="example-doc" data-ice="exampleDoc">
-      
+      <div class="example-caption" data-ice="exampleCaption">Getting an audio context that was passed in</div>
       <pre class="prettyprint source-code"><code data-ice="exampleCode">var audioCtx = new AudioContext();
 var videoCompositor = new VideoCompositor(canvas, audioCtx);
 
@@ -1259,7 +1331,7 @@ var returnedAudioContext = videoCompositor.getAudioContext();
 //returnedAudioContext and audiotCtx are the same object.</code></pre>
     </div>
 <div class="example-doc" data-ice="exampleDoc">
-      
+      <div class="example-caption" data-ice="exampleCaption">Getting an AudioContext created internally</div>
       <pre class="prettyprint source-code"><code data-ice="exampleCode">var videoCompositor = new VideoCompositor(canvas); //Don&apos;t pass in an audio context
 
 var audioCtx = videoCompositor.getAudioContext();
@@ -1283,7 +1355,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber261">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber333">source</a></span></span>
     </span>
   </h3>
 
@@ -1309,7 +1381,7 @@ var audioCtx = videoCompositor.getAudioContext();
       <td data-ice="name" data-depth="0">track</td>
       <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"><p>this is track which consits of an array object of MediaSourceReferences (typcially a track from a playlist object).</p>
+      <td data-ice="description"><p>this is track which consist of an array object of MediaSourceReferences (typically a track from a playlist object).</p>
 </td>
     </tr>
 </tbody>
@@ -1322,7 +1394,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <table>
       <tr>
         <td class="return-type" data-ice="returnType"><span>GainNode</span></td>
-        <td class="return-desc" data-ice="returnDescription"><p>this is a web audio GainNode which has the ouput of any audio producing media sources from the passed track played out of it.</p>
+        <td class="return-desc" data-ice="returnDescription"><p>this is a web audio GainNode which has the output of any audio producing media sources from the passed track played out of it.</p>
 </td>
       </tr>
     </table>
@@ -1340,7 +1412,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <h4>Example:</h4>
     
   <div class="example-doc" data-ice="exampleDoc">
-      
+      <div class="example-caption" data-ice="exampleCaption">Muting all videos on a single track</div>
       <pre class="prettyprint source-code"><code data-ice="exampleCode">
 var playlist = {
   tracks:[
@@ -1373,7 +1445,7 @@ trackGainNode.gain.value = 0.0; // Mute the track</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber175">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber247">source</a></span></span>
     </span>
   </h3>
 
@@ -1432,7 +1504,7 @@ setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber152">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber224">source</a></span></span>
     </span>
   </h3>
 
@@ -1489,7 +1561,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber207">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber279">source</a></span></span>
     </span>
   </h3>
 
@@ -1551,7 +1623,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber195">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber267">source</a></span></span>
     </span>
   </h3>
 

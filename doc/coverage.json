@@ -1,7 +1,7 @@
 {
-  "coverage": "9.7%",
+  "coverage": "10.67%",
   "expectCount": 103,
-  "actualCount": 10,
+  "actualCount": 11,
   "files": {
     "src/audiomanager.js": {
       "expectCount": 10,
@@ -114,16 +114,15 @@
     },
     "src/main.js": {
       "expectCount": 18,
-      "actualCount": 10,
+      "actualCount": 11,
       "undocumentLines": [
         30,
-        184,
+        256,
         31,
         46,
-        127,
-        207,
-        195,
-        1019
+        279,
+        267,
+        1091
       ]
     },
     "src/sources/videosource.js": {
