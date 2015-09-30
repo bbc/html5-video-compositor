@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/main.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+</head>
+<body class="layout-container">
+
+<header>
+  <a href="./">Home</a>
+  <a href="identifiers.html">Identifier</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audiomanager.js~AudioManager.html">AudioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effect.js~Effect.html">Effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effectmanager.js~EffectManager.html">EffectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html">VideoCompositor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-audioManager">audioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effect">effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effectManager">effectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoCompositor">videoCompositor</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sources</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/canvassource.js~CanvasSource.html">CanvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/imagesource.js~ImageSource.html">ImageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html">MediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html">VideoSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-canvasSource">canvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-imageSource">imageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-mediaSource">mediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoSource">videoSource</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/main.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">//Matthew Shotton, R&amp;D User Experince,&#xA9; BBC 2015
+
+import VideoSource from &quot;./sources/videosource.js&quot;;
+import ImageSource from &quot;./sources/imagesource.js&quot;;
+import CanvasSource from &quot;./sources/canvassource.js&quot;;
+import EffectManager from &quot;./effectmanager.js&quot;;
+import AudioManager from &quot;./audiomanager.js&quot;;
+
+let updateables = [];
+let previousTime;
+let mediaSourceMapping = new Map();
+mediaSourceMapping.set(&quot;video&quot;,VideoSource).set(&quot;image&quot;,ImageSource).set(&quot;canvas&quot;,CanvasSource);
+
+
+function registerUpdateable(updateable){
+    updateables.push(updateable);
+}
+function update(time){
+    if (previousTime === undefined) previousTime = time;
+    let dt = (time - previousTime)/1000;
+    for(let i = 0; i &lt; updateables.length; i++){
+        updateables[i].update(dt);
+    }
+    previousTime = time;
+    requestAnimationFrame(update);
+}
+update();
+
+
+class VideoCompositor {
+    constructor(canvas, audioCtx){
+        this._canvas = canvas;
+        this._ctx = this._canvas.getContext(&quot;experimental-webgl&quot;, { preserveDrawingBuffer: true, alpha: false });
+        this._playing = false;
+        this._mediaSources = new Map();
+        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.
+        this._playlist = undefined;
+        this._eventMappings = new Map();
+        this._mediaSourceListeners = new Map();
+        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);
+
+        this._effectManager = new EffectManager(this._ctx);
+        this._audioManger = new AudioManager(audioCtx);
+
+        this._currentTime = 0;
+        this.duration = 0;
+        registerUpdateable(this);
+    }
+
+    set currentTime(currentTime){
+        console.debug(&quot;Seeking to&quot;, currentTime);
+        if (this._playlist === undefined){
+            return;
+        }
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
+
+        //clean-up any currently playing mediaSources
+        this._mediaSources.forEach(function(mediaSource){
+            mediaSource.destroy();
+        });
+        this._mediaSources.clear();
+
+        //Load mediaSources
+        for (let i = 0; i &lt; currentlyPlaying.length; i++) {
+            let mediaSourceID = currentlyPlaying[i].id;
+            //If the media source isn&apos;t loaded then we start loading it.
+            if (this._mediaSources.has(mediaSourceID) === false){
+                
+                this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
+                    mediaSource.seek(currentTime);
+                });
+
+            }else{
+               //If the mediaSource is loaded then we seek to the proper bit
+                this._mediaSources.get(mediaSourceID).seek(currentTime);
+            }
+
+        }
+
+        this._currentTime = currentTime;
+        let seekEvent = new CustomEvent(&apos;seek&apos;, {detail:{data:currentTime, instance:this}});
+        this._canvas.dispatchEvent(seekEvent);
+    }
+
+    get currentTime(){
+        return this._currentTime;
+    }
+    
+    set playlist(playlist){
+        VideoCompositor.validatePlaylist(playlist);
+        this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
+        this._playlist = playlist;
+        //clean-up any currently playing mediaSources
+        this._mediaSources.forEach(function(mediaSource){
+            mediaSource.destroy();
+        });
+        this._mediaSources.clear();
+    }
+
+    play(){
+        this._playing = true;
+        let playEvent = new CustomEvent(&apos;play&apos;, {detail:{data:this._currentTime, instance:this}});
+        this._canvas.dispatchEvent(playEvent);
+    }
+
+    pause() {
+        this._playing = false;
+        this._mediaSources.forEach(function(mediaSource){
+            mediaSource.pause();
+        });
+        let pauseEvent = new CustomEvent(&apos;pause&apos;, {detail:{data:this._currentTime, instance:this}});
+        this._canvas.dispatchEvent(pauseEvent);
+    }
+
+    addEventListener(type, func){
+        //Pass through any event listeners through to the underlying canvas rendering element
+        //Catch any events and handle with a custom events dispatcher so things 
+        if (this._eventMappings.has(type)){
+            this._eventMappings.get(type).push(func);
+        }else {
+            this._eventMappings.set(type, [func]);
+        }
+        this._canvas.addEventListener(type, this._dispatchEvents, false);
+    }
+
+    removeEventListener(type, func){
+        if (this._eventMappings.has(type)){
+            let listenerArray = this._eventMappings.get(type);
+            let listenerIndex = listenerArray.indexOf(func);
+            if (listenerIndex !== -1){
+                listenerArray.splice(listenerIndex, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    registerMediaSourceListener(mediaSourceID, mediaSourceListener){
+        if (this._mediaSourceListeners.has(mediaSourceID)){
+            this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);
+        }else{
+            this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
+        }
+    }
+
+    getAudioContext(){
+        return this._audioManger.getAudioContext();
+    }
+
+    getAudioNodeForTrack(track){
+        let audioNode = this._audioManger.createAudioNodeFromTrack(track);
+        return audioNode;
+    }
+
+    _dispatchEvents(evt){
+        //Catch events and pass them on, mangling the detail property so it looks nice in the API
+        for (let i = 0; i &lt; evt.detail.instance._eventMappings.get(evt.type).length; i++){
+            evt.detail.instance._eventMappings.get(evt.type)[i](evt.detail.data);
+        }
+    }
+
+    _getPlaylistPlayingStatusAtTime(playlist, playhead){
+        let toPlay = [];
+        let currentlyPlaying = [];
+        let finishedPlaying = [];
+
+        //itterate tracks
+        for(let i = 0; i &lt; playlist.tracks.length; i++){
+            let track = playlist.tracks[i];
+            for (let j = 0; j &lt; track.length; j++) {
+                let segment = track[j];
+                let segmentEnd = segment.start+segment.duration;
+
+                if (playhead &gt; segmentEnd){
+                    finishedPlaying.push(segment);
+                    continue;
+                }
+                if (playhead &gt; segment.start &amp;&amp; playhead &lt; segmentEnd){
+                    currentlyPlaying.push(segment);
+                    continue;
+                }
+                if(playhead &lt;= segment.start){
+                    toPlay.push(segment);
+                    continue;
+                }
+            }
+        }
+
+        return [toPlay, currentlyPlaying, finishedPlaying];
+    }
+
+    _sortMediaSourcesByStartTime(mediaSources){
+        mediaSources.sort(function(a,b){
+            return a.start - b.start;
+        });
+        return mediaSources;
+    }
+
+    _loadMediaSource(mediaSourceReference, onReadyCallback){
+        if (onReadyCallback === undefined) onReadyCallback = function(){};
+        let mediaSourceListeners = [];
+        if (this._mediaSourceListeners.has(mediaSourceReference.id)){
+            mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);
+        }
+
+
+        switch (mediaSourceReference.type){
+            case &quot;video&quot;:
+                let video = new VideoSource(mediaSourceReference, this._ctx);
+                video.onready = onReadyCallback;
+                video.mediaSourceListeners = mediaSourceListeners;
+                video.load();
+                this._mediaSources.set(mediaSourceReference.id, video);
+                break;
+            case &quot;image&quot;:
+                let image = new ImageSource(mediaSourceReference, this._ctx);
+                image.onready = onReadyCallback;
+                image.mediaSourceListeners = mediaSourceListeners;
+                image.load();
+                this._mediaSources.set(mediaSourceReference.id, image);
+                break;
+            case &quot;canvas&quot;:
+                let canvas = new CanvasSource(mediaSourceReference, this._ctx);
+                canvas.onready = onReadyCallback;
+                canvas.mediaSourceListeners = mediaSourceListeners;
+                canvas.load();
+                this._mediaSources.set(mediaSourceReference.id, canvas);
+                break;
+            default:
+                throw {&quot;error&quot;:5,&quot;msg&quot;:&quot;mediaSourceReference &quot;+mediaSourceReference.id+&quot; has unrecognized type &quot;+mediaSourceReference.type, toString:function(){return this.msg;}};
+        }
+    }
+
+    _calculateMediaSourcesOverlap(mediaSources){
+        let maxStart = 0.0;
+        let minEnd;
+        //calculate max start time
+        for (var i = 0; i &lt; mediaSources.length; i++) {
+            let mediaSource = mediaSources[i];
+            if (mediaSource.start  &gt; maxStart){
+                maxStart = mediaSource.start;
+            }
+            let end = (mediaSource.start + mediaSource.duration);
+            if (minEnd === undefined || end &lt; minEnd){
+                minEnd = end;
+            }
+        }
+        return [maxStart, minEnd];
+    }
+
+
+    _calculateActiveTransitions(currentlyPlaying, currentTime){
+        if (this._playlist === undefined || this._playing === false) return [];
+        if (this._playlist.transitions === undefined ) return [];
+        
+        //Get the currently playing ID&apos;s
+        let currentlyPlayingIDs = [];
+        for (let i = 0; i &lt; currentlyPlaying.length; i++) {
+            currentlyPlayingIDs.push(currentlyPlaying[i].id);
+        }
+
+        let activeTransitions = [];
+
+        //Get the transitions whose video sources are currently playing
+
+
+        let transitionKeys = Object.keys(this._playlist.transitions);
+        for (let i = 0; i &lt; transitionKeys.length; i++){
+            let transitionID = transitionKeys[i];
+
+            let transition = this._playlist.transitions[transitionID];
+            let areInputsCurrentlyPlaying = true;
+            for (let j = 0; j &lt; transition.inputs.length; j++) {
+                let id = transition.inputs[j];
+                if (currentlyPlayingIDs.indexOf(id) === -1){
+                    areInputsCurrentlyPlaying = false;
+                    break;
+                }
+            }
+            if (areInputsCurrentlyPlaying){
+                let activeTransition = {transition:transition, transitionID:transitionID, mediaSources:[]};
+                
+                for(let j = 0; j &lt; transition.inputs.length; j++){
+                    activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));
+                }
+
+                activeTransitions.push(activeTransition);
+            }
+        }
+
+        //Calculate the progress through the transition
+        for (let i = 0; i &lt; activeTransitions.length; i++) {
+            let mediaSources = activeTransitions[i].mediaSources;
+            let [overlapStart, overlapEnd] = this._calculateMediaSourcesOverlap(mediaSources);
+            let progress = ((currentTime - overlapStart)) / (overlapEnd - overlapStart);
+            activeTransitions[i].progress = progress;
+        }
+
+        return activeTransitions;
+    }
+
+
+    update(dt){
+        if (this._playlist === undefined || this._playing === false) return;
+
+        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, this._currentTime);
+        toPlay = this._sortMediaSourcesByStartTime(toPlay);
+
+        //Check if we&apos;ve finished playing and then stop
+        if (toPlay.length === 0 &amp;&amp; currentlyPlaying.length === 0){
+            this.pause();
+            let endedEvent = new CustomEvent(&apos;ended&apos;, {detail:{data:this.currentTime, instance:this}});
+            this.currentTime = 0;
+            this._canvas.dispatchEvent(endedEvent);
+            return;
+        }
+
+
+        //Preload mediaSources
+        for (let i = 0; i &lt; this._mediaSourcePreloadNumber; i++) {
+            if (i === toPlay.length) break;
+            if (this._mediaSources.has(toPlay[i].id) === false){
+                this._loadMediaSource(toPlay[i]);
+            }
+        }
+
+        //Clean-up any mediaSources which have already been played
+        for (let i = 0; i &lt; finishedPlaying.length; i++) {
+            let mediaSourceReference = finishedPlaying[i];
+            if (this._mediaSources.has(mediaSourceReference.id)){
+                let mediaSource = this._mediaSources.get(mediaSourceReference.id);
+                mediaSource.destroy();
+                this._mediaSources.delete(mediaSourceReference.id);
+            }
+        }
+
+        //Make sure all mediaSources are ready to play
+        let ready = true;
+        for (let i = 0; i &lt; currentlyPlaying.length; i++) {
+            let mediaSourceID = currentlyPlaying[i].id;
+            //check that currently playing mediaSource exists
+            if (!this._mediaSources.has(mediaSourceID)){
+                //if not load it
+                this._loadMediaSource(currentlyPlaying[i]);
+                ready = false;
+                continue;
+            }
+            if (!this._mediaSources.get(mediaSourceID).isReady()) ready=false;
+        }
+        //if all the sources aren&apos;t ready, exit function before rendering or advancing clock.
+        if (ready === false){
+            return;
+        }
+
+
+        //Update the effects
+        this._effectManager.updateEffects(this._playlist.effects);
+
+        //Update the audio
+        this._audioManger.update(this._mediaSources);
+
+        //Play mediaSources on the currently playing queue.
+        currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
+
+
+        //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
+        this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
+        
+
+        for (let i = 0; i &lt; currentlyPlaying.length; i++) {
+            let mediaSourceID = currentlyPlaying[i].id;
+            let mediaSource = this._mediaSources.get(mediaSourceID);
+            mediaSource.play();
+
+            let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
+            //get the base render parameters
+            let renderParameters = {&quot;progress&quot;:progress, &quot;duration&quot;:mediaSource.duration};
+            //find the effect associated with the current mediasource
+            let effect = this._effectManager.getEffectForInputId(mediaSourceID);
+            //merge the base parameters with any custom ones
+            for (let key in effect.parameters) {
+                renderParameters[key] = effect.parameters[key];
+            }
+
+            mediaSource.render(effect.program, renderParameters, effect.textures);
+
+        }
+        this._currentTime += dt;
+    }
+
+    static calculateTrackDuration(track){
+        let maxPlayheadPosition = 0;
+        for (let j = 0; j &lt; track.length; j++) {
+            let playheadPosition = track[j].start + track[j].duration;
+            if (playheadPosition &gt; maxPlayheadPosition){
+                maxPlayheadPosition = playheadPosition;
+            }
+        }
+        return maxPlayheadPosition;
+    }
+
+    static calculatePlaylistDuration(playlist){
+        let maxTrackDuration = 0;
+
+        for(let i = 0; i &lt; playlist.tracks.length; i++){
+            let track = playlist.tracks[i];
+            let trackDuration = VideoCompositor.calculateTrackDuration(track);
+            if (trackDuration &gt; maxTrackDuration){
+                maxTrackDuration = trackDuration;
+            }
+        }
+
+        return maxTrackDuration;
+    }
+
+    static validatePlaylist(playlist){
+        /*     
+        This function validates a passed playlist, making sure it matches a 
+        number of properties a playlist must have to be OK.
+
+        * Error 1. MediaSourceReferences have a unique ID        
+        * Error 2. The playlist media sources have all the expected properties.
+        * Error 3. MediaSourceReferences in single track are sequential.
+        * Error 4. MediaSourceReferences in single track don&apos;t overlap
+        */
+
+        //Error 1. MediaSourceReferences have a unique ID
+        let IDs = new Map();
+        for (let i = 0; i &lt; playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            for (let j = 0; j &lt; track.length; j++) {
+                let MediaSourceReference = track[j];
+                if (IDs.has(MediaSourceReference.id)){
+                    throw {&quot;error&quot;:1,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; has a duplicate ID.&quot;, toString:function(){return this.msg;}};
+                }else{
+                    IDs.set(MediaSourceReference.id, true);
+                }
+            }
+        }
+
+
+        //Error 2. The playlist MediaSourceReferences have all the expected properties.
+        for (let i = 0; i &lt; playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            for (let j = 0; j &lt; track.length; j++) {
+                let MediaSourceReference = track[j];
+                if (MediaSourceReference.id === undefined) throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; is missing a id property&quot;, toString:function(){return this.msg;}};
+                if (MediaSourceReference.start === undefined) throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; is missing a start property&quot;, toString:function(){return this.msg;}};
+                if (MediaSourceReference.duration === undefined) throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; is missing a duration property&quot;, toString:function(){return this.msg;}};
+                if (MediaSourceReference.type === undefined) throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; is missing a type property&quot;, toString:function(){return this.msg;}};
+                if (MediaSourceReference.src !== undefined &amp;&amp; MediaSourceReference.element !== undefined)throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; has both a src and element, it must have one or the other&quot;, toString:function(){return this.msg;}};
+                if (MediaSourceReference.src === undefined &amp;&amp; MediaSourceReference.element === undefined)throw {&quot;error&quot;:2,&quot;msg&quot;:&quot;MediaSourceReference &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; has neither a src or an element, it must have one or the other&quot;, toString:function(){return this.msg;}};                
+            }
+        }
+
+
+        // Error 3. MediaSourceReferences in single track are sequential.
+        for (let i = 0; i &lt; playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            let time = 0;
+            for (let j = 0; j &lt; track.length; j++) {
+                let MediaSourceReference = track[j];
+                if (MediaSourceReference.start &lt; time){
+                    throw {&quot;error&quot;:3,&quot;msg&quot;:&quot;MediaSourceReferences &quot;+MediaSourceReference.id+&quot; in track &quot; +i+&quot; starts before previous MediaSourceReference&quot;, toString:function(){return this.msg;}};
+                }
+                time = MediaSourceReference.start;
+            }
+        }        
+
+
+        //Error 4. MediaSourceReferences in single track don&apos;t overlap
+        for (let i = 0; i &lt; playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            let previousMediaSourceReference;
+            for (let j = 0; j &lt; track.length; j++) {
+                let MediaSourceReference = track[j];
+                if (previousMediaSourceReference === undefined){
+                    previousMediaSourceReference = MediaSourceReference;
+                    continue;
+                }
+                let previousEnd = previousMediaSourceReference.start + previousMediaSourceReference.duration;
+                let currentStart = MediaSourceReference.start;
+                if (previousEnd &gt; currentStart){
+                    throw {&quot;error&quot;:4,&quot;msg&quot;:&quot;Track MediaSourceReferences overlap. MediaSourceReference &quot;+previousMediaSourceReference.id+&quot; in track &quot; +i+&quot; finishes after MediaSourceReference &quot; + MediaSourceReference.id +&quot; starts.&quot;, toString:function(){return this.msg;}};
+                }
+            }
+        }
+    }
+
+
+    static renderPlaylist(playlist, canvas, currentTime){
+        let ctx = canvas.getContext(&apos;2d&apos;);
+        let w = canvas.width;
+        let h = canvas.height;
+        let trackHeight = h / playlist.tracks.length;
+        let playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);
+        let pixelsPerSecond = w / playlistDuration;
+        let mediaSourceStyle = {
+            &quot;video&quot;:[&quot;#572A72&quot;, &quot;#3C1255&quot;],
+            &quot;image&quot;:[&quot;#7D9F35&quot;, &quot;#577714&quot;],
+            &quot;canvas&quot;:[&quot;#AA9639&quot;, &quot;#806D15&quot;]
+        };
+
+
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = &quot;#999&quot;;
+        for (let i = 0; i &lt; playlist.tracks.length; i++) {
+            let track = playlist.tracks[i];
+            for (let j = 0; j &lt; track.length; j++) {
+                let mediaSource = track[j];
+                let msW = mediaSource.duration * pixelsPerSecond;
+                let msH = trackHeight;
+                let msX = mediaSource.start * pixelsPerSecond;
+                let msY = trackHeight * i;
+                ctx.fillStyle = mediaSourceStyle[mediaSource.type][j%mediaSourceStyle[mediaSource.type].length];
+                ctx.fillRect(msX,msY,msW,msH);
+                ctx.fill();
+            }
+        }
+
+        if (currentTime !== undefined){
+            ctx.fillStyle = &quot;#000&quot;;
+            ctx.fillRect(currentTime*pixelsPerSecond, 0, 1, h);
+        }
+    }
+}
+
+
+
+VideoCompositor.VertexShaders = {
+    DEFAULT: &quot;\
+        uniform float progress;\
+        uniform float duration;\
+        attribute vec2 a_position;\
+        attribute vec2 a_texCoord;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        varying float v_duration;\
+        void main() {\
+            v_progress = progress;\
+            v_duration = duration;\
+            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+            v_texCoord = a_texCoord;\
+        }&quot;,
+    OFFSETSCALEINOUT: &quot;\
+        uniform float progress;\
+        uniform float duration;\
+        uniform float inTime;\
+        uniform float outTime;\
+        uniform float scaleX;\
+        uniform float scaleY;\
+        uniform float offsetX;\
+        uniform float offsetY;\
+        attribute vec2 a_position;\
+        attribute vec2 a_texCoord;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        varying float v_duration;\
+        varying float v_inTime;\
+        varying float v_outTime;\
+        void main() {\
+            v_progress = progress;\
+            v_duration = duration;\
+            v_inTime = inTime;\
+            v_outTime = outTime;\
+            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
+            v_texCoord = a_texCoord;\
+        }&quot;,
+    INOUT: &quot;\
+        uniform float progress;\
+        uniform float duration;\
+        uniform float inTime;\
+        uniform float outTime;\
+        attribute vec2 a_position;\
+        attribute vec2 a_texCoord;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        varying float v_duration;\
+        varying float v_inTime;\
+        varying float v_outTime;\
+        void main() {\
+            v_progress = progress;\
+            v_duration = duration;\
+            v_inTime = inTime;\
+            v_outTime = outTime;\
+            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+            v_texCoord = a_texCoord;\
+        }&quot;,
+    OFFSETSCALE:&quot;\
+        uniform float progress;\
+        uniform float duration;\
+        uniform float scaleX;\
+        uniform float scaleY;\
+        uniform float offsetX;\
+        uniform float offsetY;\
+        attribute vec2 a_position;\
+        attribute vec2 a_texCoord;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        varying float v_duration;\
+        void main() {\
+            v_progress = progress;\
+            v_duration = duration;\
+            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
+            v_texCoord = a_texCoord;\
+        }&quot;
+};
+
+
+VideoCompositor.FragmentShaders = {
+    DEFAULT:&quot;\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            void main(){\
+                gl_FragColor = texture2D(u_image, v_texCoord);\
+            }&quot;,
+    MONOCHROME: &quot;\
+        precision mediump float;\
+        uniform sampler2D u_image;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        void main(){\
+            vec4 pixel = texture2D(u_image, v_texCoord);\
+            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);\
+            gl_FragColor = pixel;\
+        }&quot;,
+    SEPIA: &quot;\
+        precision mediump float;\
+        uniform sampler2D u_image;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        void main(){\
+            vec4 pixel = texture2D(u_image, v_texCoord);\
+            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);\
+            gl_FragColor = pixel;\
+        }&quot;,
+    BITCRUNCH: &quot;\
+        precision mediump float;\
+        uniform sampler2D u_image;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        void main(){\
+            vec4 pixel = texture2D(u_image, v_texCoord);\
+            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
+            pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
+            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
+        }&quot;,
+    &quot;FADEINOUT&quot;: &quot;\
+        precision mediump float;\
+        uniform sampler2D u_image;\
+        varying vec2 v_texCoord;\
+        varying float v_progress;\
+        varying float v_duration;\
+        varying float v_inTime;\
+        varying float v_outTime;\
+        void main(){\
+            float alpha = 1.0;\
+            if (v_progress * v_duration &lt; v_inTime){\
+                alpha = (v_progress * v_duration)/(v_inTime+0.001);\
+            }\
+            if ((v_progress * v_duration) &gt; (v_duration - v_outTime)){\
+                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);\
+            }\
+            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+        }&quot;,
+    &quot;LUTSQAURE64X64&quot;:&quot;\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            uniform sampler2D lut;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            void main(){\
+                vec4 original_color = texture2D(u_image, v_texCoord);\
+                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));\
+                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);\
+                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));\
+                \
+                float b = floor((original_color[2] * 63.0) + 0.5);\
+                float b_x = mod(b, 8.0);\
+                float b_y = floor((b / 8.0) + 0.5);\
+                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);\
+                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));\
+                gl_FragColor = lut_color;\
+            }&quot;
+};
+
+
+
+VideoCompositor.Effects = {
+    &quot;OFFSETSCALE&quot; :{
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.DEFAULT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.OFFSETSCALE,
+        &quot;defaultParameters&quot;:{
+            &quot;scaleX&quot;:1.0,
+            &quot;scaleY&quot;:1.0,
+            &quot;offsetX&quot;:0.0,
+            &quot;offsetY&quot;:0.0
+        }
+    },
+    &quot;MONOCHROME&quot;:{
+        &quot;fragmentShader&quot;: VideoCompositor.FragmentShaders.MONOCHROME
+    },
+    &quot;SEPIA&quot;:{
+        &quot;fragmentShader&quot;: VideoCompositor.FragmentShaders.SEPIA
+    },
+    &quot;BITCRUNCH&quot;:{
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.BITCRUNCH
+    },
+    //Green screen color =  r = 62, g = 178, b = 31
+    //Normalised         = r = 0.243, g= 0.698, b = 0.122
+    &quot;GREENSCREENMAD&quot;:{
+        &quot;fragmentShader&quot;:&quot;\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            void main(){\
+                vec4 pixel = texture2D(u_image, v_texCoord);\
+                float alpha = 1.0;\
+                float r = pixel[0];\
+                float g = pixel[1];\
+                float b = pixel[2];\
+                float y =  0.299*r + 0.587*g + 0.114*b;\
+                float u = -0.147*r - 0.289*g + 0.436*b;\
+                float v =  0.615*r - 0.515*g - 0.100*b;\
+                ;\
+                alpha = (v+u)*10.0 +2.0;\
+                \
+                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));\
+                pixel = pixel/vec4(2.0,2.0,2.0,2.0);\
+                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);\
+                gl_FragColor = pixel;\
+            }&quot;
+    },
+    &quot;GREENSCREEN&quot;:{
+        &quot;fragmentShader&quot;:&quot;\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            void main(){\
+                vec4 pixel = texture2D(u_image, v_texCoord);\
+                float alpha = 1.0;\
+                float r = pixel[0];\
+                float g = pixel[1];\
+                float b = pixel[2];\
+                float y =  0.299*r + 0.587*g + 0.114*b;\
+                float u = -0.147*r - 0.289*g + 0.436*b;\
+                float v =  0.615*r - 0.515*g - 0.100*b;\
+                if (y &gt; 0.2 &amp;&amp; y &lt; 0.8){\
+                    alpha = (v+u)*40.0 +2.0;\
+                }\
+                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
+                gl_FragColor = pixel;\
+            }&quot;
+    },
+    &quot;FADEINOUT&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:1.0,
+            &quot;outTime&quot;:1.0
+        }
+    },
+    &quot;FADEINOUT1SEC&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:1.0,
+            &quot;outTime&quot;:1.0
+        }
+    },
+    &quot;FADEINOUT2SEC&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:2.0,
+            &quot;outTime&quot;:2.0
+        }
+    },
+    &quot;FADEIN1SEC&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:1.0,
+            &quot;outTime&quot;:0.0
+        }
+    },
+    &quot;FADEIN2SEC&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:2.0,
+            &quot;outTime&quot;:0.0
+        }
+    },
+    &quot;FADEOUT1SEC&quot;: {
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:0.0,
+            &quot;outTime&quot;:1.0
+        }
+    },
+    &quot;FADEOUT2SEC&quot;: {            
+        &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
+        &quot;vertexShader&quot;: VideoCompositor.VertexShaders.INOUT,
+        &quot;defaultParameters&quot;:{
+            &quot;inTime&quot;:0.0,
+            &quot;outTime&quot;:2.0
+                }
+        },
+    &quot;LUTSQAURE64X64&quot;:{
+        &quot;fragmentShader&quot;: VideoCompositor.FragmentShaders.LUTSQAURE64X64,
+    }
+};
+
+export default VideoCompositor;</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.3.1)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

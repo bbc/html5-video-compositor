@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/audiomanager.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+</head>
+<body class="layout-container">
+
+<header>
+  <a href="./">Home</a>
+  <a href="identifiers.html">Identifier</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audiomanager.js~AudioManager.html">AudioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effect.js~Effect.html">Effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effectmanager.js~EffectManager.html">EffectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html">VideoCompositor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-audioManager">audioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effect">effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effectManager">effectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoCompositor">videoCompositor</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sources</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/canvassource.js~CanvasSource.html">CanvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/imagesource.js~ImageSource.html">ImageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html">MediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html">VideoSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-canvasSource">canvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-imageSource">imageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-mediaSource">mediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoSource">videoSource</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/audiomanager.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">
+
+function isIdInTrack(id, track){
+    for (let i = 0; i &lt; track.length; i++) {
+        if (track[i].id === id){
+            return true;
+        }
+    }
+    return false;
+}
+
+function getTrackIndexsForId(id, tracks){
+    let trackIndexs = [];
+    for (let i = 0; i &lt; tracks.length; i++) {
+        let track = tracks[i];
+        if (isIdInTrack(id, track)){
+            trackIndexs.push(i);
+        }
+    }
+    return trackIndexs;
+}
+
+
+class AudioManager {
+    constructor(audioCtx){
+        this.audioCtx = audioCtx;
+        if (this.audioCtx === undefined){
+            this.audioCtx = new AudioContext();
+        }
+        this.tracks = [];
+        this.audioNodes = new Map();
+        this.audioOutputNodes = [];
+    }
+        
+    createAudioNodeFromTrack(track){
+        this.tracks.push(track);
+        let trackBus = this.audioCtx.createGain();
+        this.audioOutputNodes.push(trackBus);
+        return trackBus;
+    }
+
+    getAudioContext(){
+        return this.audioCtx;
+    }
+
+    update(mediaSources){
+        if (mediaSources === undefined) return;
+        for (let id of mediaSources.keys()) {
+            let mediaSource = mediaSources.get(id);
+            let trackIndexs = getTrackIndexsForId(id, this.tracks);
+            if (trackIndexs.length ===0) continue; //No mappings for this id
+            
+            if (!this.audioNodes.has(id)){
+                //if an AudioNode for this id does not exist, create it.
+                let audioNode;
+                try{
+                    audioNode = this.audioCtx.createMediaElementSource(mediaSource.element);
+                } catch (err) {
+                    continue;
+                }
+
+                this.audioNodes.set(id, audioNode);
+                //make the connections from the audio node to the appropriate output tracks
+                for (let i = 0; i &lt; trackIndexs.length; i++) {
+                    let trackIndex = trackIndexs[i];
+                    audioNode.connect(this.audioOutputNodes[trackIndex]);
+                }
+            }
+        }
+        //TODO add test to make sure all id&apos;s for audio nodes stored in this.audioNodes exist in the current mediaSources, otherwise delete them.
+    }
+}
+export default AudioManager;
+
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.3.1)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

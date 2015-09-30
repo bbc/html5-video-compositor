@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/sources/mediasource.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+</head>
+<body class="layout-container">
+
+<header>
+  <a href="./">Home</a>
+  <a href="identifiers.html">Identifier</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audiomanager.js~AudioManager.html">AudioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effect.js~Effect.html">Effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effectmanager.js~EffectManager.html">EffectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html">VideoCompositor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-audioManager">audioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effect">effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effectManager">effectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoCompositor">videoCompositor</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sources</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/canvassource.js~CanvasSource.html">CanvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/imagesource.js~ImageSource.html">ImageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html">MediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html">VideoSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-canvasSource">canvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-imageSource">imageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-mediaSource">mediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoSource">videoSource</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/sources/mediasource.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">//Matthew Shotton, R&amp;D User Experince,&#xA9; BBC 2015
+
+class MediaSource {
+    constructor(properties, gl){
+        this.gl = gl;
+        this.id = properties.id;
+        this.duration = properties.duration;
+        this.start = properties.start;
+        this.playing = false;
+        this.ready = false;
+        this.element = undefined;
+        this.src = undefined;
+        this.texture = undefined;
+        this.mediaSourceListeners = [];
+
+        this.disposeOfElementOnDestroy = false;
+
+        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.
+        if (properties.src !== undefined){
+            this.disposeOfElementOnDestroy = true;
+            this.src = properties.src;
+        }else {
+            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.
+            this.disposeOfElementOnDestroy = false;
+            this.element = properties.element;
+        }
+
+
+        /*let positionLocation = gl.getAttribLocation(program, &quot;a_position&quot;);
+        let texCoordLocation = gl.getAttribLocation(program, &quot;a_texCoord&quot;);*/
+        
+        //Hard Code these for now, but this is baaaaaad
+        let positionLocation = 0;
+        let texCoordLocation = 1;
+        
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable ( gl.BLEND) ;
+        // Create a texture.
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // Set the parameters so we can render any size image.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        
+
+        let buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            /*new Float32Array([
+                1.0, 1.0,
+                 -1.0, 1.0,
+                1.0,  -1.0,
+                1.0,  -1.0,
+                -1.0, 1.0,
+                -1.0, -1.0]),*/
+            new Float32Array([
+                1.0, 1.0,
+                0.0, 1.0,
+                1.0, 0.0,
+                1.0, 0.0,
+                0.0, 1.0,
+                0.0, 0.0]),
+            gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+    }
+    play(){
+        //console.log(&quot;Playing&quot;, this.id);
+        if (this.playing === false){
+            for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+                if(typeof this.mediaSourceListeners[i].play === &apos;function&apos;)this.mediaSourceListeners[i].play(this);
+            }    
+        }
+        this.playing = true;
+    }
+    pause(){
+        console.debug(&quot;Pausing&quot;, this.id);
+        this.playing = false;
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if(typeof this.mediaSourceListeners[i].pause === &apos;function&apos;)this.mediaSourceListeners[i].pause(this);
+        }
+    }
+    seek(seekTime){
+        //this.currentTime = seekTime;
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if(typeof this.mediaSourceListeners[i].seek === &apos;function&apos;)this.mediaSourceListeners[i].seek(this, seekTime);
+        }
+    }
+    isReady(){
+        let listenerReady = true;
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if(typeof this.mediaSourceListeners[i].isReady === &apos;function&apos;){
+                if (this.mediaSourceListeners[i].isReady(this) === false){
+                    listenerReady = false;
+                }
+            }
+        }
+        if (listenerReady === true &amp;&amp; this.ready === true) return true;
+        return false;
+    }
+    load(){
+        console.debug(&quot;Loading&quot;, this.id);
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if(typeof this.mediaSourceListeners[i].load === &apos;function&apos;)this.mediaSourceListeners[i].load(this);
+        }
+        if (this.element !== undefined) {
+            return true;
+        }
+        return false;
+    }
+    destroy(){
+        console.debug(&quot;Destroying&quot;, this.id);
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if (typeof this.mediaSourceListeners[i].destroy === &apos;function&apos;) this.mediaSourceListeners[i].destroy(this);
+        }
+        if (this.disposeOfElementOnDestroy){
+            delete this.element;  
+        }
+    }
+    render(program, renderParameters, textures){
+        //renders the media source to the WebGL context using the pased program
+        let overriddenElement;
+        for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
+            if (typeof this.mediaSourceListeners[i].render === &apos;function&apos;){
+                let result =  this.mediaSourceListeners[i].render(this, renderParameters);
+                if (result !== undefined) overriddenElement = result;
+            }
+        }
+
+        this.gl.useProgram(program);
+        let renderParametersKeys = Object.keys(renderParameters);
+        let textureOffset = 1;
+        for (let index in renderParametersKeys){
+            let key = renderParametersKeys[index];
+            let parameterLoctation = this.gl.getUniformLocation(program, key);
+            if (parameterLoctation !== -1){
+                if (typeof renderParameters[key] === &quot;number&quot;){
+                    this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+                }
+                else{
+                    //Is a texture
+                    this.gl.activeTexture(this.gl.TEXTURE0 + textureOffset);
+                    this.gl.uniform1i(parameterLoctation, textureOffset);
+                    this.gl.bindTexture(this.gl.TEXTURE_2D, textures[textureOffset-1]);
+                }
+            }
+        }
+        
+        this.gl.activeTexture(this.gl.TEXTURE0);
+        let textureLocation = this.gl.getUniformLocation(program, &quot;u_image&quot;);
+        this.gl.uniform1i(textureLocation, 0);
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+        if (overriddenElement !== undefined){
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);
+        } else {
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+        }
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    }
+    onready(mediaSource){
+    }
+}
+
+export default MediaSource;</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.3.1)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

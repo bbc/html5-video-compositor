@@ -1,0 +1,159 @@
+{
+  "coverage": "0%",
+  "expectCount": 104,
+  "actualCount": 0,
+  "files": {
+    "src/audiomanager.js": {
+      "expectCount": 10,
+      "actualCount": 0,
+      "undocumentLines": [
+        24,
+        26,
+        73,
+        31,
+        32,
+        25,
+        35,
+        42,
+        30,
+        46
+      ]
+    },
+    "src/sources/canvassource.js": {
+      "expectCount": 12,
+      "actualCount": 0,
+      "undocumentLines": [
+        4,
+        43,
+        5,
+        31,
+        8,
+        19,
+        16,
+        10,
+        24,
+        38,
+        13,
+        7
+      ]
+    },
+    "src/effect.js": {
+      "expectCount": 11,
+      "actualCount": 0,
+      "undocumentLines": [
+        69,
+        70,
+        131,
+        89,
+        71,
+        111,
+        102,
+        117,
+        116,
+        121,
+        72
+      ]
+    },
+    "src/effectmanager.js": {
+      "expectCount": 8,
+      "actualCount": 0,
+      "undocumentLines": [
+        3,
+        4,
+        43,
+        5,
+        31,
+        6,
+        11,
+        17
+      ]
+    },
+    "src/sources/imagesource.js": {
+      "expectCount": 10,
+      "actualCount": 0,
+      "undocumentLines": [
+        4,
+        5,
+        29,
+        43,
+        17,
+        14,
+        8,
+        22,
+        38,
+        11
+      ]
+    },
+    "src/sources/mediasource.js": {
+      "expectCount": 22,
+      "actualCount": 0,
+      "undocumentLines": [
+        3,
+        4,
+        119,
+        16,
+        7,
+        11,
+        5,
+        6,
+        97,
+        109,
+        172,
+        14,
+        168,
+        84,
+        75,
+        9,
+        10,
+        128,
+        91,
+        12,
+        8,
+        13
+      ]
+    },
+    "src/main.js": {
+      "expectCount": 19,
+      "actualCount": 0,
+      "undocumentLines": [
+        30,
+        115,
+        402,
+        391,
+        31,
+        85,
+        50,
+        46,
+        146,
+        150,
+        106,
+        100,
+        89,
+        138,
+        126,
+        491,
+        303,
+        416,
+        824
+      ]
+    },
+    "src/sources/videosource.js": {
+      "expectCount": 12,
+      "actualCount": 0,
+      "undocumentLines": [
+        14,
+        15,
+        106,
+        81,
+        69,
+        65,
+        26,
+        76,
+        103,
+        43,
+        17,
+        116
+      ]
+    }
+  }
+}

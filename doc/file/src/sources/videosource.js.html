@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../../">
+  <title data-ice="title">src/sources/videosource.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+</head>
+<body class="layout-container">
+
+<header>
+  <a href="./">Home</a>
+  <a href="identifiers.html">Identifier</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audiomanager.js~AudioManager.html">AudioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effect.js~Effect.html">Effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effectmanager.js~EffectManager.html">EffectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html">VideoCompositor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-audioManager">audioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effect">effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effectManager">effectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoCompositor">videoCompositor</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sources</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/canvassource.js~CanvasSource.html">CanvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/imagesource.js~ImageSource.html">ImageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html">MediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html">VideoSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-canvasSource">canvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-imageSource">imageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-mediaSource">mediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoSource">videoSource</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/sources/videosource.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">//Matthew Shotton, R&amp;D User Experince,&#xA9; BBC 2015
+import MediaSource from &quot;./mediasource&quot;;
+
+
+function eventOneTime(element, type, callback){
+    let handleEvent = function(e){
+        e.target.removeEventListener(e.type, handleEvent);
+        return callback(e);
+    };
+
+    element.addEventListener(type, handleEvent, false);         
+}
+
+class VideoSource extends MediaSource{
+    constructor(properties, gl){
+        super(properties, gl);
+        this.sourceStart = 0;
+        this._volume = 1.0;
+        if (properties.sourceStart !== undefined){
+            this.sourceStart = properties.sourceStart;
+        }
+        if (properties.volume !== undefined){
+            this._volume = properties.volume;
+        }
+    }
+    play(){
+        super.play();
+        let _this = this;
+
+        let playVideo = function(){
+            if (_this.element.readyState &gt; 0){
+                _this.ready = true;
+                _this.element.play();
+            } else {
+                console.debug(&quot;Can&apos;t play video due to readyState&quot;);
+                _this.ready = false;
+                eventOneTime(_this.element, &quot;canplay&quot;, playVideo);
+            }
+        };
+
+        playVideo();
+    }
+    seek(time){
+        super.seek();
+        let _this = this;
+
+        let seekVideo = function(){
+            if (_this.element.readyState &gt; 0){
+                _this.ready = true;
+                if ((time - _this.start) &lt; 0 || time &gt;(_this.start+_this.duration)){
+                    _this.element.currentTime = _this.sourceStart;
+                } else {
+                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;
+                }
+            } else {
+                //If the element isn&apos;t ready to seek create a one-time event which seeks the element once it is ready.
+                console.debug(&quot;Can&apos;t seek video due to readyState&quot;);
+                _this.ready = false;
+                eventOneTime(_this.element, &quot;canplay&quot;, seekVideo);
+            }
+        };
+
+        seekVideo();  
+    }
+    pause(){
+        super.pause();
+        this.element.pause();
+    }
+    load(){
+        //check if we&apos;re using an already instatiated element, if so don&apos;t do anything.
+
+        if (super.load()){
+            //this.element.currentTime = this.sourceStart;
+            this.seek(0);
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
+            this.ready = true;
+            this.onready(this);
+            return;
+        }
+        //otherwise begin the loading process for this mediaSource
+        this.element = document.createElement(&apos;video&apos;);            
+        //construct a fragement URL to cut the required segment from the source video
+        this.element.src = this.src;
+        this.element.volume = this._volume;
+        this.element.preload = &quot;auto&quot;;
+        this.element.load();
+        let _this = this;
+        this.element.addEventListener(&apos;loadeddata&apos;, function() {
+            _this.element.currentTime = _this.sourceStart;
+            _this.seek(0);
+            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
+            _this.ready = true;
+            _this.onready(_this);
+        }, false);
+        /*this.element.addEventListener(&apos;seeked&apos;, function(){
+            console.log(&quot;SEEKED&quot;);
+            _this.ready = true;
+            _this.onready(_this);
+        })*/
+
+
+    }
+    render(program, renderParameters, textures){
+        super.render(program, renderParameters, textures);
+    }
+    destroy(){
+        this.element.pause();
+        if (this.disposeOfElementOnDestroy){
+            this.element.src = &quot;&quot;;
+            this.element.removeAttribute(&quot;src&quot;);    
+        }
+        super.destroy();
+    }
+}
+
+export default VideoSource;</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.3.1)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

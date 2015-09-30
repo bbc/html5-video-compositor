@@ -1,0 +1,3923 @@
+[
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/audiomanager.js",
+    "memberof": null,
+    "longname": "src/audiomanager.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 3,
+    "content": "\n\nfunction isIdInTrack(id, track){\n    for (let i = 0; i < track.length; i++) {\n        if (track[i].id === id){\n            return true;\n        }\n    }\n    return false;\n}\n\nfunction getTrackIndexsForId(id, tracks){\n    let trackIndexs = [];\n    for (let i = 0; i < tracks.length; i++) {\n        let track = tracks[i];\n        if (isIdInTrack(id, track)){\n            trackIndexs.push(i);\n        }\n    }\n    return trackIndexs;\n}\n\n\nclass AudioManager {\n    constructor(audioCtx){\n        this.audioCtx = audioCtx;\n        if (this.audioCtx === undefined){\n            this.audioCtx = new AudioContext();\n        }\n        this.tracks = [];\n        this.audioNodes = new Map();\n        this.audioOutputNodes = [];\n    }\n        \n    createAudioNodeFromTrack(track){\n        this.tracks.push(track);\n        let trackBus = this.audioCtx.createGain();\n        this.audioOutputNodes.push(trackBus);\n        return trackBus;\n    }\n\n    getAudioContext(){\n        return this.audioCtx;\n    }\n\n    update(mediaSources){\n        if (mediaSources === undefined) return;\n        for (let id of mediaSources.keys()) {\n            let mediaSource = mediaSources.get(id);\n            let trackIndexs = getTrackIndexsForId(id, this.tracks);\n            if (trackIndexs.length ===0) continue; //No mappings for this id\n            \n            if (!this.audioNodes.has(id)){\n                //if an AudioNode for this id does not exist, create it.\n                let audioNode;\n                try{\n                    audioNode = this.audioCtx.createMediaElementSource(mediaSource.element);\n                } catch (err) {\n                    continue;\n                }\n\n                this.audioNodes.set(id, audioNode);\n                //make the connections from the audio node to the appropriate output tracks\n                for (let i = 0; i < trackIndexs.length; i++) {\n                    let trackIndex = trackIndexs[i];\n                    audioNode.connect(this.audioOutputNodes[trackIndex]);\n                }\n            }\n        }\n        //TODO add test to make sure all id's for audio nodes stored in this.audioNodes exist in the current mediaSources, otherwise delete them.\n    }\n}\nexport default AudioManager;\n\n"
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "isIdInTrack",
+    "memberof": "src/audiomanager.js",
+    "longname": "src/audiomanager.js~isIdInTrack",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/audiomanager.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "params": [
+      {
+        "name": "id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "track",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "getTrackIndexsForId",
+    "memberof": "src/audiomanager.js",
+    "longname": "src/audiomanager.js~getTrackIndexsForId",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/audiomanager.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "params": [
+      {
+        "name": "id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "tracks",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "AudioManager",
+    "memberof": "src/audiomanager.js",
+    "longname": "src/audiomanager.js~AudioManager",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/audiomanager.js",
+    "importStyle": "AudioManager",
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 25,
+    "undocument": true,
+    "params": [
+      {
+        "name": "audioCtx",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "audioCtx",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#audioCtx",
+    "access": null,
+    "description": null,
+    "lineNumber": 26,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "audioCtx",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#audioCtx",
+    "access": null,
+    "description": null,
+    "lineNumber": 28,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "tracks",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#tracks",
+    "access": null,
+    "description": null,
+    "lineNumber": 30,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "audioNodes",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#audioNodes",
+    "access": null,
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "audioOutputNodes",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#audioOutputNodes",
+    "access": null,
+    "description": null,
+    "lineNumber": 32,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "createAudioNodeFromTrack",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#createAudioNodeFromTrack",
+    "access": null,
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "params": [
+      {
+        "name": "track",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "getAudioContext",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#getAudioContext",
+    "access": null,
+    "description": null,
+    "lineNumber": 42,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "update",
+    "memberof": "src/audiomanager.js~AudioManager",
+    "longname": "src/audiomanager.js~AudioManager#update",
+    "access": null,
+    "description": null,
+    "lineNumber": 46,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSources",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "audioManager",
+    "memberof": "src/audiomanager.js",
+    "longname": "src/audiomanager.js~audioManager",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/audiomanager.js",
+    "importStyle": "audioManager",
+    "description": null,
+    "lineNumber": 73,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/audiomanager.js~AudioManager"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/effect.js",
+    "memberof": null,
+    "longname": "src/effect.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "function refreshTextures(playlistEffectObject, textures, gl){\n    let textureOffset = 1;\n\n    if (playlistEffectObject.parameters === undefined) return;\n\n    let parameterKeys = Object.keys(playlistEffectObject.parameters);\n    for (let i = 0; i < parameterKeys.length; i++) {\n        let key = parameterKeys[i];\n        let parameter = playlistEffectObject.parameters[key];\n        if (typeof parameter !== \"number\"){\n            let texture = textures[textureOffset-1];\n            gl.activeTexture(gl.TEXTURE0 + textureOffset);\n            gl.bindTexture(gl.TEXTURE_2D, texture);\n            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);\n            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);\n            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);\n            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);\n            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, parameter);\n            textureOffset += 1;\n        }  \n    }\n}\n\nfunction loadTextures(playlistEffectObject, gl){\n    if (playlistEffectObject.parameters === undefined) return [];\n    let parameterKeys = Object.keys(playlistEffectObject.parameters);\n    let textures = [];\n    for (let i = 0; i < parameterKeys.length; i++) {\n        let key = parameterKeys[i];\n        let parameter = playlistEffectObject.parameters[key];\n        if (typeof parameter !== \"number\"){\n            let texture = gl.createTexture();\n            textures.push(texture);                \n        }\n    }\n    refreshTextures(playlistEffectObject, textures, gl);\n    return textures;\n}\n\n\nfunction compileShader(gl, shaderSource, shaderType) {\n    let shader = gl.createShader(shaderType);\n    gl.shaderSource(shader, shaderSource);\n    gl.compileShader(shader);\n    let success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);\n    if (!success) {\n        throw \"could not compile shader:\" + gl.getShaderInfoLog(shader);\n    }\n    return shader;\n}\n\n\nfunction createShaderProgram(gl, vertexShaderSource, fragmentShaderSource){\n    let vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);\n    let fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);\n    let program = gl.createProgram();\n\n    gl.attachShader(program, vertexShader);\n    gl.attachShader(program, fragmentShader);\n    gl.linkProgram(program);\n   \n    if (!gl.getProgramParameter(program, gl.LINK_STATUS)){\n        throw {\"error\":4,\"msg\":\"Can't link shader program for track\", toString:function(){return this.msg;}};\n    }\n    return program;\n}\n\n\nclass Effect {\n    constructor(playlistEffectObject, gl){\n        this.gl = gl;\n        this.vertexShaderSrc = playlistEffectObject.effect.vertexShader;\n        if (this.vertexShaderSrc === undefined){\n            this.vertexShaderSrc = \"\\\n                uniform float progress;\\\n                uniform float duration;\\\n                attribute vec2 a_position;\\\n                attribute vec2 a_texCoord;\\\n                varying vec2 v_texCoord;\\\n                varying float v_progress;\\\n                varying float v_duration;\\\n                void main() {\\\n                    v_progress = progress;\\\n                    v_duration = duration;\\\n                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\\\n                    v_texCoord = a_texCoord;\\\n                }\";\n        }\n        this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;\n        if (this.fragmentShaderSrc === undefined){\n            this.fragmentShaderSrc = \"\\\n                precision mediump float;\\\n                uniform sampler2D u_image;\\\n                varying vec2 v_texCoord;\\\n                varying float v_progress;\\\n                varying float v_duration;\\\n                void main(){\\\n                    gl_FragColor = texture2D(u_image, v_texCoord);\\\n                }\";\n        }\n\n        this.parameters = playlistEffectObject.parameters;\n        if (this.parameters === undefined){\n            this.parameters = {};\n        }\n        if (playlistEffectObject.effect.defaultParameters !== undefined){\n            for (let key in playlistEffectObject.effect.defaultParameters) {\n                this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];\n            }\n        }\n        this.inputs = playlistEffectObject.inputs;\n        if (this.inputs === undefined){\n            this.inputs = [];\n        }\n\n        this.textures = loadTextures(playlistEffectObject, this.gl);\n        this.program = createShaderProgram(this.gl, this.vertexShaderSrc, this.fragmentShaderSrc);\n    }\n\n\n    update(playlistEffectObject){\n        refreshTextures(playlistEffectObject, this.textures, this.gl);\n        this.inputs = playlistEffectObject.inputs;\n        if (this.inputs === undefined){\n            this.inputs = [];\n        }\n    }\n\n}\n\nexport default Effect;"
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "refreshTextures",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~refreshTextures",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 1,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlistEffectObject",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "textures",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "loadTextures",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~loadTextures",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlistEffectObject",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "compileShader",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~compileShader",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 41,
+    "undocument": true,
+    "params": [
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "shaderSource",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "shaderType",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "createShaderProgram",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~createShaderProgram",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 53,
+    "undocument": true,
+    "params": [
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "vertexShaderSource",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "fragmentShaderSource",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "Effect",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~Effect",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": "Effect",
+    "description": null,
+    "lineNumber": 69,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 70,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlistEffectObject",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "gl",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#gl",
+    "access": null,
+    "description": null,
+    "lineNumber": 71,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "vertexShaderSrc",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#vertexShaderSrc",
+    "access": null,
+    "description": null,
+    "lineNumber": 72,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "vertexShaderSrc",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#vertexShaderSrc",
+    "access": null,
+    "description": null,
+    "lineNumber": 74,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "fragmentShaderSrc",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#fragmentShaderSrc",
+    "access": null,
+    "description": null,
+    "lineNumber": 89,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "fragmentShaderSrc",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#fragmentShaderSrc",
+    "access": null,
+    "description": null,
+    "lineNumber": 91,
+    "undocument": true,
+    "type": {
+      "types": [
+        "string"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "parameters",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#parameters",
+    "access": null,
+    "description": null,
+    "lineNumber": 102,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "parameters",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#parameters",
+    "access": null,
+    "description": null,
+    "lineNumber": 104,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "inputs",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#inputs",
+    "access": null,
+    "description": null,
+    "lineNumber": 111,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "inputs",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#inputs",
+    "access": null,
+    "description": null,
+    "lineNumber": 113,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "textures",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#textures",
+    "access": null,
+    "description": null,
+    "lineNumber": 116,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "program",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#program",
+    "access": null,
+    "description": null,
+    "lineNumber": 117,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "update",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#update",
+    "access": null,
+    "description": null,
+    "lineNumber": 121,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlistEffectObject",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "inputs",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#inputs",
+    "access": null,
+    "description": null,
+    "lineNumber": 123,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "inputs",
+    "memberof": "src/effect.js~Effect",
+    "longname": "src/effect.js~Effect#inputs",
+    "access": null,
+    "description": null,
+    "lineNumber": 125,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "effect",
+    "memberof": "src/effect.js",
+    "longname": "src/effect.js~effect",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/effect.js",
+    "importStyle": "effect",
+    "description": null,
+    "lineNumber": 131,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/effect.js~Effect"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/effectmanager.js",
+    "memberof": null,
+    "longname": "src/effectmanager.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 1,
+    "content": "import Effect from \"./effect.js\";\n\nclass EffectManager {\n    constructor(gl){\n        this.effects = new Map();\n        this.gl = gl;\n        //Setup the default effect\n        this.newEffect(\"default\",{\"effect\":{}});\n    }\n    \n    newEffect(id, playlistEffectObject){\n        //The playlist effect object is the representation of the effect stored in the playlist object\n        let effect = new Effect(playlistEffectObject, this.gl);\n        this.effects.set(id, effect);\n    }\n\n    updateEffects(playlistEffectObjects){\n        if (playlistEffectObjects === undefined) return;\n        for (let key in playlistEffectObjects){\n            if (this.effects.has(key)){\n                //udpate the effect\n                this.effects.get(key).update(playlistEffectObjects[key]);\n            } else {\n                //create the effect\n                this.newEffect(key, playlistEffectObjects[key]);\n            }\n        }\n        //TODO clean-up effects that don't exist\n    }\n\n    getEffectForInputId(inputId){\n        let effectIdList = this.effects.keys();\n        for (let key of effectIdList) {\n            var effect = this.effects.get(key);\n            if (effect.inputs.indexOf(inputId) > -1){\n                return effect;\n            }\n        }\n        return this.effects.get(\"default\");\n    }\n}\n\nexport default EffectManager;\n"
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "EffectManager",
+    "memberof": "src/effectmanager.js",
+    "longname": "src/effectmanager.js~EffectManager",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/effectmanager.js",
+    "importStyle": "EffectManager",
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "params": [
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "effects",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#effects",
+    "access": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "gl",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#gl",
+    "access": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "newEffect",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#newEffect",
+    "access": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "params": [
+      {
+        "name": "id",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "playlistEffectObject",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "updateEffects",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#updateEffects",
+    "access": null,
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlistEffectObjects",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "getEffectForInputId",
+    "memberof": "src/effectmanager.js~EffectManager",
+    "longname": "src/effectmanager.js~EffectManager#getEffectForInputId",
+    "access": null,
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "params": [
+      {
+        "name": "inputId",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "effectManager",
+    "memberof": "src/effectmanager.js",
+    "longname": "src/effectmanager.js~effectManager",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/effectmanager.js",
+    "importStyle": "effectManager",
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/effectmanager.js~EffectManager"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/main.js",
+    "memberof": null,
+    "longname": "src/main.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 3,
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\n\nimport VideoSource from \"./sources/videosource.js\";\nimport ImageSource from \"./sources/imagesource.js\";\nimport CanvasSource from \"./sources/canvassource.js\";\nimport EffectManager from \"./effectmanager.js\";\nimport AudioManager from \"./audiomanager.js\";\n\nlet updateables = [];\nlet previousTime;\nlet mediaSourceMapping = new Map();\nmediaSourceMapping.set(\"video\",VideoSource).set(\"image\",ImageSource).set(\"canvas\",CanvasSource);\n\n\nfunction registerUpdateable(updateable){\n    updateables.push(updateable);\n}\nfunction update(time){\n    if (previousTime === undefined) previousTime = time;\n    let dt = (time - previousTime)/1000;\n    for(let i = 0; i < updateables.length; i++){\n        updateables[i].update(dt);\n    }\n    previousTime = time;\n    requestAnimationFrame(update);\n}\nupdate();\n\n\nclass VideoCompositor {\n    constructor(canvas, audioCtx){\n        this._canvas = canvas;\n        this._ctx = this._canvas.getContext(\"experimental-webgl\", { preserveDrawingBuffer: true, alpha: false });\n        this._playing = false;\n        this._mediaSources = new Map();\n        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultanous AJAX requests available.\n        this._playlist = undefined;\n        this._eventMappings = new Map();\n        this._mediaSourceListeners = new Map();\n        this._max_number_of_textures = this._ctx.getParameter(this._ctx.MAX_TEXTURE_IMAGE_UNITS);\n\n        this._effectManager = new EffectManager(this._ctx);\n        this._audioManger = new AudioManager(audioCtx);\n\n        this._currentTime = 0;\n        this.duration = 0;\n        registerUpdateable(this);\n    }\n\n    set currentTime(currentTime){\n        console.debug(\"Seeking to\", currentTime);\n        if (this._playlist === undefined){\n            return;\n        }\n        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);\n\n        //clean-up any currently playing mediaSources\n        this._mediaSources.forEach(function(mediaSource){\n            mediaSource.destroy();\n        });\n        this._mediaSources.clear();\n\n        //Load mediaSources\n        for (let i = 0; i < currentlyPlaying.length; i++) {\n            let mediaSourceID = currentlyPlaying[i].id;\n            //If the media source isn't loaded then we start loading it.\n            if (this._mediaSources.has(mediaSourceID) === false){\n                \n                this._loadMediaSource(currentlyPlaying[i], function(mediaSource){\n                    mediaSource.seek(currentTime);\n                });\n\n            }else{\n               //If the mediaSource is loaded then we seek to the proper bit\n                this._mediaSources.get(mediaSourceID).seek(currentTime);\n            }\n\n        }\n\n        this._currentTime = currentTime;\n        let seekEvent = new CustomEvent('seek', {detail:{data:currentTime, instance:this}});\n        this._canvas.dispatchEvent(seekEvent);\n    }\n\n    get currentTime(){\n        return this._currentTime;\n    }\n    \n    set playlist(playlist){\n        VideoCompositor.validatePlaylist(playlist);\n        this.duration = VideoCompositor.calculatePlaylistDuration(playlist);\n        this._playlist = playlist;\n        //clean-up any currently playing mediaSources\n        this._mediaSources.forEach(function(mediaSource){\n            mediaSource.destroy();\n        });\n        this._mediaSources.clear();\n    }\n\n    play(){\n        this._playing = true;\n        let playEvent = new CustomEvent('play', {detail:{data:this._currentTime, instance:this}});\n        this._canvas.dispatchEvent(playEvent);\n    }\n\n    pause() {\n        this._playing = false;\n        this._mediaSources.forEach(function(mediaSource){\n            mediaSource.pause();\n        });\n        let pauseEvent = new CustomEvent('pause', {detail:{data:this._currentTime, instance:this}});\n        this._canvas.dispatchEvent(pauseEvent);\n    }\n\n    addEventListener(type, func){\n        //Pass through any event listeners through to the underlying canvas rendering element\n        //Catch any events and handle with a custom events dispatcher so things \n        if (this._eventMappings.has(type)){\n            this._eventMappings.get(type).push(func);\n        }else {\n            this._eventMappings.set(type, [func]);\n        }\n        this._canvas.addEventListener(type, this._dispatchEvents, false);\n    }\n\n    removeEventListener(type, func){\n        if (this._eventMappings.has(type)){\n            let listenerArray = this._eventMappings.get(type);\n            let listenerIndex = listenerArray.indexOf(func);\n            if (listenerIndex !== -1){\n                listenerArray.splice(listenerIndex, 1);\n                return true;\n            }\n        }\n        return false;\n    }\n\n    registerMediaSourceListener(mediaSourceID, mediaSourceListener){\n        if (this._mediaSourceListeners.has(mediaSourceID)){\n            this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);\n        }else{\n            this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);\n        }\n    }\n\n    getAudioContext(){\n        return this._audioManger.getAudioContext();\n    }\n\n    getAudioNodeForTrack(track){\n        let audioNode = this._audioManger.createAudioNodeFromTrack(track);\n        return audioNode;\n    }\n\n    _dispatchEvents(evt){\n        //Catch events and pass them on, mangling the detail property so it looks nice in the API\n        for (let i = 0; i < evt.detail.instance._eventMappings.get(evt.type).length; i++){\n            evt.detail.instance._eventMappings.get(evt.type)[i](evt.detail.data);\n        }\n    }\n\n    _getPlaylistPlayingStatusAtTime(playlist, playhead){\n        let toPlay = [];\n        let currentlyPlaying = [];\n        let finishedPlaying = [];\n\n        //itterate tracks\n        for(let i = 0; i < playlist.tracks.length; i++){\n            let track = playlist.tracks[i];\n            for (let j = 0; j < track.length; j++) {\n                let segment = track[j];\n                let segmentEnd = segment.start+segment.duration;\n\n                if (playhead > segmentEnd){\n                    finishedPlaying.push(segment);\n                    continue;\n                }\n                if (playhead > segment.start && playhead < segmentEnd){\n                    currentlyPlaying.push(segment);\n                    continue;\n                }\n                if(playhead <= segment.start){\n                    toPlay.push(segment);\n                    continue;\n                }\n            }\n        }\n\n        return [toPlay, currentlyPlaying, finishedPlaying];\n    }\n\n    _sortMediaSourcesByStartTime(mediaSources){\n        mediaSources.sort(function(a,b){\n            return a.start - b.start;\n        });\n        return mediaSources;\n    }\n\n    _loadMediaSource(mediaSourceReference, onReadyCallback){\n        if (onReadyCallback === undefined) onReadyCallback = function(){};\n        let mediaSourceListeners = [];\n        if (this._mediaSourceListeners.has(mediaSourceReference.id)){\n            mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);\n        }\n\n\n        switch (mediaSourceReference.type){\n            case \"video\":\n                let video = new VideoSource(mediaSourceReference, this._ctx);\n                video.onready = onReadyCallback;\n                video.mediaSourceListeners = mediaSourceListeners;\n                video.load();\n                this._mediaSources.set(mediaSourceReference.id, video);\n                break;\n            case \"image\":\n                let image = new ImageSource(mediaSourceReference, this._ctx);\n                image.onready = onReadyCallback;\n                image.mediaSourceListeners = mediaSourceListeners;\n                image.load();\n                this._mediaSources.set(mediaSourceReference.id, image);\n                break;\n            case \"canvas\":\n                let canvas = new CanvasSource(mediaSourceReference, this._ctx);\n                canvas.onready = onReadyCallback;\n                canvas.mediaSourceListeners = mediaSourceListeners;\n                canvas.load();\n                this._mediaSources.set(mediaSourceReference.id, canvas);\n                break;\n            default:\n                throw {\"error\":5,\"msg\":\"mediaSourceReference \"+mediaSourceReference.id+\" has unrecognized type \"+mediaSourceReference.type, toString:function(){return this.msg;}};\n        }\n    }\n\n    _calculateMediaSourcesOverlap(mediaSources){\n        let maxStart = 0.0;\n        let minEnd;\n        //calculate max start time\n        for (var i = 0; i < mediaSources.length; i++) {\n            let mediaSource = mediaSources[i];\n            if (mediaSource.start  > maxStart){\n                maxStart = mediaSource.start;\n            }\n            let end = (mediaSource.start + mediaSource.duration);\n            if (minEnd === undefined || end < minEnd){\n                minEnd = end;\n            }\n        }\n        return [maxStart, minEnd];\n    }\n\n\n    _calculateActiveTransitions(currentlyPlaying, currentTime){\n        if (this._playlist === undefined || this._playing === false) return [];\n        if (this._playlist.transitions === undefined ) return [];\n        \n        //Get the currently playing ID's\n        let currentlyPlayingIDs = [];\n        for (let i = 0; i < currentlyPlaying.length; i++) {\n            currentlyPlayingIDs.push(currentlyPlaying[i].id);\n        }\n\n        let activeTransitions = [];\n\n        //Get the transitions whose video sources are currently playing\n\n\n        let transitionKeys = Object.keys(this._playlist.transitions);\n        for (let i = 0; i < transitionKeys.length; i++){\n            let transitionID = transitionKeys[i];\n\n            let transition = this._playlist.transitions[transitionID];\n            let areInputsCurrentlyPlaying = true;\n            for (let j = 0; j < transition.inputs.length; j++) {\n                let id = transition.inputs[j];\n                if (currentlyPlayingIDs.indexOf(id) === -1){\n                    areInputsCurrentlyPlaying = false;\n                    break;\n                }\n            }\n            if (areInputsCurrentlyPlaying){\n                let activeTransition = {transition:transition, transitionID:transitionID, mediaSources:[]};\n                \n                for(let j = 0; j < transition.inputs.length; j++){\n                    activeTransition.mediaSources.push(this._mediaSources.get(transition.inputs[j]));\n                }\n\n                activeTransitions.push(activeTransition);\n            }\n        }\n\n        //Calculate the progress through the transition\n        for (let i = 0; i < activeTransitions.length; i++) {\n            let mediaSources = activeTransitions[i].mediaSources;\n            let [overlapStart, overlapEnd] = this._calculateMediaSourcesOverlap(mediaSources);\n            let progress = ((currentTime - overlapStart)) / (overlapEnd - overlapStart);\n            activeTransitions[i].progress = progress;\n        }\n\n        return activeTransitions;\n    }\n\n\n    update(dt){\n        if (this._playlist === undefined || this._playing === false) return;\n\n        let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, this._currentTime);\n        toPlay = this._sortMediaSourcesByStartTime(toPlay);\n\n        //Check if we've finished playing and then stop\n        if (toPlay.length === 0 && currentlyPlaying.length === 0){\n            this.pause();\n            let endedEvent = new CustomEvent('ended', {detail:{data:this.currentTime, instance:this}});\n            this.currentTime = 0;\n            this._canvas.dispatchEvent(endedEvent);\n            return;\n        }\n\n\n        //Preload mediaSources\n        for (let i = 0; i < this._mediaSourcePreloadNumber; i++) {\n            if (i === toPlay.length) break;\n            if (this._mediaSources.has(toPlay[i].id) === false){\n                this._loadMediaSource(toPlay[i]);\n            }\n        }\n\n        //Clean-up any mediaSources which have already been played\n        for (let i = 0; i < finishedPlaying.length; i++) {\n            let mediaSourceReference = finishedPlaying[i];\n            if (this._mediaSources.has(mediaSourceReference.id)){\n                let mediaSource = this._mediaSources.get(mediaSourceReference.id);\n                mediaSource.destroy();\n                this._mediaSources.delete(mediaSourceReference.id);\n            }\n        }\n\n        //Make sure all mediaSources are ready to play\n        let ready = true;\n        for (let i = 0; i < currentlyPlaying.length; i++) {\n            let mediaSourceID = currentlyPlaying[i].id;\n            //check that currently playing mediaSource exists\n            if (!this._mediaSources.has(mediaSourceID)){\n                //if not load it\n                this._loadMediaSource(currentlyPlaying[i]);\n                ready = false;\n                continue;\n            }\n            if (!this._mediaSources.get(mediaSourceID).isReady()) ready=false;\n        }\n        //if all the sources aren't ready, exit function before rendering or advancing clock.\n        if (ready === false){\n            return;\n        }\n\n\n        //Update the effects\n        this._effectManager.updateEffects(this._playlist.effects);\n\n        //Update the audio\n        this._audioManger.update(this._mediaSources);\n\n        //Play mediaSources on the currently playing queue.\n        currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last\n\n\n        //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);\n        this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);\n        \n\n        for (let i = 0; i < currentlyPlaying.length; i++) {\n            let mediaSourceID = currentlyPlaying[i].id;\n            let mediaSource = this._mediaSources.get(mediaSourceID);\n            mediaSource.play();\n\n            let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);\n            //get the base render parameters\n            let renderParameters = {\"progress\":progress, \"duration\":mediaSource.duration};\n            //find the effect associated with the current mediasource\n            let effect = this._effectManager.getEffectForInputId(mediaSourceID);\n            //merge the base parameters with any custom ones\n            for (let key in effect.parameters) {\n                renderParameters[key] = effect.parameters[key];\n            }\n\n            mediaSource.render(effect.program, renderParameters, effect.textures);\n\n        }\n        this._currentTime += dt;\n    }\n\n    static calculateTrackDuration(track){\n        let maxPlayheadPosition = 0;\n        for (let j = 0; j < track.length; j++) {\n            let playheadPosition = track[j].start + track[j].duration;\n            if (playheadPosition > maxPlayheadPosition){\n                maxPlayheadPosition = playheadPosition;\n            }\n        }\n        return maxPlayheadPosition;\n    }\n\n    static calculatePlaylistDuration(playlist){\n        let maxTrackDuration = 0;\n\n        for(let i = 0; i < playlist.tracks.length; i++){\n            let track = playlist.tracks[i];\n            let trackDuration = VideoCompositor.calculateTrackDuration(track);\n            if (trackDuration > maxTrackDuration){\n                maxTrackDuration = trackDuration;\n            }\n        }\n\n        return maxTrackDuration;\n    }\n\n    static validatePlaylist(playlist){\n        /*     \n        This function validates a passed playlist, making sure it matches a \n        number of properties a playlist must have to be OK.\n\n        * Error 1. MediaSourceReferences have a unique ID        \n        * Error 2. The playlist media sources have all the expected properties.\n        * Error 3. MediaSourceReferences in single track are sequential.\n        * Error 4. MediaSourceReferences in single track don't overlap\n        */\n\n        //Error 1. MediaSourceReferences have a unique ID\n        let IDs = new Map();\n        for (let i = 0; i < playlist.tracks.length; i++) {\n            let track = playlist.tracks[i];\n            for (let j = 0; j < track.length; j++) {\n                let MediaSourceReference = track[j];\n                if (IDs.has(MediaSourceReference.id)){\n                    throw {\"error\":1,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" has a duplicate ID.\", toString:function(){return this.msg;}};\n                }else{\n                    IDs.set(MediaSourceReference.id, true);\n                }\n            }\n        }\n\n\n        //Error 2. The playlist MediaSourceReferences have all the expected properties.\n        for (let i = 0; i < playlist.tracks.length; i++) {\n            let track = playlist.tracks[i];\n            for (let j = 0; j < track.length; j++) {\n                let MediaSourceReference = track[j];\n                if (MediaSourceReference.id === undefined) throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" is missing a id property\", toString:function(){return this.msg;}};\n                if (MediaSourceReference.start === undefined) throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" is missing a start property\", toString:function(){return this.msg;}};\n                if (MediaSourceReference.duration === undefined) throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" is missing a duration property\", toString:function(){return this.msg;}};\n                if (MediaSourceReference.type === undefined) throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" is missing a type property\", toString:function(){return this.msg;}};\n                if (MediaSourceReference.src !== undefined && MediaSourceReference.element !== undefined)throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" has both a src and element, it must have one or the other\", toString:function(){return this.msg;}};\n                if (MediaSourceReference.src === undefined && MediaSourceReference.element === undefined)throw {\"error\":2,\"msg\":\"MediaSourceReference \"+MediaSourceReference.id+\" in track \" +i+\" has neither a src or an element, it must have one or the other\", toString:function(){return this.msg;}};                \n            }\n        }\n\n\n        // Error 3. MediaSourceReferences in single track are sequential.\n        for (let i = 0; i < playlist.tracks.length; i++) {\n            let track = playlist.tracks[i];\n            let time = 0;\n            for (let j = 0; j < track.length; j++) {\n                let MediaSourceReference = track[j];\n                if (MediaSourceReference.start < time){\n                    throw {\"error\":3,\"msg\":\"MediaSourceReferences \"+MediaSourceReference.id+\" in track \" +i+\" starts before previous MediaSourceReference\", toString:function(){return this.msg;}};\n                }\n                time = MediaSourceReference.start;\n            }\n        }        \n\n\n        //Error 4. MediaSourceReferences in single track don't overlap\n        for (let i = 0; i < playlist.tracks.length; i++) {\n            let track = playlist.tracks[i];\n            let previousMediaSourceReference;\n            for (let j = 0; j < track.length; j++) {\n                let MediaSourceReference = track[j];\n                if (previousMediaSourceReference === undefined){\n                    previousMediaSourceReference = MediaSourceReference;\n                    continue;\n                }\n                let previousEnd = previousMediaSourceReference.start + previousMediaSourceReference.duration;\n                let currentStart = MediaSourceReference.start;\n                if (previousEnd > currentStart){\n                    throw {\"error\":4,\"msg\":\"Track MediaSourceReferences overlap. MediaSourceReference \"+previousMediaSourceReference.id+\" in track \" +i+\" finishes after MediaSourceReference \" + MediaSourceReference.id +\" starts.\", toString:function(){return this.msg;}};\n                }\n            }\n        }\n    }\n\n\n    static renderPlaylist(playlist, canvas, currentTime){\n        let ctx = canvas.getContext('2d');\n        let w = canvas.width;\n        let h = canvas.height;\n        let trackHeight = h / playlist.tracks.length;\n        let playlistDuration = VideoCompositor.calculatePlaylistDuration(playlist);\n        let pixelsPerSecond = w / playlistDuration;\n        let mediaSourceStyle = {\n            \"video\":[\"#572A72\", \"#3C1255\"],\n            \"image\":[\"#7D9F35\", \"#577714\"],\n            \"canvas\":[\"#AA9639\", \"#806D15\"]\n        };\n\n\n        ctx.clearRect(0,0,w,h);\n        ctx.fillStyle = \"#999\";\n        for (let i = 0; i < playlist.tracks.length; i++) {\n            let track = playlist.tracks[i];\n            for (let j = 0; j < track.length; j++) {\n                let mediaSource = track[j];\n                let msW = mediaSource.duration * pixelsPerSecond;\n                let msH = trackHeight;\n                let msX = mediaSource.start * pixelsPerSecond;\n                let msY = trackHeight * i;\n                ctx.fillStyle = mediaSourceStyle[mediaSource.type][j%mediaSourceStyle[mediaSource.type].length];\n                ctx.fillRect(msX,msY,msW,msH);\n                ctx.fill();\n            }\n        }\n\n        if (currentTime !== undefined){\n            ctx.fillStyle = \"#000\";\n            ctx.fillRect(currentTime*pixelsPerSecond, 0, 1, h);\n        }\n    }\n}\n\n\n\nVideoCompositor.VertexShaders = {\n    DEFAULT: \"\\\n        uniform float progress;\\\n        uniform float duration;\\\n        attribute vec2 a_position;\\\n        attribute vec2 a_texCoord;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        varying float v_duration;\\\n        void main() {\\\n            v_progress = progress;\\\n            v_duration = duration;\\\n            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\\\n            v_texCoord = a_texCoord;\\\n        }\",\n    OFFSETSCALEINOUT: \"\\\n        uniform float progress;\\\n        uniform float duration;\\\n        uniform float inTime;\\\n        uniform float outTime;\\\n        uniform float scaleX;\\\n        uniform float scaleY;\\\n        uniform float offsetX;\\\n        uniform float offsetY;\\\n        attribute vec2 a_position;\\\n        attribute vec2 a_texCoord;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        varying float v_duration;\\\n        varying float v_inTime;\\\n        varying float v_outTime;\\\n        void main() {\\\n            v_progress = progress;\\\n            v_duration = duration;\\\n            v_inTime = inTime;\\\n            v_outTime = outTime;\\\n            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\\\n            v_texCoord = a_texCoord;\\\n        }\",\n    INOUT: \"\\\n        uniform float progress;\\\n        uniform float duration;\\\n        uniform float inTime;\\\n        uniform float outTime;\\\n        attribute vec2 a_position;\\\n        attribute vec2 a_texCoord;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        varying float v_duration;\\\n        varying float v_inTime;\\\n        varying float v_outTime;\\\n        void main() {\\\n            v_progress = progress;\\\n            v_duration = duration;\\\n            v_inTime = inTime;\\\n            v_outTime = outTime;\\\n            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\\\n            v_texCoord = a_texCoord;\\\n        }\",\n    OFFSETSCALE:\"\\\n        uniform float progress;\\\n        uniform float duration;\\\n        uniform float scaleX;\\\n        uniform float scaleY;\\\n        uniform float offsetX;\\\n        uniform float offsetY;\\\n        attribute vec2 a_position;\\\n        attribute vec2 a_texCoord;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        varying float v_duration;\\\n        void main() {\\\n            v_progress = progress;\\\n            v_duration = duration;\\\n            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\\\n            v_texCoord = a_texCoord;\\\n        }\"\n};\n\n\nVideoCompositor.FragmentShaders = {\n    DEFAULT:\"\\\n            precision mediump float;\\\n            uniform sampler2D u_image;\\\n            varying vec2 v_texCoord;\\\n            varying float v_progress;\\\n            varying float v_duration;\\\n            void main(){\\\n                gl_FragColor = texture2D(u_image, v_texCoord);\\\n            }\",\n    MONOCHROME: \"\\\n        precision mediump float;\\\n        uniform sampler2D u_image;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        void main(){\\\n            vec4 pixel = texture2D(u_image, v_texCoord);\\\n            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\\\n            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);\\\n            gl_FragColor = pixel;\\\n        }\",\n    SEPIA: \"\\\n        precision mediump float;\\\n        uniform sampler2D u_image;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        void main(){\\\n            vec4 pixel = texture2D(u_image, v_texCoord);\\\n            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\\\n            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);\\\n            gl_FragColor = pixel;\\\n        }\",\n    BITCRUNCH: \"\\\n        precision mediump float;\\\n        uniform sampler2D u_image;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        void main(){\\\n            vec4 pixel = texture2D(u_image, v_texCoord);\\\n            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\\\n            pixel = pixel/vec4(8.0,8.0,8.0,8.0);\\\n            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\\\n        }\",\n    \"FADEINOUT\": \"\\\n        precision mediump float;\\\n        uniform sampler2D u_image;\\\n        varying vec2 v_texCoord;\\\n        varying float v_progress;\\\n        varying float v_duration;\\\n        varying float v_inTime;\\\n        varying float v_outTime;\\\n        void main(){\\\n            float alpha = 1.0;\\\n            if (v_progress * v_duration < v_inTime){\\\n                alpha = (v_progress * v_duration)/(v_inTime+0.001);\\\n            }\\\n            if ((v_progress * v_duration) > (v_duration - v_outTime)){\\\n                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);\\\n            }\\\n            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\\\n        }\",\n    \"LUTSQAURE64X64\":\"\\\n            precision mediump float;\\\n            uniform sampler2D u_image;\\\n            uniform sampler2D lut;\\\n            varying vec2 v_texCoord;\\\n            varying float v_progress;\\\n            varying float v_duration;\\\n            void main(){\\\n                vec4 original_color = texture2D(u_image, v_texCoord);\\\n                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));\\\n                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);\\\n                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));\\\n                \\\n                float b = floor((original_color[2] * 63.0) + 0.5);\\\n                float b_x = mod(b, 8.0);\\\n                float b_y = floor((b / 8.0) + 0.5);\\\n                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);\\\n                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));\\\n                gl_FragColor = lut_color;\\\n            }\"\n};\n\n\n\nVideoCompositor.Effects = {\n    \"OFFSETSCALE\" :{\n        \"fragmentShader\":VideoCompositor.FragmentShaders.DEFAULT,\n        \"vertexShader\": VideoCompositor.VertexShaders.OFFSETSCALE,\n        \"defaultParameters\":{\n            \"scaleX\":1.0,\n            \"scaleY\":1.0,\n            \"offsetX\":0.0,\n            \"offsetY\":0.0\n        }\n    },\n    \"MONOCHROME\":{\n        \"fragmentShader\": VideoCompositor.FragmentShaders.MONOCHROME\n    },\n    \"SEPIA\":{\n        \"fragmentShader\": VideoCompositor.FragmentShaders.SEPIA\n    },\n    \"BITCRUNCH\":{\n        \"fragmentShader\":VideoCompositor.FragmentShaders.BITCRUNCH\n    },\n    //Green screen color =  r = 62, g = 178, b = 31\n    //Normalised         = r = 0.243, g= 0.698, b = 0.122\n    \"GREENSCREENMAD\":{\n        \"fragmentShader\":\"\\\n            precision mediump float;\\\n            uniform sampler2D u_image;\\\n            varying vec2 v_texCoord;\\\n            varying float v_progress;\\\n            void main(){\\\n                vec4 pixel = texture2D(u_image, v_texCoord);\\\n                float alpha = 1.0;\\\n                float r = pixel[0];\\\n                float g = pixel[1];\\\n                float b = pixel[2];\\\n                float y =  0.299*r + 0.587*g + 0.114*b;\\\n                float u = -0.147*r - 0.289*g + 0.436*b;\\\n                float v =  0.615*r - 0.515*g - 0.100*b;\\\n                ;\\\n                alpha = (v+u)*10.0 +2.0;\\\n                \\\n                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));\\\n                pixel = pixel/vec4(2.0,2.0,2.0,2.0);\\\n                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);\\\n                gl_FragColor = pixel;\\\n            }\"\n    },\n    \"GREENSCREEN\":{\n        \"fragmentShader\":\"\\\n            precision mediump float;\\\n            uniform sampler2D u_image;\\\n            varying vec2 v_texCoord;\\\n            varying float v_progress;\\\n            void main(){\\\n                vec4 pixel = texture2D(u_image, v_texCoord);\\\n                float alpha = 1.0;\\\n                float r = pixel[0];\\\n                float g = pixel[1];\\\n                float b = pixel[2];\\\n                float y =  0.299*r + 0.587*g + 0.114*b;\\\n                float u = -0.147*r - 0.289*g + 0.436*b;\\\n                float v =  0.615*r - 0.515*g - 0.100*b;\\\n                if (y > 0.2 && y < 0.8){\\\n                    alpha = (v+u)*40.0 +2.0;\\\n                }\\\n                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\\\n                gl_FragColor = pixel;\\\n            }\"\n    },\n    \"FADEINOUT\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":1.0,\n            \"outTime\":1.0\n        }\n    },\n    \"FADEINOUT1SEC\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":1.0,\n            \"outTime\":1.0\n        }\n    },\n    \"FADEINOUT2SEC\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":2.0,\n            \"outTime\":2.0\n        }\n    },\n    \"FADEIN1SEC\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":1.0,\n            \"outTime\":0.0\n        }\n    },\n    \"FADEIN2SEC\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":2.0,\n            \"outTime\":0.0\n        }\n    },\n    \"FADEOUT1SEC\": {\n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":0.0,\n            \"outTime\":1.0\n        }\n    },\n    \"FADEOUT2SEC\": {            \n        \"fragmentShader\":VideoCompositor.FragmentShaders.FADEINOUT,\n        \"vertexShader\": VideoCompositor.VertexShaders.INOUT,\n        \"defaultParameters\":{\n            \"inTime\":0.0,\n            \"outTime\":2.0\n                }\n        },\n    \"LUTSQAURE64X64\":{\n        \"fragmentShader\": VideoCompositor.FragmentShaders.LUTSQAURE64X64,\n    }\n};\n\nexport default VideoCompositor;"
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "updateables",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~updateables",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "mediaSourceMapping",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~mediaSourceMapping",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "Map"
+      ]
+    }
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "registerUpdateable",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~registerUpdateable",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "params": [
+      {
+        "name": "updateable",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "update",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~update",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "params": [
+      {
+        "name": "time",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "VideoCompositor",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~VideoCompositor",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": "VideoCompositor",
+    "description": null,
+    "lineNumber": 30,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "params": [
+      {
+        "name": "canvas",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "audioCtx",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_canvas",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_canvas",
+    "access": null,
+    "description": null,
+    "lineNumber": 32,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_ctx",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_ctx",
+    "access": null,
+    "description": null,
+    "lineNumber": 33,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_playing",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 34,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_mediaSources",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_mediaSources",
+    "access": null,
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_mediaSourcePreloadNumber",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_mediaSourcePreloadNumber",
+    "access": null,
+    "description": null,
+    "lineNumber": 36,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_playlist",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_playlist",
+    "access": null,
+    "description": null,
+    "lineNumber": 37,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_eventMappings",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_eventMappings",
+    "access": null,
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_mediaSourceListeners",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_mediaSourceListeners",
+    "access": null,
+    "description": null,
+    "lineNumber": 39,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_max_number_of_textures",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_max_number_of_textures",
+    "access": null,
+    "description": null,
+    "lineNumber": 40,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_effectManager",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_effectManager",
+    "access": null,
+    "description": null,
+    "lineNumber": 42,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_audioManger",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_audioManger",
+    "access": null,
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 45,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "duration",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#duration",
+    "access": null,
+    "description": null,
+    "lineNumber": 46,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "set",
+    "static": false,
+    "variation": null,
+    "name": "currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 50,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 80,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "get",
+    "static": false,
+    "variation": null,
+    "name": "currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 85,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "set",
+    "static": false,
+    "variation": null,
+    "name": "playlist",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#playlist",
+    "access": null,
+    "description": null,
+    "lineNumber": 89,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "duration",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#duration",
+    "access": null,
+    "description": null,
+    "lineNumber": 91,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_playlist",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_playlist",
+    "access": null,
+    "description": null,
+    "lineNumber": 92,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "play",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#play",
+    "access": null,
+    "description": null,
+    "lineNumber": 100,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_playing",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 101,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "pause",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#pause",
+    "access": null,
+    "description": null,
+    "lineNumber": 106,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_playing",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 107,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "addEventListener",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#addEventListener",
+    "access": null,
+    "description": null,
+    "lineNumber": 115,
+    "undocument": true,
+    "params": [
+      {
+        "name": "type",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "func",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "removeEventListener",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#removeEventListener",
+    "access": null,
+    "description": null,
+    "lineNumber": 126,
+    "undocument": true,
+    "params": [
+      {
+        "name": "type",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "func",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "registerMediaSourceListener",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#registerMediaSourceListener",
+    "access": null,
+    "description": null,
+    "lineNumber": 138,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSourceID",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "mediaSourceListener",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "getAudioContext",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#getAudioContext",
+    "access": null,
+    "description": null,
+    "lineNumber": 146,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "getAudioNodeForTrack",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#getAudioNodeForTrack",
+    "access": null,
+    "description": null,
+    "lineNumber": 150,
+    "undocument": true,
+    "params": [
+      {
+        "name": "track",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_dispatchEvents",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_dispatchEvents",
+    "access": null,
+    "description": null,
+    "lineNumber": 155,
+    "undocument": true,
+    "params": [
+      {
+        "name": "evt",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_getPlaylistPlayingStatusAtTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_getPlaylistPlayingStatusAtTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 162,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlist",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "playhead",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_sortMediaSourcesByStartTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_sortMediaSourcesByStartTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 192,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSources",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_loadMediaSource",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_loadMediaSource",
+    "access": null,
+    "description": null,
+    "lineNumber": 199,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSourceReference",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "onReadyCallback",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_calculateMediaSourcesOverlap",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_calculateMediaSourcesOverlap",
+    "access": null,
+    "description": null,
+    "lineNumber": 234,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSources",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "_calculateActiveTransitions",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_calculateActiveTransitions",
+    "access": null,
+    "description": null,
+    "lineNumber": 252,
+    "undocument": true,
+    "params": [
+      {
+        "name": "currentlyPlaying",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "currentTime",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "update",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#update",
+    "access": null,
+    "description": null,
+    "lineNumber": 303,
+    "undocument": true,
+    "params": [
+      {
+        "name": "dt",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 313,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_currentTime",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor#_currentTime",
+    "access": null,
+    "description": null,
+    "lineNumber": 388,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "calculateTrackDuration",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor.calculateTrackDuration",
+    "access": null,
+    "description": null,
+    "lineNumber": 391,
+    "undocument": true,
+    "params": [
+      {
+        "name": "track",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "calculatePlaylistDuration",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor.calculatePlaylistDuration",
+    "access": null,
+    "description": null,
+    "lineNumber": 402,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlist",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "validatePlaylist",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor.validatePlaylist",
+    "access": null,
+    "description": null,
+    "lineNumber": 416,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlist",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": true,
+    "variation": null,
+    "name": "renderPlaylist",
+    "memberof": "src/main.js~VideoCompositor",
+    "longname": "src/main.js~VideoCompositor.renderPlaylist",
+    "access": null,
+    "description": null,
+    "lineNumber": 491,
+    "undocument": true,
+    "params": [
+      {
+        "name": "playlist",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "canvas",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "currentTime",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "videoCompositor",
+    "memberof": "src/main.js",
+    "longname": "src/main.js~videoCompositor",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/main.js",
+    "importStyle": "videoCompositor",
+    "description": null,
+    "lineNumber": 824,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/main.js~VideoCompositor"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/sources/canvassource.js",
+    "memberof": null,
+    "longname": "src/sources/canvassource.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 2,
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass CanvasSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.width = properties.width;\n        this.height = properties.height;\n    }\n    play(){\n        super.play();\n    }\n    seek(time){\n        super.seek(time);\n    }\n    pause(){\n        super.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.onready(this);\n            return;\n        }\n\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement(\"canvas\");\n        this.element.width = this.width;\n        this.element.height = this.height;\n        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n        this.ready = true;\n        this.onready(this);\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default CanvasSource;"
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "CanvasSource",
+    "memberof": "src/sources/canvassource.js",
+    "longname": "src/sources/canvassource.js~CanvasSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/canvassource.js",
+    "importStyle": "CanvasSource",
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "interface": false,
+    "extends": [
+      "src/sources/mediasource~MediaSource"
+    ]
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "params": [
+      {
+        "name": "properties",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "width",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#width",
+    "access": null,
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "height",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#height",
+    "access": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "play",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#play",
+    "access": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "seek",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#seek",
+    "access": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "params": [
+      {
+        "name": "time",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "pause",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#pause",
+    "access": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "load",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#load",
+    "access": null,
+    "description": null,
+    "lineNumber": 19,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "ready",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#ready",
+    "access": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "element",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#element",
+    "access": null,
+    "description": null,
+    "lineNumber": 31,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "ready",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#ready",
+    "access": null,
+    "description": null,
+    "lineNumber": 35,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "render",
+    "memberof": "src/sources/canvassource.js~CanvasSource",
+    "longname": "src/sources/canvassource.js~CanvasSource#render",
+    "access": null,
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "params": [
+      {
+        "name": "program",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "renderParameters",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "textures",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "canvasSource",
+    "memberof": "src/sources/canvassource.js",
+    "longname": "src/sources/canvassource.js~canvasSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/canvassource.js",
+    "importStyle": "canvasSource",
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/sources/canvassource.js~CanvasSource"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/sources/imagesource.js",
+    "memberof": null,
+    "longname": "src/sources/imagesource.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 2,
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass ImageSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n    }\n    play(){\n        super.play();\n    }\n    seek(time){\n        super.seek(time);\n    }\n    pause(){\n        super.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            // Upload the image into the texture.\n            this.onready(this);\n            return\n        };\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = new Image();\n        let _this = this;\n        this.element.onload = function(){\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.onready(_this);\n        }\n        this.element.src = this.src;\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default ImageSource;"
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "ImageSource",
+    "memberof": "src/sources/imagesource.js",
+    "longname": "src/sources/imagesource.js~ImageSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/imagesource.js",
+    "importStyle": "ImageSource",
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "interface": false,
+    "extends": [
+      "src/sources/mediasource~MediaSource"
+    ]
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "params": [
+      {
+        "name": "properties",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "play",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#play",
+    "access": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "seek",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#seek",
+    "access": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "params": [
+      {
+        "name": "time",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "pause",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#pause",
+    "access": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "load",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#load",
+    "access": null,
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "ready",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#ready",
+    "access": null,
+    "description": null,
+    "lineNumber": 22,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "element",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#element",
+    "access": null,
+    "description": null,
+    "lineNumber": 29,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "render",
+    "memberof": "src/sources/imagesource.js~ImageSource",
+    "longname": "src/sources/imagesource.js~ImageSource#render",
+    "access": null,
+    "description": null,
+    "lineNumber": 38,
+    "undocument": true,
+    "params": [
+      {
+        "name": "program",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "renderParameters",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "textures",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "imageSource",
+    "memberof": "src/sources/imagesource.js",
+    "longname": "src/sources/imagesource.js~imageSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/imagesource.js",
+    "importStyle": "imageSource",
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/sources/imagesource.js~ImageSource"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/sources/mediasource.js",
+    "memberof": null,
+    "longname": "src/sources/mediasource.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 3,
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\n\nclass MediaSource {\n    constructor(properties, gl){\n        this.gl = gl;\n        this.id = properties.id;\n        this.duration = properties.duration;\n        this.start = properties.start;\n        this.playing = false;\n        this.ready = false;\n        this.element = undefined;\n        this.src = undefined;\n        this.texture = undefined;\n        this.mediaSourceListeners = [];\n\n        this.disposeOfElementOnDestroy = false;\n\n        //If the mediaSource is created from a src string then it must be resonsible for cleaning itself up.\n        if (properties.src !== undefined){\n            this.disposeOfElementOnDestroy = true;\n            this.src = properties.src;\n        }else {\n            //If the MediaSource is created from an element then it should not clean the element up on destruction as it may be used elsewhere.\n            this.disposeOfElementOnDestroy = false;\n            this.element = properties.element;\n        }\n\n\n        /*let positionLocation = gl.getAttribLocation(program, \"a_position\");\n        let texCoordLocation = gl.getAttribLocation(program, \"a_texCoord\");*/\n        \n        //Hard Code these for now, but this is baaaaaad\n        let positionLocation = 0;\n        let texCoordLocation = 1;\n        \n        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);\n        gl.enable ( gl.BLEND) ;\n        // Create a texture.\n        this.texture = gl.createTexture();\n        gl.bindTexture(gl.TEXTURE_2D, this.texture);\n        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);\n        // Set the parameters so we can render any size image.\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);\n        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);\n        \n\n        let buffer = gl.createBuffer();\n        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);\n        gl.enableVertexAttribArray(positionLocation);\n        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);\n\n        gl.bufferData(\n            gl.ARRAY_BUFFER,\n            /*new Float32Array([\n                1.0, 1.0,\n                 -1.0, 1.0,\n                1.0,  -1.0,\n                1.0,  -1.0,\n                -1.0, 1.0,\n                -1.0, -1.0]),*/\n            new Float32Array([\n                1.0, 1.0,\n                0.0, 1.0,\n                1.0, 0.0,\n                1.0, 0.0,\n                0.0, 1.0,\n                0.0, 0.0]),\n            gl.STATIC_DRAW);\n        gl.enableVertexAttribArray(texCoordLocation);\n        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);\n\n    }\n    play(){\n        //console.log(\"Playing\", this.id);\n        if (this.playing === false){\n            for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n                if(typeof this.mediaSourceListeners[i].play === 'function')this.mediaSourceListeners[i].play(this);\n            }    \n        }\n        this.playing = true;\n    }\n    pause(){\n        console.debug(\"Pausing\", this.id);\n        this.playing = false;\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this);\n        }\n    }\n    seek(seekTime){\n        //this.currentTime = seekTime;\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this, seekTime);\n        }\n    }\n    isReady(){\n        let listenerReady = true;\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if(typeof this.mediaSourceListeners[i].isReady === 'function'){\n                if (this.mediaSourceListeners[i].isReady(this) === false){\n                    listenerReady = false;\n                }\n            }\n        }\n        if (listenerReady === true && this.ready === true) return true;\n        return false;\n    }\n    load(){\n        console.debug(\"Loading\", this.id);\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if(typeof this.mediaSourceListeners[i].load === 'function')this.mediaSourceListeners[i].load(this);\n        }\n        if (this.element !== undefined) {\n            return true;\n        }\n        return false;\n    }\n    destroy(){\n        console.debug(\"Destroying\", this.id);\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);\n        }\n        if (this.disposeOfElementOnDestroy){\n            delete this.element;  \n        }\n    }\n    render(program, renderParameters, textures){\n        //renders the media source to the WebGL context using the pased program\n        let overriddenElement;\n        for (let i = 0; i < this.mediaSourceListeners.length; i++) {\n            if (typeof this.mediaSourceListeners[i].render === 'function'){\n                let result =  this.mediaSourceListeners[i].render(this, renderParameters);\n                if (result !== undefined) overriddenElement = result;\n            }\n        }\n\n        this.gl.useProgram(program);\n        let renderParametersKeys = Object.keys(renderParameters);\n        let textureOffset = 1;\n        for (let index in renderParametersKeys){\n            let key = renderParametersKeys[index];\n            let parameterLoctation = this.gl.getUniformLocation(program, key);\n            if (parameterLoctation !== -1){\n                if (typeof renderParameters[key] === \"number\"){\n                    this.gl.uniform1f(parameterLoctation, renderParameters[key]);\n                }\n                else{\n                    //Is a texture\n                    this.gl.activeTexture(this.gl.TEXTURE0 + textureOffset);\n                    this.gl.uniform1i(parameterLoctation, textureOffset);\n                    this.gl.bindTexture(this.gl.TEXTURE_2D, textures[textureOffset-1]);\n                }\n            }\n        }\n        \n        this.gl.activeTexture(this.gl.TEXTURE0);\n        let textureLocation = this.gl.getUniformLocation(program, \"u_image\");\n        this.gl.uniform1i(textureLocation, 0);\n        this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);\n        if (overriddenElement !== undefined){\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, overriddenElement);\n        } else {\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n        }\n        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);\n    }\n    onready(mediaSource){\n    }\n}\n\nexport default MediaSource;"
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "MediaSource",
+    "memberof": "src/sources/mediasource.js",
+    "longname": "src/sources/mediasource.js~MediaSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/mediasource.js",
+    "importStyle": "MediaSource",
+    "description": null,
+    "lineNumber": 3,
+    "undocument": true,
+    "interface": false
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 4,
+    "undocument": true,
+    "params": [
+      {
+        "name": "properties",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "gl",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#gl",
+    "access": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "id",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#id",
+    "access": null,
+    "description": null,
+    "lineNumber": 6,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "duration",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#duration",
+    "access": null,
+    "description": null,
+    "lineNumber": 7,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "start",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#start",
+    "access": null,
+    "description": null,
+    "lineNumber": 8,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "playing",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "ready",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#ready",
+    "access": null,
+    "description": null,
+    "lineNumber": 10,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "element",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#element",
+    "access": null,
+    "description": null,
+    "lineNumber": 11,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "src",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#src",
+    "access": null,
+    "description": null,
+    "lineNumber": 12,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "texture",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#texture",
+    "access": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "mediaSourceListeners",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#mediaSourceListeners",
+    "access": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "disposeOfElementOnDestroy",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#disposeOfElementOnDestroy",
+    "access": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "disposeOfElementOnDestroy",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#disposeOfElementOnDestroy",
+    "access": null,
+    "description": null,
+    "lineNumber": 20,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "src",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#src",
+    "access": null,
+    "description": null,
+    "lineNumber": 21,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "disposeOfElementOnDestroy",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#disposeOfElementOnDestroy",
+    "access": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "element",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#element",
+    "access": null,
+    "description": null,
+    "lineNumber": 25,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "texture",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#texture",
+    "access": null,
+    "description": null,
+    "lineNumber": 39,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "play",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#play",
+    "access": null,
+    "description": null,
+    "lineNumber": 75,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "playing",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 82,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "pause",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#pause",
+    "access": null,
+    "description": null,
+    "lineNumber": 84,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "playing",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#playing",
+    "access": null,
+    "description": null,
+    "lineNumber": 86,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "seek",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#seek",
+    "access": null,
+    "description": null,
+    "lineNumber": 91,
+    "undocument": true,
+    "params": [
+      {
+        "name": "seekTime",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "isReady",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#isReady",
+    "access": null,
+    "description": null,
+    "lineNumber": 97,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "load",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#load",
+    "access": null,
+    "description": null,
+    "lineNumber": 109,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "boolean"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "destroy",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#destroy",
+    "access": null,
+    "description": null,
+    "lineNumber": 119,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "render",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#render",
+    "access": null,
+    "description": null,
+    "lineNumber": 128,
+    "undocument": true,
+    "params": [
+      {
+        "name": "program",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "renderParameters",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "textures",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "onready",
+    "memberof": "src/sources/mediasource.js~MediaSource",
+    "longname": "src/sources/mediasource.js~MediaSource#onready",
+    "access": null,
+    "description": null,
+    "lineNumber": 168,
+    "undocument": true,
+    "params": [
+      {
+        "name": "mediaSource",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "mediaSource",
+    "memberof": "src/sources/mediasource.js",
+    "longname": "src/sources/mediasource.js~mediaSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/mediasource.js",
+    "importStyle": "mediaSource",
+    "description": null,
+    "lineNumber": 172,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/sources/mediasource.js~MediaSource"
+      ]
+    }
+  },
+  {
+    "kind": "file",
+    "static": true,
+    "variation": null,
+    "name": "src/sources/videosource.js",
+    "memberof": null,
+    "longname": "src/sources/videosource.js",
+    "access": null,
+    "description": null,
+    "lineNumber": 2,
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\n\nfunction eventOneTime(element, type, callback){\n    let handleEvent = function(e){\n        e.target.removeEventListener(e.type, handleEvent);\n        return callback(e);\n    };\n\n    element.addEventListener(type, handleEvent, false);         \n}\n\nclass VideoSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.sourceStart = 0;\n        this._volume = 1.0;\n        if (properties.sourceStart !== undefined){\n            this.sourceStart = properties.sourceStart;\n        }\n        if (properties.volume !== undefined){\n            this._volume = properties.volume;\n        }\n    }\n    play(){\n        super.play();\n        let _this = this;\n\n        let playVideo = function(){\n            if (_this.element.readyState > 0){\n                _this.ready = true;\n                _this.element.play();\n            } else {\n                console.debug(\"Can't play video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", playVideo);\n            }\n        };\n\n        playVideo();\n    }\n    seek(time){\n        super.seek();\n        let _this = this;\n\n        let seekVideo = function(){\n            if (_this.element.readyState > 0){\n                _this.ready = true;\n                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){\n                    _this.element.currentTime = _this.sourceStart;\n                } else {\n                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;\n                }\n            } else {\n                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.\n                console.debug(\"Can't seek video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", seekVideo);\n            }\n        };\n\n        seekVideo();  \n    }\n    pause(){\n        super.pause();\n        this.element.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n\n        if (super.load()){\n            //this.element.currentTime = this.sourceStart;\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.onready(this);\n            return;\n        }\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement('video');            \n        //construct a fragement URL to cut the required segment from the source video\n        this.element.src = this.src;\n        this.element.volume = this._volume;\n        this.element.preload = \"auto\";\n        this.element.load();\n        let _this = this;\n        this.element.addEventListener('loadeddata', function() {\n            _this.element.currentTime = _this.sourceStart;\n            _this.seek(0);\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.onready(_this);\n        }, false);\n        /*this.element.addEventListener('seeked', function(){\n            console.log(\"SEEKED\");\n            _this.ready = true;\n            _this.onready(_this);\n        })*/\n\n\n    }\n    render(program, renderParameters, textures){\n        super.render(program, renderParameters, textures);\n    }\n    destroy(){\n        this.element.pause();\n        if (this.disposeOfElementOnDestroy){\n            this.element.src = \"\";\n            this.element.removeAttribute(\"src\");    \n        }\n        super.destroy();\n    }\n}\n\nexport default VideoSource;"
+  },
+  {
+    "kind": "function",
+    "static": true,
+    "variation": null,
+    "name": "eventOneTime",
+    "memberof": "src/sources/videosource.js",
+    "longname": "src/sources/videosource.js~eventOneTime",
+    "access": null,
+    "export": false,
+    "importPath": "html5-video-compositor/src/sources/videosource.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 5,
+    "undocument": true,
+    "params": [
+      {
+        "name": "element",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "type",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "callback",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "class",
+    "static": true,
+    "variation": null,
+    "name": "VideoSource",
+    "memberof": "src/sources/videosource.js",
+    "longname": "src/sources/videosource.js~VideoSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/videosource.js",
+    "importStyle": "VideoSource",
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "interface": false,
+    "extends": [
+      "src/sources/mediasource~MediaSource"
+    ]
+  },
+  {
+    "kind": "constructor",
+    "static": false,
+    "variation": null,
+    "name": "constructor",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#constructor",
+    "access": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "params": [
+      {
+        "name": "properties",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "gl",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "sourceStart",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#sourceStart",
+    "access": null,
+    "description": null,
+    "lineNumber": 17,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_volume",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#_volume",
+    "access": null,
+    "description": null,
+    "lineNumber": 18,
+    "undocument": true,
+    "type": {
+      "types": [
+        "number"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "sourceStart",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#sourceStart",
+    "access": null,
+    "description": null,
+    "lineNumber": 20,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "_volume",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#_volume",
+    "access": null,
+    "description": null,
+    "lineNumber": 23,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "play",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#play",
+    "access": null,
+    "description": null,
+    "lineNumber": 26,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "seek",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#seek",
+    "access": null,
+    "description": null,
+    "lineNumber": 43,
+    "undocument": true,
+    "params": [
+      {
+        "name": "time",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "pause",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#pause",
+    "access": null,
+    "description": null,
+    "lineNumber": 65,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "load",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#load",
+    "access": null,
+    "description": null,
+    "lineNumber": 69,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "ready",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#ready",
+    "access": null,
+    "description": null,
+    "lineNumber": 76,
+    "undocument": true,
+    "type": {
+      "types": [
+        "boolean"
+      ]
+    }
+  },
+  {
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "element",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#element",
+    "access": null,
+    "description": null,
+    "lineNumber": 81,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "render",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#render",
+    "access": null,
+    "description": null,
+    "lineNumber": 103,
+    "undocument": true,
+    "params": [
+      {
+        "name": "program",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "renderParameters",
+        "types": [
+          "*"
+        ]
+      },
+      {
+        "name": "textures",
+        "types": [
+          "*"
+        ]
+      }
+    ],
+    "generator": false
+  },
+  {
+    "kind": "method",
+    "static": false,
+    "variation": null,
+    "name": "destroy",
+    "memberof": "src/sources/videosource.js~VideoSource",
+    "longname": "src/sources/videosource.js~VideoSource#destroy",
+    "access": null,
+    "description": null,
+    "lineNumber": 106,
+    "undocument": true,
+    "params": [],
+    "generator": false
+  },
+  {
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "videoSource",
+    "memberof": "src/sources/videosource.js",
+    "longname": "src/sources/videosource.js~videoSource",
+    "access": null,
+    "export": true,
+    "importPath": "html5-video-compositor/src/sources/videosource.js",
+    "importStyle": "videoSource",
+    "description": null,
+    "lineNumber": 116,
+    "undocument": true,
+    "type": {
+      "types": [
+        "src/sources/videosource.js~VideoSource"
+      ]
+    }
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Infinity",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Infinity",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Infinity",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NaN",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/NaN",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~NaN",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "undefined",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~undefined",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "null",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/null",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~null",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "object",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~object",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "function",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~function",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "boolean",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~boolean",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Symbol",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Symbol",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Error",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Error",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "EvalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/EvalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~EvalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "InternalError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/InternalError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~InternalError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RangeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RangeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ReferenceError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ReferenceError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "SyntaxError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~SyntaxError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "TypeError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypeError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~TypeError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "URIError",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~URIError",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "number",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~number",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Date",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Date",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "String",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~String",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "string",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~string",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "RegExp",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~RegExp",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint8ClampedArray",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8ClampedArray",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint8ClampedArray",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint16Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint16Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint16Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Int32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Int32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Int32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Uint32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Uint32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float32Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float32Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float32Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Float64Array",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Float64Array",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Float64Array",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Map",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Map",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Set",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Set",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakMap",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakMap",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "WeakSet",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~WeakSet",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "ArrayBuffer",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~ArrayBuffer",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DataView",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~DataView",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "JSON",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~JSON",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Promise",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Promise",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Generator",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Generator",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "GeneratorFunction",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/GeneratorFunction",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~GeneratorFunction",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Reflect",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Reflect",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Proxy",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy",
+    "memberof": "BuiltinExternal/ECMAScriptExternal.js",
+    "longname": "BuiltinExternal/ECMAScriptExternal.js~Proxy",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "CanvasRenderingContext2D",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~CanvasRenderingContext2D",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "DocumentFragment",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/DocumentFragment",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~DocumentFragment",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Element",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Element",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Element",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Event",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Event",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Event",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "Node",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/Node",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~Node",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "NodeList",
+    "externalLink": "https://developer.mozilla.org/en-US/docs/Web/API/NodeList",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~NodeList",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  },
+  {
+    "kind": "external",
+    "static": true,
+    "variation": null,
+    "name": "XMLHttpRequest",
+    "externalLink": "https://developer.mozilla.org/en/docs/Web/API/XMLHttpRequest",
+    "memberof": "BuiltinExternal/WebAPIExternal.js",
+    "longname": "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
+    "access": null,
+    "description": null,
+    "builtinExternal": true
+  }
+]

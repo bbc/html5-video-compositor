@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+</head>
+<body class="layout-container">
+
+<header>
+  <a href="./">Home</a>
+  <a href="identifiers.html">Identifier</a>
+  <a href="source.html">Source</a>
+  
+  
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/audiomanager.js~AudioManager.html">AudioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effect.js~Effect.html">Effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/effectmanager.js~EffectManager.html">EffectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html">VideoCompositor</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-audioManager">audioManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effect">effect</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-effectManager">effectManager</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoCompositor">videoCompositor</a></span></span></li>
+<li data-ice="doc"><div data-ice="dirPath" class="nav-dir-path">sources</div><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/canvassource.js~CanvasSource.html">CanvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/imagesource.js~ImageSource.html">ImageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html">MediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html">VideoSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-canvasSource">canvasSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-imageSource">imageSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-mediaSource">mediaSource</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-variable">V</span><span data-ice="name"><span><a href="variable/index.html#static-variable-videoSource">videoSource</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="html5-video-compositor">HTML5-Video-Compositor</h1>
+<p>A shader based video composition engine for the browser.</p>
+<pre><code class="lang-HTML"><code class="source-code prettyprint">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;videocompositor.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot;&gt;
+        window.onload = function () {
+            var canvas = document.getElementById(&apos;player-canvas&apos;);
+            var videoCompositor = new VideoCompositor(canvas);
+
+            videoCompositor.playlist = {
+                &quot;tracks&quot;:[
+                    [{type:&quot;video&quot;, sourceStart:0, start:0, duration:5, src:&quot;video1.mp4&quot;, id:&quot;1&quot;},                      {type:&quot;video&quot;, sourceStart:0, start:7.5, duration:5, src:&quot;video2.mp4&quot;, id:&quot;3&quot;}],
+                    [                                      {type:&quot;image&quot;, start:2.5, duration:5, src:&quot;image.png&quot;, id:&quot;2&quot;}]
+                ]
+            };
+
+            videoCompositor.play();
+        };
+    &lt;/script&gt;
+    &lt;canvas id=&quot;player-canvas&quot;&gt;&lt;/canvas&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+</code></pre>
+<h2 id="introduction">Introduction</h2>
+<p>This is an experimental video composition engine which can play edit decision lists in the browser. Content can be dynamically appended to the EDL as it&apos;s playing to create interactive and responsive content.</p>
+<p>In video editing terms an EDL defines the points at which to cut and assemble video sources. VideoCompositor uses a simple JSON based EDL to describe how to cut and assemble HTML5 video sources, images, and WebGL contexts, it also provides a framework for performing shader based compositing operations (i.e cross-fades, green-screen).</p>
+<h2 id="video-encoding">Video Encoding</h2>
+<p>You will probably only see acceptable video performance if you encode videos with some kind of &quot;fast decode&quot; option. Using the avconv tool this can be done with the following command.</p>
+<pre><code class="lang-Bash"><code class="source-code prettyprint">avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4</code>
+</code></pre>
+<h2 id="documentation">Documentation</h2>
+<p>See the <a href="https://github.com/bbc/html5-video-compositor/wiki">Wiki</a> for further documentation.</p>
+<h2 id="build">Build</h2>
+<p>This project uses npm to manage dependencies. To build the compositor, in the root of the project run:</p>
+<pre><code class="lang-Bash"><code class="source-code prettyprint">npm install</code>
+</code></pre>
+<p>Once this has completed you can build the source files by running (this will build a commonjs2 and a vanilla js file):</p>
+<pre><code class="lang-Bash"><code class="source-code prettyprint">npm run build</code>
+</code></pre>
+<p>To auto-recompile the project on source change run (this will only rebuild the vanilla js file):</p>
+<pre><code class="lang-Bash"><code class="source-code prettyprint">npm run dev</code>
+</code></pre>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.3.1)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

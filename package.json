@@ -13,7 +13,7 @@
     }
   ],
   "scripts":{
-        "build":"./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
+        "build":"./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js && node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
         "dev":"./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
   },
   "dependencies": {},
@@ -21,6 +21,7 @@
     "babel-core": "^5.6.5",
     "babel-loader": "^5.1.4",
     "node-libs-browser": "^0.5.2",
-    "webpack": "^1.9.11"
+    "webpack": "^1.9.11",
+    "esdoc": "^0.3.1"
   }
 }
