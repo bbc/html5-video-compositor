@@ -198,6 +198,10 @@ class VideoCompositor {
     *       [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video.mp4&quot;, id:&quot;video&quot;}]
     *   ]
     * }
+    * var canvas = document.getElementById(&quot;canvas&quot;);
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = playlist;
+    * videoCompositor.play();
     *
     * @example &lt;caption&gt;Playing the first 4 seconds of two videos, one after the other&lt;/caption&gt;
     * 

@@ -638,6 +638,10 @@ module.exports =
 	        *       [{type:"video", start:0, duration:4, src:"video.mp4", id:"video"}]
 	        *   ]
 	        * }
+	        * var canvas = document.getElementById("canvas");
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * videoCompositor.play();
 	        *
 	        * @example <caption>Playing the first 4 seconds of two videos, one after the other</caption>
 	        * 

@@ -117,12 +117,12 @@
       "actualCount": 11,
       "undocumentLines": [
         30,
-        256,
+        260,
         31,
         46,
-        279,
-        267,
-        1091
+        283,
+        271,
+        1095
       ]
     },
     "src/sources/videosource.js": {
