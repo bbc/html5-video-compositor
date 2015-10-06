@@ -53,11 +53,11 @@ module.exports =
 	    value: true
 	});
 
-	var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
-
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -122,26 +122,6 @@ module.exports =
 	        registerUpdateable(this);
 	    }
 
-	    /**
-	    * Sets the current time through the playlist.
-	    *
-	    * Setting this is how you seek through the content. Should be frame accurate, but probably slow.
-	    * @param {number} time - The time to seek to in seconds.
-	    * 
-	    * @example
-	    * 
-	    * var playlist = {
-	    *   tracks:[
-	    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
-	    *   ]
-	    * }
-	    * var canvas = document.getElementById('canvas');
-	    * var videoCompositor = new VideoCompositor(canvas);
-	    * videoCompositor.playlist = playlist;
-	    * videoCompositor.currentTime = 3; //Skip three seconds in.
-	    * videoCompositor.play();
-	    */
-
 	    _createClass(VideoCompositor, [{
 	        key: "play",
 
@@ -161,9 +141,13 @@ module.exports =
 	        */
 	        value: function play() {
 	            this._playing = true;
-	            var playEvent = new CustomEvent('play', { detail: { data: this._currentTime, instance: this } });
+	            this._ctx.clearColor(0.0, 0.0, 0.0, 1.0);
+	            this._ctx.clear(this._ctx.COLOR_BUFFER_BIT | this._ctx.DEPTH_BUFFER_BIT);
+	            var playEvent = new CustomEvent("play", { detail: { data: this._currentTime, instance: this } });
 	            this._canvas.dispatchEvent(playEvent);
 	        }
+	    }, {
+	        key: "pause",
 
 	        /**
 	        * Pause playback of the playlist. Call play() to resume playing.
@@ -182,14 +166,12 @@ module.exports =
 	        * setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds
 	        *
 	        */
-	    }, {
-	        key: "pause",
 	        value: function pause() {
 	            this._playing = false;
 	            this._mediaSources.forEach(function (mediaSource) {
 	                mediaSource.pause();
 	            });
-	            var pauseEvent = new CustomEvent('pause', { detail: { data: this._currentTime, instance: this } });
+	            var pauseEvent = new CustomEvent("pause", { detail: { data: this._currentTime, instance: this } });
 	            this._canvas.dispatchEvent(pauseEvent);
 	        }
 	    }, {
@@ -226,6 +208,8 @@ module.exports =
 	                this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
 	            }
 	        }
+	    }, {
+	        key: "getAudioContext",
 
 	        /**
 	        * Returns the audio context that was either passed into the constructor or created internally.
@@ -245,11 +229,11 @@ module.exports =
 	        *
 	        * @return {AudioContext} The audio context used to create any nodes required by calls to getAudioNodeForTrack
 	        */
-	    }, {
-	        key: "getAudioContext",
 	        value: function getAudioContext() {
 	            return this._audioManger.getAudioContext();
 	        }
+	    }, {
+	        key: "getAudioNodeForTrack",
 
 	        /**
 	        * Gets an audio bus for the given playlist track.
@@ -275,8 +259,6 @@ module.exports =
 	        * @param {Array} track - this is track which consist of an array object of MediaSourceReferences (typically a track from a playlist object).
 	        * @return {GainNode} this is a web audio GainNode which has the output of any audio producing media sources from the passed track played out of it.
 	        */
-	    }, {
-	        key: "getAudioNodeForTrack",
 	        value: function getAudioNodeForTrack(track) {
 	            var audioNode = this._audioManger.createAudioNodeFromTrack(track);
 	            return audioNode;
@@ -458,7 +440,7 @@ module.exports =
 	            //Check if we've finished playing and then stop
 	            if (toPlay.length === 0 && currentlyPlaying.length === 0) {
 	                this.pause();
-	                var endedEvent = new CustomEvent('ended', { detail: { data: this.currentTime, instance: this } });
+	                var endedEvent = new CustomEvent("ended", { detail: { data: this.currentTime, instance: this } });
 	                this.currentTime = 0;
 	                this._canvas.dispatchEvent(endedEvent);
 	                return;
@@ -531,29 +513,28 @@ module.exports =
 	            }
 	            this._currentTime += dt;
 	        }
-
-	        /**
-	        * Calculate the duration of the passed playlist track.
-	        *
-	        * Will return the time that the last media source in the track stops playing.
-	        * @param {Array} track - this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).
-	        * @return {number} The duration in seconds of the given track.
-	        * @example
-	        * var playlist = {
-	        *   tracks:[
-	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
-	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
-	        *   ]
-	        * }
-	        * var track0Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[0]);
-	        * var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
-	        * //track0Duration === 8
-	        * //track1Duration === 10
-	        *
-	        * @todo Beacuse media source reference are stored in order this could implemented be far quicker.
-	        */
 	    }, {
 	        key: "currentTime",
+
+	        /**
+	        * Sets the current time through the playlist.
+	        *
+	        * Setting this is how you seek through the content. Should be frame accurate, but probably slow.
+	        * @param {number} time - The time to seek to in seconds.
+	        * 
+	        * @example
+	        * 
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+	        *   ]
+	        * }
+	        * var canvas = document.getElementById('canvas');
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = playlist;
+	        * videoCompositor.currentTime = 3; //Skip three seconds in.
+	        * videoCompositor.play();
+	        */
 	        set: function set(currentTime) {
 	            console.debug("Seeking to", currentTime);
 	            if (this._playlist === undefined) {
@@ -590,7 +571,7 @@ module.exports =
 	            }
 
 	            this._currentTime = currentTime;
-	            var seekEvent = new CustomEvent('seek', { detail: { data: currentTime, instance: this } });
+	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
 	            this._canvas.dispatchEvent(seekEvent);
 	        },
 
@@ -616,6 +597,8 @@ module.exports =
 	        get: function get() {
 	            return this._currentTime;
 	        }
+	    }, {
+	        key: "playlist",
 
 	        /**
 	        * Set the playlist object to be played.
@@ -693,8 +676,6 @@ module.exports =
 	        *   }
 	        * }
 	        */
-	    }, {
-	        key: "playlist",
 	        set: function set(playlist) {
 	            VideoCompositor.validatePlaylist(playlist);
 	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
@@ -707,6 +688,27 @@ module.exports =
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
+
+	        /**
+	        * Calculate the duration of the passed playlist track.
+	        *
+	        * Will return the time that the last media source in the track stops playing.
+	        * @param {Array} track - this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).
+	        * @return {number} The duration in seconds of the given track.
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
+	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
+	        *   ]
+	        * }
+	        * var track0Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[0]);
+	        * var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
+	        * //track0Duration === 8
+	        * //track1Duration === 10
+	        *
+	        * @todo Beacuse media source reference are stored in order this could implemented be far quicker.
+	        */
 	        value: function calculateTrackDuration(track) {
 	            var maxPlayheadPosition = 0;
 	            for (var j = 0; j < track.length; j++) {
@@ -717,6 +719,8 @@ module.exports =
 	            }
 	            return maxPlayheadPosition;
 	        }
+	    }, {
+	        key: "calculatePlaylistDuration",
 
 	        /**
 	        * Calculate the duration of the passed playlist.
@@ -735,8 +739,6 @@ module.exports =
 	        * //playlistDuration === 10
 	        *
 	        */
-	    }, {
-	        key: "calculatePlaylistDuration",
 	        value: function calculatePlaylistDuration(playlist) {
 	            var maxTrackDuration = 0;
 
@@ -750,6 +752,8 @@ module.exports =
 
 	            return maxTrackDuration;
 	        }
+	    }, {
+	        key: "validatePlaylist",
 
 	        /**
 	        * Validate that the playlist is correct and playable.
@@ -777,8 +781,6 @@ module.exports =
 	        *
 	        * @todo Better coverage of possible errors in a playlist.
 	        */
-	    }, {
-	        key: "validatePlaylist",
 	        value: function validatePlaylist(playlist) {
 	            /*     
 	            This function validates a passed playlist, making sure it matches a 
@@ -866,6 +868,8 @@ module.exports =
 	                }
 	            }
 	        }
+	    }, {
+	        key: "renderPlaylist",
 
 	        /**
 	        * Render a graphical representation of a playlist to a canvas.
@@ -887,10 +891,8 @@ module.exports =
 	        * VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);
 	        *
 	        */
-	    }, {
-	        key: "renderPlaylist",
 	        value: function renderPlaylist(playlist, canvas, currentTime) {
-	            var ctx = canvas.getContext('2d');
+	            var ctx = canvas.getContext("2d");
 	            var w = canvas.width;
 	            var h = canvas.height;
 	            var trackHeight = h / playlist.tracks.length;
@@ -929,165 +931,19 @@ module.exports =
 	})();
 
 	VideoCompositor.VertexShaders = {
-	    DEFAULT: "\
-	        uniform float progress;\
-	        uniform float duration;\
-	        attribute vec2 a_position;\
-	        attribute vec2 a_texCoord;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        varying float v_duration;\
-	        void main() {\
-	            v_progress = progress;\
-	            v_duration = duration;\
-	            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
-	            v_texCoord = a_texCoord;\
-	        }",
-	    OFFSETSCALEINOUT: "\
-	        uniform float progress;\
-	        uniform float duration;\
-	        uniform float inTime;\
-	        uniform float outTime;\
-	        uniform float scaleX;\
-	        uniform float scaleY;\
-	        uniform float offsetX;\
-	        uniform float offsetY;\
-	        attribute vec2 a_position;\
-	        attribute vec2 a_texCoord;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        varying float v_duration;\
-	        varying float v_inTime;\
-	        varying float v_outTime;\
-	        void main() {\
-	            v_progress = progress;\
-	            v_duration = duration;\
-	            v_inTime = inTime;\
-	            v_outTime = outTime;\
-	            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
-	            v_texCoord = a_texCoord;\
-	        }",
-	    INOUT: "\
-	        uniform float progress;\
-	        uniform float duration;\
-	        uniform float inTime;\
-	        uniform float outTime;\
-	        attribute vec2 a_position;\
-	        attribute vec2 a_texCoord;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        varying float v_duration;\
-	        varying float v_inTime;\
-	        varying float v_outTime;\
-	        void main() {\
-	            v_progress = progress;\
-	            v_duration = duration;\
-	            v_inTime = inTime;\
-	            v_outTime = outTime;\
-	            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
-	            v_texCoord = a_texCoord;\
-	        }",
-	    OFFSETSCALE: "\
-	        uniform float progress;\
-	        uniform float duration;\
-	        uniform float scaleX;\
-	        uniform float scaleY;\
-	        uniform float offsetX;\
-	        uniform float offsetY;\
-	        attribute vec2 a_position;\
-	        attribute vec2 a_texCoord;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        varying float v_duration;\
-	        void main() {\
-	            v_progress = progress;\
-	            v_duration = duration;\
-	            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
-	            v_texCoord = a_texCoord;\
-	        }"
+	    DEFAULT: "        uniform float progress;        uniform float duration;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALEINOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    INOUT: "        uniform float progress;        uniform float duration;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
+	    OFFSETSCALE: "        uniform float progress;        uniform float duration;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        void main() {            v_progress = progress;            v_duration = duration;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"
 	};
 
 	VideoCompositor.FragmentShaders = {
-	    DEFAULT: "\
-	            precision mediump float;\
-	            uniform sampler2D u_image;\
-	            varying vec2 v_texCoord;\
-	            varying float v_progress;\
-	            varying float v_duration;\
-	            void main(){\
-	                gl_FragColor = texture2D(u_image, v_texCoord);\
-	            }",
-	    MONOCHROME: "\
-	        precision mediump float;\
-	        uniform sampler2D u_image;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        void main(){\
-	            vec4 pixel = texture2D(u_image, v_texCoord);\
-	            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
-	            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);\
-	            gl_FragColor = pixel;\
-	        }",
-	    SEPIA: "\
-	        precision mediump float;\
-	        uniform sampler2D u_image;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        void main(){\
-	            vec4 pixel = texture2D(u_image, v_texCoord);\
-	            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
-	            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);\
-	            gl_FragColor = pixel;\
-	        }",
-	    BITCRUNCH: "\
-	        precision mediump float;\
-	        uniform sampler2D u_image;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        void main(){\
-	            vec4 pixel = texture2D(u_image, v_texCoord);\
-	            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
-	            pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
-	            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
-	        }",
-	    "FADEINOUT": "\
-	        precision mediump float;\
-	        uniform sampler2D u_image;\
-	        varying vec2 v_texCoord;\
-	        varying float v_progress;\
-	        varying float v_duration;\
-	        varying float v_inTime;\
-	        varying float v_outTime;\
-	        void main(){\
-	            float alpha = 1.0;\
-	            if (v_progress * v_duration < v_inTime){\
-	                alpha = (v_progress * v_duration)/(v_inTime+0.001);\
-	            }\
-	            if ((v_progress * v_duration) > (v_duration - v_outTime)){\
-	                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);\
-	            }\
-	            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
-	        }",
-	    "LUTSQAURE64X64": "\
-	            precision mediump float;\
-	            uniform sampler2D u_image;\
-	            uniform sampler2D lut;\
-	            varying vec2 v_texCoord;\
-	            varying float v_progress;\
-	            varying float v_duration;\
-	            void main(){\
-	                vec4 original_color = texture2D(u_image, v_texCoord);\
-	                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));\
-	                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);\
-	                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));\
-	                \
-	                float b = floor((original_color[2] * 63.0) + 0.5);\
-	                float b_x = mod(b, 8.0);\
-	                float b_y = floor((b / 8.0) + 0.5);\
-	                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);\
-	                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));\
-	                gl_FragColor = lut_color;\
-	            }"
+	    DEFAULT: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }",
+	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
+	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
+	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
+	    "FADEINOUT": "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }",
+	    "LUTSQAURE64X64": "            precision mediump float;            uniform sampler2D u_image;            uniform sampler2D lut;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            void main(){                vec4 original_color = texture2D(u_image, v_texCoord);                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                float b = floor((original_color[2] * 63.0) + 0.5);                float b_x = mod(b, 8.0);                float b_y = floor((b / 8.0) + 0.5);                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                gl_FragColor = lut_color;            }"
 	};
 
 	VideoCompositor.Effects = {
@@ -1113,50 +969,10 @@ module.exports =
 	    //Green screen color =  r = 62, g = 178, b = 31
 	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
 	    "GREENSCREENMAD": {
-	        "fragmentShader": "\
-	            precision mediump float;\
-	            uniform sampler2D u_image;\
-	            varying vec2 v_texCoord;\
-	            varying float v_progress;\
-	            void main(){\
-	                vec4 pixel = texture2D(u_image, v_texCoord);\
-	                float alpha = 1.0;\
-	                float r = pixel[0];\
-	                float g = pixel[1];\
-	                float b = pixel[2];\
-	                float y =  0.299*r + 0.587*g + 0.114*b;\
-	                float u = -0.147*r - 0.289*g + 0.436*b;\
-	                float v =  0.615*r - 0.515*g - 0.100*b;\
-	                ;\
-	                alpha = (v+u)*10.0 +2.0;\
-	                \
-	                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));\
-	                pixel = pixel/vec4(2.0,2.0,2.0,2.0);\
-	                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);\
-	                gl_FragColor = pixel;\
-	            }"
+	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                ;                alpha = (v+u)*10.0 +2.0;                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                pixel = pixel/vec4(2.0,2.0,2.0,2.0);                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                gl_FragColor = pixel;            }"
 	    },
 	    "GREENSCREEN": {
-	        "fragmentShader": "\
-	            precision mediump float;\
-	            uniform sampler2D u_image;\
-	            varying vec2 v_texCoord;\
-	            varying float v_progress;\
-	            void main(){\
-	                vec4 pixel = texture2D(u_image, v_texCoord);\
-	                float alpha = 1.0;\
-	                float r = pixel[0];\
-	                float g = pixel[1];\
-	                float b = pixel[2];\
-	                float y =  0.299*r + 0.587*g + 0.114*b;\
-	                float u = -0.147*r - 0.289*g + 0.436*b;\
-	                float v =  0.615*r - 0.515*g - 0.100*b;\
-	                if (y > 0.2 && y < 0.8){\
-	                    alpha = (v+u)*40.0 +2.0;\
-	                }\
-	                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
-	                gl_FragColor = pixel;\
-	            }"
+	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                if (y > 0.2 && y < 0.8){                    alpha = (v+u)*40.0 +2.0;                }                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                gl_FragColor = pixel;            }"
 	    },
 	    "FADEINOUT": {
 	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
@@ -1241,7 +1057,7 @@ module.exports =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
@@ -1257,8 +1073,6 @@ module.exports =
 	}
 
 	var VideoSource = (function (_MediaSource) {
-	    _inherits(VideoSource, _MediaSource);
-
 	    function VideoSource(properties, gl) {
 	        _classCallCheck(this, VideoSource);
 
@@ -1272,6 +1086,8 @@ module.exports =
 	            this._volume = properties.volume;
 	        }
 	    }
+
+	    _inherits(VideoSource, _MediaSource);
 
 	    _createClass(VideoSource, [{
 	        key: "play",
@@ -1336,14 +1152,14 @@ module.exports =
 	                return;
 	            }
 	            //otherwise begin the loading process for this mediaSource
-	            this.element = document.createElement('video');
+	            this.element = document.createElement("video");
 	            //construct a fragement URL to cut the required segment from the source video
 	            this.element.src = this.src;
 	            this.element.volume = this._volume;
 	            this.element.preload = "auto";
 	            this.element.load();
 	            var _this = this;
-	            this.element.addEventListener('loadeddata', function () {
+	            this.element.addEventListener("loadeddata", function () {
 	                _this.element.currentTime = _this.sourceStart;
 	                _this.seek(0);
 	                _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
@@ -1473,7 +1289,7 @@ module.exports =
 	    }, {
 	        key: 'pause',
 	        value: function pause() {
-	            console.debug("Pausing", this.id);
+	            console.debug('Pausing', this.id);
 	            this.playing = false;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].pause === 'function') this.mediaSourceListeners[i].pause(this);
@@ -1504,7 +1320,7 @@ module.exports =
 	    }, {
 	        key: 'load',
 	        value: function load() {
-	            console.debug("Loading", this.id);
+	            console.debug('Loading', this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].load === 'function') this.mediaSourceListeners[i].load(this);
 	            }
@@ -1516,7 +1332,7 @@ module.exports =
 	    }, {
 	        key: 'destroy',
 	        value: function destroy() {
-	            console.debug("Destroying", this.id);
+	            console.debug('Destroying', this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);
 	            }
@@ -1543,7 +1359,7 @@ module.exports =
 	                var key = renderParametersKeys[index];
 	                var parameterLoctation = this.gl.getUniformLocation(program, key);
 	                if (parameterLoctation !== -1) {
-	                    if (typeof renderParameters[key] === "number") {
+	                    if (typeof renderParameters[key] === 'number') {
 	                        this.gl.uniform1f(parameterLoctation, renderParameters[key]);
 	                    } else {
 	                        //Is a texture
@@ -1555,7 +1371,7 @@ module.exports =
 	            }
 
 	            this.gl.activeTexture(this.gl.TEXTURE0);
-	            var textureLocation = this.gl.getUniformLocation(program, "u_image");
+	            var textureLocation = this.gl.getUniformLocation(program, 'u_image');
 	            this.gl.uniform1i(textureLocation, 0);
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            if (overriddenElement !== undefined) {
@@ -1595,20 +1411,20 @@ module.exports =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
 	var ImageSource = (function (_MediaSource) {
-	    _inherits(ImageSource, _MediaSource);
-
 	    function ImageSource(properties, gl) {
 	        _classCallCheck(this, ImageSource);
 
 	        _get(Object.getPrototypeOf(ImageSource.prototype), "constructor", this).call(this, properties, gl);
 	    }
+
+	    _inherits(ImageSource, _MediaSource);
 
 	    _createClass(ImageSource, [{
 	        key: "play",
@@ -1680,15 +1496,13 @@ module.exports =
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
 	var CanvasSource = (function (_MediaSource) {
-	    _inherits(CanvasSource, _MediaSource);
-
 	    function CanvasSource(properties, gl) {
 	        _classCallCheck(this, CanvasSource);
 
@@ -1696,6 +1510,8 @@ module.exports =
 	        this.width = properties.width;
 	        this.height = properties.height;
 	    }
+
+	    _inherits(CanvasSource, _MediaSource);
 
 	    _createClass(CanvasSource, [{
 	        key: "play",
@@ -1927,32 +1743,11 @@ module.exports =
 	        this.gl = gl;
 	        this.vertexShaderSrc = playlistEffectObject.effect.vertexShader;
 	        if (this.vertexShaderSrc === undefined) {
-	            this.vertexShaderSrc = "\
-	                uniform float progress;\
-	                uniform float duration;\
-	                attribute vec2 a_position;\
-	                attribute vec2 a_texCoord;\
-	                varying vec2 v_texCoord;\
-	                varying float v_progress;\
-	                varying float v_duration;\
-	                void main() {\
-	                    v_progress = progress;\
-	                    v_duration = duration;\
-	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
-	                    v_texCoord = a_texCoord;\
-	                }";
+	            this.vertexShaderSrc = "                uniform float progress;                uniform float duration;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main() {                    v_progress = progress;                    v_duration = duration;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }";
 	        }
 	        this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;
 	        if (this.fragmentShaderSrc === undefined) {
-	            this.fragmentShaderSrc = "\
-	                precision mediump float;\
-	                uniform sampler2D u_image;\
-	                varying vec2 v_texCoord;\
-	                varying float v_progress;\
-	                varying float v_duration;\
-	                void main(){\
-	                    gl_FragColor = texture2D(u_image, v_texCoord);\
-	                }";
+	            this.fragmentShaderSrc = "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                void main(){                    gl_FragColor = texture2D(u_image, v_texCoord);                }";
 	        }
 
 	        this.parameters = playlistEffectObject.parameters;
