@@ -227,6 +227,8 @@ class VideoCompositor {
     */
     play(){
         this._playing = true;
+        this._ctx.clearColor(0.0, 0.0, 0.0, 1.0);
+        this._ctx.clear(this._ctx.COLOR_BUFFER_BIT | this._ctx.DEPTH_BUFFER_BIT);
         let playEvent = new CustomEvent('play', {detail:{data:this._currentTime, instance:this}});
         this._canvas.dispatchEvent(playEvent);
     }
