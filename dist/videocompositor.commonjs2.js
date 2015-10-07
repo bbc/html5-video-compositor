@@ -1757,7 +1757,9 @@ module.exports =
 	        }
 	        if (playlistEffectObject.effect.defaultParameters !== undefined) {
 	            for (var key in playlistEffectObject.effect.defaultParameters) {
-	                this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+	                if (this.parameters[key] === undefined) {
+	                    this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+	                }
 	            }
 	        }
 	        this.inputs = playlistEffectObject.inputs;

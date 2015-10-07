@@ -87,8 +87,16 @@
                 ],
                 "effects":{
                     "greenscreen-filter":{
-                        "inputs":["greenscreen video","greenscreen video1", "greenscreen video2", "greenscreen video3"],
+                        "inputs":["greenscreen video1", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
+                    },
+                    "fadein":{
+                        "inputs":["greenscreen video"],
+                        "effect":VideoCompositor.Effects.FADEINOUT,
+                        "parameters":{
+                            inTime:1.0,
+                            outTime:0.0
+                        }
                     },
                     "texuretest-1":{
                         "inputs":["earth"],
