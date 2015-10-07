@@ -28,7 +28,7 @@ class VideoSource extends MediaSource{
         let _this = this;
 
         let playVideo = function(){
-            if (_this.element.readyState > 0){
+            if (_this.element.readyState > 3){
                 _this.ready = true;
                 _this.element.play();
             } else {
@@ -45,7 +45,7 @@ class VideoSource extends MediaSource{
         let _this = this;
 
         let seekVideo = function(){
-            if (_this.element.readyState > 0){
+            if (_this.element.readyState > 3){
                 _this.ready = true;
                 if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){
                     _this.element.currentTime = _this.sourceStart;

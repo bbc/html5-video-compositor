@@ -554,7 +554,7 @@ class VideoCompositor {
 
         //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
         this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
-        
+        this._ctx.clear(this._ctx.COLOR_BUFFER_BIT | this._ctx.DEPTH_BUFFER_BIT);
 
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;

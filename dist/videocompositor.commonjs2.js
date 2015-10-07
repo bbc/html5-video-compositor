@@ -493,6 +493,7 @@ module.exports =
 
 	            //let activeTransitions = this._calculateActiveTransitions(currentlyPlaying, this._currentTime);
 	            this._ctx.viewport(0, 0, this._ctx.canvas.width, this._ctx.canvas.height);
+	            this._ctx.clear(this._ctx.COLOR_BUFFER_BIT | this._ctx.DEPTH_BUFFER_BIT);
 
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;
@@ -1096,7 +1097,7 @@ module.exports =
 	            var _this = this;
 
 	            var playVideo = function playVideo() {
-	                if (_this.element.readyState > 0) {
+	                if (_this.element.readyState > 3) {
 	                    _this.ready = true;
 	                    _this.element.play();
 	                } else {
@@ -1115,7 +1116,7 @@ module.exports =
 	            var _this = this;
 
 	            var seekVideo = function seekVideo() {
-	                if (_this.element.readyState > 0) {
+	                if (_this.element.readyState > 3) {
 	                    _this.ready = true;
 	                    if (time - _this.start < 0 || time > _this.start + _this.duration) {
 	                        _this.element.currentTime = _this.sourceStart;
