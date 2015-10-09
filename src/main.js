@@ -67,6 +67,10 @@ class VideoCompositor {
     * videoCompositor.play();
     */
     set currentTime(currentTime){
+        if (typeof currentTime === 'string' || currentTime instanceof String){
+            currentTime = parseFloat(currentTime);
+        }
+
         console.debug("Seeking to", currentTime);
         if (this._playlist === undefined){
             return;

@@ -537,6 +537,10 @@ module.exports =
 	        * videoCompositor.play();
 	        */
 	        set: function set(currentTime) {
+	            if (typeof currentTime === "string" || currentTime instanceof String) {
+	                currentTime = parseFloat(currentTime);
+	            }
+
 	            console.debug("Seeking to", currentTime);
 	            if (this._playlist === undefined) {
 	                return;
