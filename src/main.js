@@ -28,6 +28,20 @@ update();
 
 
 class VideoCompositor {
+    /**
+    * Instantiate the VideoCompositor using the passed canvas to render too.
+    *
+    * You can also pass an AudioContext for use when calling getAudioNodeForTrack. If one is not provided a context will be created internally and be accessible via the getAudioContext function.
+    *
+    * @param {Canvas} canvas - The canvas element to render too.
+    * @param {AudioContext} audioCtx - The AudioContext to create AudioNode's with.
+    * 
+    * @example
+    * 
+    * var canvas = document.getElementById('canvas');
+    * var audioCtx = new AudioContext();
+    * var videoCompositor = new VideoCompositor(canvas, audioCtx);
+    */
     constructor(canvas, audioCtx){
         this._canvas = canvas;
         this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
@@ -263,6 +277,32 @@ class VideoCompositor {
         this._canvas.dispatchEvent(pauseEvent);
     }
 
+    /**
+    * This adds event listeners to the video compositor. Events directed at the underlying canvas are transparently 
+    * passed through, While events that target a video like element are handled within the VideoCompositor. Currently 
+    * the VideoCompositor only handles a limited number of video like events ("play", "pause", "ended").
+    * 
+    * @param {String} type - The type of event to listen to.
+    * @param {Function} func - The Function to be called for the given event.
+    * @example
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+    *   ]
+    * }
+    * var canvas = document.getElementById('canvas');
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = playlist;
+    * 
+    * videoCompositor.addEventListener("play", function(){console.log("Started playing")});
+    * videoCompositor.addEventListener("pause", function(){console.log("Paused")});
+    * videoCompositor.addEventListener("ended", function(){console.log("Finished playing")});
+    * 
+    * videoCompositor.play();
+    * 
+    *
+    */
     addEventListener(type, func){
         //Pass through any event listeners through to the underlying canvas rendering element
         //Catch any events and handle with a custom events dispatcher so things 
@@ -274,6 +314,31 @@ class VideoCompositor {
         this._canvas.addEventListener(type, this._dispatchEvents, false);
     }
 
+
+    /**
+    * This removes event listeners from the video compositor that were added using addEventListener. 
+    * 
+    * @param {String} type - The type of event to remove.
+    * @param {Function} func - The Function to be removed for the given event.
+    * @example
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}]
+    *   ]
+    * }
+    * var canvas = document.getElementById('canvas');
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = playlist;
+    * 
+    * var playingCallback = function(){console.log("playing");};
+    * videoCompositor.addEventListener("play", playingCallback);
+    * 
+    * videoCompositor.play();
+    * 
+    * videoCompositor.removeEventListener("play", playingCallback);
+    *
+    */
     removeEventListener(type, func){
         if (this._eventMappings.has(type)){
             let listenerArray = this._eventMappings.get(type);
@@ -286,6 +351,56 @@ class VideoCompositor {
         return false;
     }
 
+
+    /**
+    * This method allows you to create a listeners for events on a specific MediaSource.
+    *
+    * To use this you must pass an object which has one or more the following function properties: play, pause, seek, 
+    * isReady, load, destroy, render.
+    *
+    * These functions get called when the correspoinding action on the MediaSource happen. In the case of the render 
+    * listener it will be called every time a frame is drawn so the function should aim to return as quickly as possible 
+    * to avoid hanging the render loop.
+    * 
+    * The use-case for this is synchronising external actions to a specfic media source, such as subtitle rendering or 
+    * animations on a canvasMediaSource.
+    * 
+    * The listeners get passed a reference to the internal MediaSource object and somtimes extra data relevant to that 
+    * sepcific actions function ("seek" gets the time seeking too, "render" gets the shaders rendering parameters).
+    *
+    * @param {String} mediaSourceID - The id of the MediaSource to listen to.
+    * @param {Object} mediaSourceListener - An Object implementing listener functions.
+    * @example
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"}]
+    *   ]
+    * }
+    * var canvas = document.getElementById('canvas');
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = playlist;
+    * 
+    * var videoListener = {
+    *     render: function(mediaSource, renderParameters){
+    *         //This will get called every frame.
+    *         var time = renderParameters.progress * mediaSource.duration;
+    *         console.log('Progress through ID', mediaSource.id, ':', time);
+    *     },
+    *     seek:function(mediaSource, seekTime){
+    *         //This function will get called on seek
+    *         console.log("Seeking ID", mediaSource.id, "to :", seekTime);
+    *     },
+    *     play:function(mediaSource){
+    *         //This function will get called on play
+    *         console.log("Plating ID", mediaSource.id);
+    *     },
+    * }
+    *
+    * videoCompositor.registerMediaSourceListener("video1", videoListener);
+    * videoCompositor.play();
+    *
+    */
     registerMediaSourceListener(mediaSourceID, mediaSourceListener){
         if (this._mediaSourceListeners.has(mediaSourceID)){
             this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);

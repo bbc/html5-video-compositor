@@ -109,13 +109,14 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(properties: <span>*</span>, gl: <span>*</span>)</span>
+           <span data-ice="name"><span><a href="class/src/sources/mediasource.js~MediaSource.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(properties: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>, gl: <span>WebGLContext</span>)</span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">Parent class of all MediaSources 
+</div>
       </div>
     </td>
     <td>
@@ -629,18 +630,24 @@
     
     
     
-    <span data-ice="name">constructor</span><span data-ice="signature">(properties: <span>*</span>, gl: <span>*</span>)</span>
+    <span data-ice="name">constructor</span><span data-ice="signature">(properties: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>, gl: <span>WebGLContext</span>)</span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber4">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber20">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>Parent class of all MediaSources </p>
+<p>A MediaSource is the manifestation of a mediaSourceReference from a playlist object. It typically contains the 
+original DOM element to be composited along with a number of functions to load, play, pause, seek and render that 
+element to the webgl context.</p>
+<p>A MediaSource exists for a period slightly before a MediaSource is to play in order to give it time to preload and
+is destroyed as soon as the MediaSource has finished playing.</p>
+</div>
 
   
 
@@ -654,15 +661,19 @@
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">properties</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>An object with the following attributes: id, duration, start, and src or element. 
+Where src is the URL of something that can be used to create a DOM element that can be rendered to canvas, or 
+element is a DOM element that can be rendered to a canvas.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">gl</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span>WebGLContext</span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>a webGl context to render too.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -698,7 +709,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber16">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber32">source</a></span></span>
     </span>
   </h3>
 
@@ -738,7 +749,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber7">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber23">source</a></span></span>
     </span>
   </h3>
 
@@ -778,7 +789,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber11">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber27">source</a></span></span>
     </span>
   </h3>
 
@@ -818,7 +829,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber5">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber21">source</a></span></span>
     </span>
   </h3>
 
@@ -858,7 +869,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber6">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber22">source</a></span></span>
     </span>
   </h3>
 
@@ -898,7 +909,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber14">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber30">source</a></span></span>
     </span>
   </h3>
 
@@ -938,7 +949,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber9">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber25">source</a></span></span>
     </span>
   </h3>
 
@@ -978,7 +989,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber10">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber26">source</a></span></span>
     </span>
   </h3>
 
@@ -1018,7 +1029,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber12">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber28">source</a></span></span>
     </span>
   </h3>
 
@@ -1058,7 +1069,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber8">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber24">source</a></span></span>
     </span>
   </h3>
 
@@ -1098,7 +1109,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber13">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber29">source</a></span></span>
     </span>
   </h3>
 
@@ -1141,7 +1152,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber119">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber135">source</a></span></span>
     </span>
   </h3>
 
@@ -1181,7 +1192,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber97">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber113">source</a></span></span>
     </span>
   </h3>
 
@@ -1231,7 +1242,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber109">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber125">source</a></span></span>
     </span>
   </h3>
 
@@ -1281,7 +1292,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber168">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber184">source</a></span></span>
     </span>
   </h3>
 
@@ -1337,7 +1348,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber84">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber100">source</a></span></span>
     </span>
   </h3>
 
@@ -1377,7 +1388,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber75">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber91">source</a></span></span>
     </span>
   </h3>
 
@@ -1417,7 +1428,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber128">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber144">source</a></span></span>
     </span>
   </h3>
 
@@ -1485,7 +1496,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber91">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/mediasource.js.html#lineNumber107">source</a></span></span>
     </span>
   </h3>
 

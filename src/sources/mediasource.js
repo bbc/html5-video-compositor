@@ -1,6 +1,22 @@
 //Matthew Shotton, R&D User Experince,© BBC 2015
 
 class MediaSource {
+    /**
+    * Parent class of all MediaSources 
+    *
+    * A MediaSource is the manifestation of a mediaSourceReference from a playlist object. It typically contains the 
+    * original DOM element to be composited along with a number of functions to load, play, pause, seek and render that 
+    * element to the webgl context.
+    * 
+    * A MediaSource exists for a period slightly before a MediaSource is to play in order to give it time to preload and
+    * is destroyed as soon as the MediaSource has finished playing.
+    *
+    * @param {Object} properties - An object with the following attributes: id, duration, start, and src or element. 
+    * Where src is the URL of something that can be used to create a DOM element that can be rendered to canvas, or 
+    * element is a DOM element that can be rendered to a canvas.
+    * 
+    * @param {WebGLContext} gl - a webGl context to render too.
+    */
     constructor(properties, gl){
         this.gl = gl;
         this.id = properties.id;

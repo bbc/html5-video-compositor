@@ -2046,8 +2046,8 @@
                                   },
                                   "right": {
                                     "type": "Literal",
-                                    "value": 0,
-                                    "raw": "0",
+                                    "value": 3,
+                                    "raw": "3",
                                     "range": [
                                       863,
                                       864
@@ -3228,8 +3228,8 @@
                                   },
                                   "right": {
                                     "type": "Literal",
-                                    "value": 0,
-                                    "raw": "0",
+                                    "value": 3,
+                                    "raw": "3",
                                     "range": [
                                       1332,
                                       1333
@@ -10795,8 +10795,8 @@
                                     },
                                     "right": {
                                       "type": "Literal",
-                                      "value": 0,
-                                      "raw": "0",
+                                      "value": 3,
+                                      "raw": "3",
                                       "range": [
                                         863,
                                         864
@@ -11977,8 +11977,8 @@
                                     },
                                     "right": {
                                       "type": "Literal",
-                                      "value": 0,
-                                      "raw": "0",
+                                      "value": 3,
+                                      "raw": "3",
                                       "range": [
                                         1332,
                                         1333

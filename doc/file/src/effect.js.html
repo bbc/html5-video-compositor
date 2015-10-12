@@ -158,7 +158,9 @@ class Effect {
         }
         if (playlistEffectObject.effect.defaultParameters !== undefined){
             for (let key in playlistEffectObject.effect.defaultParameters) {
-                this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+                if (this.parameters[key]===undefined){
+                    this.parameters[key] = playlistEffectObject.effect.defaultParameters[key];
+                }
             }
         }
         this.inputs = playlistEffectObject.inputs;

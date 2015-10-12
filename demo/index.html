@@ -6,32 +6,32 @@
 <body>
     <script type="text/javascript" src="../dist/videocompositor.js"></script>
     <script type="text/javascript" src="./lib/three.min.js"></script>
-    <script src="http://www.webglearth.com/v2/api.js"></script>
+    <!--<script src="http://www.webglearth.com/v2/api.js"></script>-->
     <script type="text/javascript">
         var earth = undefined;
         window.onload = function () {
 
 
-            var options = {atmosphere: true, center: [0, 0], zoom: 0};
-            var earthDiv = document.getElementById("earth_div");
-            earth = new WE.map('earth_div', options);
-            earth.setZoom(5.4);
-            WE.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
-                subdomains: '1234',
-                attribution: 'Tiles Courtesy of MapQuest'
-            }).addTo(earth);
-            earth.canvas.width = 1280;
-            earth.canvas.height = 720;
-            earthDiv.removeChild(earth.canvas);
-            var prevEarthTime = null;
-            requestAnimationFrame(function spinEarth(earthTime){
-                var pos = earth.getPosition();
-                var elapsed =0.001;
-                if (prevEarthTime) elapsed =  earthTime - prevEarthTime;
-                prevEarthTime = earthTime;
-                earth.setCenter([pos[0],pos[1]+0.1*(elapsed/30)]);
-                requestAnimationFrame(spinEarth);
-            });
+            // var options = {atmosphere: true, center: [0, 0], zoom: 0};
+            // var earthDiv = document.getElementById("earth_div");
+            // earth = new WE.map('earth_div', options);
+            // earth.setZoom(5.4);
+            // WE.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
+            //     subdomains: '1234',
+            //     attribution: 'Tiles Courtesy of MapQuest'
+            // }).addTo(earth);
+            // earth.canvas.width = 1280;
+            // earth.canvas.height = 720;
+            // earthDiv.removeChild(earth.canvas);
+            // var prevEarthTime = null;
+            // requestAnimationFrame(function spinEarth(earthTime){
+            //     var pos = earth.getPosition();
+            //     var elapsed =0.001;
+            //     if (prevEarthTime) elapsed =  earthTime - prevEarthTime;
+            //     prevEarthTime = earthTime;
+            //     earth.setCenter([pos[0],pos[1]+0.1*(elapsed/30)]);
+            //     requestAnimationFrame(spinEarth);
+            // });
 
 
             /*function MediaSourceListener(){
@@ -75,14 +75,14 @@
             var playlist = {
                 "tracks":[
                     [
-                        {type:"video", start:0, sourceStart:45, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video", "volume":1.0}, 
-                        {type:"video", sourceStart:4, start:4, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
-                        {type:"video", start:10, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
-                        {type:"video", start:18, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
+                        {type:"video", start:0, sourceStart:45, duration:4, src:"assets/transition.mp4", id:"greenscreen video", "volume":1.0}, 
+                        //{type:"video", sourceStart:4, start:4, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
+                        //{type:"video", start:10, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
+                        //{type:"video", start:18, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
                         ],
-                    [{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
-                    [{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
-                    [{type:"image", start:0, duration:15, src:"assets/background.png", id:"bg"}]
+                    //[{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
+                    //[{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
+                    [{type:"image", start:0, duration:15, src:"assets/image.jpg", id:"bg"}]
 
                 ],
                 "effects":{
@@ -90,33 +90,24 @@
                         "inputs":["greenscreen video1", "greenscreen video2", "greenscreen video3"],
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     },
-                    "fadein":{
-                        "inputs":["greenscreen video"],
-                        "effect":VideoCompositor.Effects.FADEINOUT,
-                        "parameters":{
-                            inTime:1.0,
-                            outTime:0.0
-                        }
-                    },
                     "texuretest-1":{
-                        "inputs":["earth"],
+                        "inputs":["greenscreen video"],
                         "effect":{
                             fragmentShader:"\
                                 precision mediump float;\
                                 uniform sampler2D u_image;\
-                                uniform sampler2D image;\
                                 varying vec2 v_texCoord;\
                                 varying float v_progress;\
                                 varying float v_duration;\
                                 void main(){\
-                                    vec4 color0 = texture2D(u_image, v_texCoord);\
-                                    vec4 color1 = texture2D(image, v_texCoord);\
-                                    gl_FragColor = color1 + color0;\
+                                    vec4 color = texture2D(u_image, v_texCoord);\
+                                    vec4 new_color = color;\
+                                    if (color[0] > 0.991 && color[1] > 0.991 && color[2] > 0.991){\
+                                        new_color = vec4(0.0,0.0,0.0,0.0);\
+                                    }\
+                                    gl_FragColor = new_color;\
                                 }"
                         },
-                        "parameters":{
-                            "image": testImage
-                        }
                     }
                 }
             };

@@ -1,7 +1,7 @@
 {
-  "coverage": "10.67%",
+  "coverage": "15.53%",
   "expectCount": 103,
-  "actualCount": 11,
+  "actualCount": 16,
   "files": {
     "src/audiomanager.js": {
       "expectCount": 10,
@@ -43,14 +43,14 @@
       "undocumentLines": [
         69,
         70,
-        131,
+        133,
         89,
         71,
-        111,
+        113,
         102,
-        117,
-        116,
-        121,
+        119,
+        118,
+        123,
         72
       ]
     },
@@ -86,43 +86,38 @@
     },
     "src/sources/mediasource.js": {
       "expectCount": 22,
-      "actualCount": 0,
+      "actualCount": 1,
       "undocumentLines": [
         3,
-        4,
-        119,
-        16,
-        7,
-        11,
-        5,
-        6,
-        97,
-        109,
-        172,
-        14,
-        168,
-        84,
-        75,
-        9,
-        10,
-        128,
+        135,
+        32,
+        23,
+        27,
+        21,
+        22,
+        113,
+        125,
+        188,
+        30,
+        184,
+        100,
         91,
-        12,
-        8,
-        13
+        25,
+        26,
+        144,
+        107,
+        28,
+        24,
+        29
       ]
     },
     "src/main.js": {
       "expectCount": 18,
-      "actualCount": 11,
+      "actualCount": 15,
       "undocumentLines": [
         30,
-        260,
-        31,
-        46,
-        283,
-        271,
-        1095
+        60,
+        1216
       ]
     },
     "src/sources/videosource.js": {

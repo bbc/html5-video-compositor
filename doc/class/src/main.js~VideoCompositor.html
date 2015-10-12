@@ -215,13 +215,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(canvas: <span>*</span>, audioCtx: <span>*</span>)</span>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(canvas: <span>Canvas</span>, audioCtx: <span>AudioContext</span>)</span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">Instantiate the VideoCompositor using the passed canvas to render too.</div>
       </div>
     </td>
     <td>
@@ -354,13 +354,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-addEventListener">addEventListener</a></span></span><span data-ice="signature">(type: <span>*</span>, func: <span>*</span>)</span>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-addEventListener">addEventListener</a></span></span><span data-ice="signature">(type: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, func: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span>)</span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">This adds event listeners to the video compositor.</div>
       </div>
     </td>
     <td>
@@ -479,13 +479,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-registerMediaSourceListener">registerMediaSourceListener</a></span></span><span data-ice="signature">(mediaSourceID: <span>*</span>, mediaSourceListener: <span>*</span>)</span>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-registerMediaSourceListener">registerMediaSourceListener</a></span></span><span data-ice="signature">(mediaSourceID: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, mediaSourceListener: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>)</span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">This method allows you to create a listeners for events on a specific MediaSource.</div>
       </div>
     </td>
     <td>
@@ -504,13 +504,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-removeEventListener">removeEventListener</a></span></span><span data-ice="signature">(type: <span>*</span>, func: <span>*</span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-removeEventListener">removeEventListener</a></span></span><span data-ice="signature">(type: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, func: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">This removes event listeners from the video compositor that were added using addEventListener.</div>
       </div>
     </td>
     <td>
@@ -538,7 +538,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber626">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber747">source</a></span></span>
     </span>
   </h3>
 
@@ -622,7 +622,7 @@ var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber598">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber719">source</a></span></span>
     </span>
   </h3>
 
@@ -708,7 +708,7 @@ var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber762">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber883">source</a></span></span>
     </span>
   </h3>
 
@@ -794,7 +794,7 @@ VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber667">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber788">source</a></span></span>
     </span>
   </h3>
 
@@ -869,18 +869,20 @@ var playilstDuration = VideoCompositor.validatePlaylist(playlist);
     
     
     
-    <span data-ice="name">constructor</span><span data-ice="signature">(canvas: <span>*</span>, audioCtx: <span>*</span>)</span>
+    <span data-ice="name">constructor</span><span data-ice="signature">(canvas: <span>Canvas</span>, audioCtx: <span>AudioContext</span>)</span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber31">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber45">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>Instantiate the VideoCompositor using the passed canvas to render too.</p>
+<p>You can also pass an AudioContext for use when calling getAudioNodeForTrack. If one is not provided a context will be created internally and be accessible via the getAudioContext function.</p>
+</div>
 
   
 
@@ -894,15 +896,17 @@ var playilstDuration = VideoCompositor.validatePlaylist(playlist);
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">canvas</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span>Canvas</span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The canvas element to render too.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">audioCtx</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span>AudioContext</span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The AudioContext to create AudioNode&apos;s with.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -917,7 +921,17 @@ var playilstDuration = VideoCompositor.validatePlaylist(playlist);
 
   
 
-  
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var canvas = document.getElementById(&apos;canvas&apos;);
+var audioCtx = new AudioContext();
+var videoCompositor = new VideoCompositor(canvas, audioCtx);</code></pre>
+    </div>
+</div>
 
   
 
@@ -938,7 +952,7 @@ var playilstDuration = VideoCompositor.validatePlaylist(playlist);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber69">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber83">source</a></span></span>
     </span>
   </h3>
 
@@ -997,7 +1011,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber123">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber141">source</a></span></span>
     </span>
   </h3>
 
@@ -1067,7 +1081,7 @@ var time = videoCompositor.currentTime;
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber46">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber60">source</a></span></span>
     </span>
   </h3>
 
@@ -1107,7 +1121,7 @@ var time = videoCompositor.currentTime;
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber203">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber221">source</a></span></span>
     </span>
   </h3>
 
@@ -1222,18 +1236,21 @@ var playlist = {
     
     
     
-    <span data-ice="name">addEventListener</span><span data-ice="signature">(type: <span>*</span>, func: <span>*</span>)</span>
+    <span data-ice="name">addEventListener</span><span data-ice="signature">(type: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, func: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span>)</span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber260">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber306">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>This adds event listeners to the video compositor. Events directed at the underlying canvas are transparently 
+passed through, While events that target a video like element are handled within the VideoCompositor. Currently 
+the VideoCompositor only handles a limited number of video like events (&quot;play&quot;, &quot;pause&quot;, &quot;ended&quot;).</p>
+</div>
 
   
 
@@ -1247,15 +1264,17 @@ var playlist = {
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">type</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The type of event to listen to.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">func</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The Function to be called for the given event.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -1270,7 +1289,28 @@ var playlist = {
 
   
 
-  
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;},{type:&quot;video&quot;, start:4, duration:4, src:&quot;video2.mp4&quot;, id:&quot;video2&quot;}]
+  ]
+}
+var canvas = document.getElementById(&apos;canvas&apos;);
+var videoCompositor = new VideoCompositor(canvas);
+videoCompositor.playlist = playlist;
+
+videoCompositor.addEventListener(&quot;play&quot;, function(){console.log(&quot;Started playing&quot;)});
+videoCompositor.addEventListener(&quot;pause&quot;, function(){console.log(&quot;Paused&quot;)});
+videoCompositor.addEventListener(&quot;ended&quot;, function(){console.log(&quot;Finished playing&quot;)});
+
+videoCompositor.play();</code></pre>
+    </div>
+</div>
 
   
 
@@ -1288,7 +1328,7 @@ var playlist = {
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber309">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber430">source</a></span></span>
     </span>
   </h3>
 
@@ -1359,7 +1399,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber337">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber458">source</a></span></span>
     </span>
   </h3>
 
@@ -1449,7 +1489,7 @@ trackGainNode.gain.value = 0.0; // Mute the track</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber251">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber271">source</a></span></span>
     </span>
   </h3>
 
@@ -1508,7 +1548,7 @@ setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber228">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber246">source</a></span></span>
     </span>
   </h3>
 
@@ -1561,18 +1601,28 @@ videoCompositor.play();</code></pre>
     
     
     
-    <span data-ice="name">registerMediaSourceListener</span><span data-ice="signature">(mediaSourceID: <span>*</span>, mediaSourceListener: <span>*</span>)</span>
+    <span data-ice="name">registerMediaSourceListener</span><span data-ice="signature">(mediaSourceID: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, mediaSourceListener: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>)</span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber283">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber404">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>This method allows you to create a listeners for events on a specific MediaSource.</p>
+<p>To use this you must pass an object which has one or more the following function properties: play, pause, seek, 
+isReady, load, destroy, render.</p>
+<p>These functions get called when the correspoinding action on the MediaSource happen. In the case of the render 
+listener it will be called every time a frame is drawn so the function should aim to return as quickly as possible 
+to avoid hanging the render loop.</p>
+<p>The use-case for this is synchronising external actions to a specfic media source, such as subtitle rendering or 
+animations on a canvasMediaSource.</p>
+<p>The listeners get passed a reference to the internal MediaSource object and somtimes extra data relevant to that 
+sepcific actions function (&quot;seek&quot; gets the time seeking too, &quot;render&quot; gets the shaders rendering parameters).</p>
+</div>
 
   
 
@@ -1586,15 +1636,17 @@ videoCompositor.play();</code></pre>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">mediaSourceID</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The id of the MediaSource to listen to.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">mediaSourceListener</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>An Object implementing listener functions.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -1609,7 +1661,41 @@ videoCompositor.play();</code></pre>
 
   
 
-  
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;}]
+  ]
+}
+var canvas = document.getElementById(&apos;canvas&apos;);
+var videoCompositor = new VideoCompositor(canvas);
+videoCompositor.playlist = playlist;
+
+var videoListener = {
+    render: function(mediaSource, renderParameters){
+        //This will get called every frame.
+        var time = renderParameters.progress * mediaSource.duration;
+        console.log(&apos;Progress through ID&apos;, mediaSource.id, &apos;:&apos;, time);
+    },
+    seek:function(mediaSource, seekTime){
+        //This function will get called on seek
+        console.log(&quot;Seeking ID&quot;, mediaSource.id, &quot;to :&quot;, seekTime);
+    },
+    play:function(mediaSource){
+        //This function will get called on play
+        console.log(&quot;Plating ID&quot;, mediaSource.id);
+    },
+}
+
+videoCompositor.registerMediaSourceListener(&quot;video1&quot;, videoListener);
+videoCompositor.play();</code></pre>
+    </div>
+</div>
 
   
 
@@ -1623,18 +1709,19 @@ videoCompositor.play();</code></pre>
     
     
     
-    <span data-ice="name">removeEventListener</span><span data-ice="signature">(type: <span>*</span>, func: <span>*</span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
+    <span data-ice="name">removeEventListener</span><span data-ice="signature">(type: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, func: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber271">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber342">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>This removes event listeners from the video compositor that were added using addEventListener. </p>
+</div>
 
   
 
@@ -1648,15 +1735,17 @@ videoCompositor.play();</code></pre>
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">type</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The type of event to remove.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">func</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function">Function</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>The Function to be removed for the given event.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -1681,7 +1770,29 @@ videoCompositor.play();</code></pre>
 
   
 
-  
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">
+var playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;},{type:&quot;video&quot;, start:4, duration:4, src:&quot;video2.mp4&quot;, id:&quot;video2&quot;}]
+  ]
+}
+var canvas = document.getElementById(&apos;canvas&apos;);
+var videoCompositor = new VideoCompositor(canvas);
+videoCompositor.playlist = playlist;
+
+var playingCallback = function(){console.log(&quot;playing&quot;);};
+videoCompositor.addEventListener(&quot;play&quot;, playingCallback);
+
+videoCompositor.play();
+
+videoCompositor.removeEventListener(&quot;play&quot;, playingCallback);</code></pre>
+    </div>
+</div>
 
   
 
