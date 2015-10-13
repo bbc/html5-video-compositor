@@ -74,15 +74,15 @@
 
             var playlist = {
                 "tracks":[
-                    [
-                        {type:"video", start:0, sourceStart:45, duration:4, src:"assets/transition.mp4", id:"greenscreen video", "volume":1.0}, 
+                    //[
+                        //{type:"video", start:0, sourceStart:45, duration:4, src:"assets/transition.mp4", id:"greenscreen video", "volume":1.0}, 
                         //{type:"video", sourceStart:4, start:4, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
                         //{type:"video", start:10, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
                         //{type:"video", start:18, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
-                        ],
+                        //],
                     //[{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
                     //[{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
-                    [{type:"image", start:0, duration:15, src:"assets/image.jpg", id:"bg"}]
+                    [{type:"image", start:0, duration:15, src:"assets/image3.jpg", id:"bg"}]
 
                 ],
                 "effects":{
@@ -91,26 +91,16 @@
                         "effect":VideoCompositor.Effects.GREENSCREEN
                     },
                     "texuretest-1":{
-                        "inputs":["greenscreen video"],
+                        //"inputs":["greenscreen video"],
+                        "inputs":["bg"],
                         "effect":{
-                            fragmentShader:"\
-                                precision mediump float;\
-                                uniform sampler2D u_image;\
-                                varying vec2 v_texCoord;\
-                                varying float v_progress;\
-                                varying float v_duration;\
-                                void main(){\
-                                    vec4 color = texture2D(u_image, v_texCoord);\
-                                    vec4 new_color = color;\
-                                    if (color[0] > 0.991 && color[1] > 0.991 && color[2] > 0.991){\
-                                        new_color = vec4(0.0,0.0,0.0,0.0);\
-                                    }\
-                                    gl_FragColor = new_color;\
-                                }"
+                            fragmentShader:VideoCompositor.FragmentShaders.PRESERVEASPECTRATIO,
                         },
                     }
                 }
             };
+
+
 
             //videoCompositor.registerMediaSourceListener("earth", testListener);
 

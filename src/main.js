@@ -679,10 +679,9 @@ class VideoCompositor {
             let mediaSourceID = currentlyPlaying[i].id;
             let mediaSource = this._mediaSources.get(mediaSourceID);
             mediaSource.play();
-
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
             //get the base render parameters
-            let renderParameters = {"progress":progress, "duration":mediaSource.duration};
+            let renderParameters = {"progress":progress, "duration":mediaSource.duration, "source_resolution":[mediaSource.width,mediaSource.height], "output_resolution":[this._canvas.width, this._canvas.height]};
             //find the effect associated with the current mediasource
             let effect = this._effectManager.getEffectForInputId(mediaSourceID);
             //merge the base parameters with any custom ones
@@ -923,20 +922,28 @@ VideoCompositor.VertexShaders = {
     DEFAULT: "\
         uniform float progress;\
         uniform float duration;\
+        uniform vec2 source_resolution;\
+        uniform vec2 output_resolution;\
         attribute vec2 a_position;\
         attribute vec2 a_texCoord;\
         varying vec2 v_texCoord;\
         varying float v_progress;\
         varying float v_duration;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main() {\
             v_progress = progress;\
             v_duration = duration;\
+            v_source_resolution = source_resolution;\
+            v_output_resolution = output_resolution;\
             gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
             v_texCoord = a_texCoord;\
         }",
     OFFSETSCALEINOUT: "\
         uniform float progress;\
         uniform float duration;\
+        uniform vec2 source_resolution;\
+        uniform vec2 output_resolution;\
         uniform float inTime;\
         uniform float outTime;\
         uniform float scaleX;\
@@ -950,17 +957,23 @@ VideoCompositor.VertexShaders = {
         varying float v_duration;\
         varying float v_inTime;\
         varying float v_outTime;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main() {\
             v_progress = progress;\
             v_duration = duration;\
             v_inTime = inTime;\
             v_outTime = outTime;\
+            v_source_resolution = source_resolution;\
+            v_output_resolution = output_resolution;\
             gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
             v_texCoord = a_texCoord;\
         }",
     INOUT: "\
         uniform float progress;\
         uniform float duration;\
+        uniform vec2 source_resolution;\
+        uniform vec2 output_resolution;\
         uniform float inTime;\
         uniform float outTime;\
         attribute vec2 a_position;\
@@ -970,17 +983,23 @@ VideoCompositor.VertexShaders = {
         varying float v_duration;\
         varying float v_inTime;\
         varying float v_outTime;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main() {\
             v_progress = progress;\
             v_duration = duration;\
             v_inTime = inTime;\
             v_outTime = outTime;\
+            v_source_resolution = source_resolution;\
+            v_output_resolution = output_resolution;\
             gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
             v_texCoord = a_texCoord;\
         }",
     OFFSETSCALE:"\
         uniform float progress;\
         uniform float duration;\
+        uniform vec2 source_resolution;\
+        uniform vec2 output_resolution;\
         uniform float scaleX;\
         uniform float scaleY;\
         uniform float offsetX;\
@@ -990,9 +1009,13 @@ VideoCompositor.VertexShaders = {
         varying vec2 v_texCoord;\
         varying float v_progress;\
         varying float v_duration;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main() {\
             v_progress = progress;\
             v_duration = duration;\
+            v_source_resolution = source_resolution;\
+            v_output_resolution = output_resolution;\
             gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
             v_texCoord = a_texCoord;\
         }"
@@ -1006,14 +1029,66 @@ VideoCompositor.FragmentShaders = {
             varying vec2 v_texCoord;\
             varying float v_progress;\
             varying float v_duration;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
             void main(){\
                 gl_FragColor = texture2D(u_image, v_texCoord);\
+            }",
+    PRESERVEASPECTRATIO:"\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
+            void main(){\
+                float scale = 1.0;\
+                float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];\
+                float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];\
+                if(output_aspect_ratio > source_aspect_ratio){\
+                    scale = v_output_resolution[1]/v_source_resolution[1];\
+                } else {\
+                    scale = v_output_resolution[0]/v_source_resolution[0];\
+                };\
+                vec2 source_resolution = v_source_resolution * scale;\
+                vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);\
+                vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));\
+                if (sCord[0] < 0.0 || sCord[0] > source_resolution[0]||sCord[1] < 0.0 || sCord[1] > source_resolution[1]){\
+                    gl_FragColor = vec4(0.0,0.0,0.0,0.0);\
+                }else{\
+                    gl_FragColor = texture2D(u_image, (sCord/source_resolution));\
+                }\
+            }",
+    PRESERVEASPECTRATIOFILL:"\
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
+            void main(){\
+                float scale = 1.0;\
+                float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];\
+                float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];\
+                if(output_aspect_ratio > source_aspect_ratio){\
+                    scale = v_output_resolution[1]/v_source_resolution[1];\
+                } else {\
+                    scale = v_output_resolution[0]/v_source_resolution[0];\
+                };\
+                vec2 source_resolution = v_source_resolution * scale;\
+                vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);\
+                vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));\
+                gl_FragColor = texture2D(u_image, (sCord/source_resolution));\
             }",
     MONOCHROME: "\
         precision mediump float;\
         uniform sampler2D u_image;\
         varying vec2 v_texCoord;\
         varying float v_progress;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main(){\
             vec4 pixel = texture2D(u_image, v_texCoord);\
             float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
@@ -1025,6 +1100,8 @@ VideoCompositor.FragmentShaders = {
         uniform sampler2D u_image;\
         varying vec2 v_texCoord;\
         varying float v_progress;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main(){\
             vec4 pixel = texture2D(u_image, v_texCoord);\
             float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
@@ -1036,6 +1113,8 @@ VideoCompositor.FragmentShaders = {
         uniform sampler2D u_image;\
         varying vec2 v_texCoord;\
         varying float v_progress;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main(){\
             vec4 pixel = texture2D(u_image, v_texCoord);\
             pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
@@ -1050,6 +1129,8 @@ VideoCompositor.FragmentShaders = {
         varying float v_duration;\
         varying float v_inTime;\
         varying float v_outTime;\
+        varying vec2 v_source_resolution;\
+        varying vec2 v_output_resolution;\
         void main(){\
             float alpha = 1.0;\
             if (v_progress * v_duration < v_inTime){\
@@ -1067,6 +1148,8 @@ VideoCompositor.FragmentShaders = {
             varying vec2 v_texCoord;\
             varying float v_progress;\
             varying float v_duration;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
             void main(){\
                 vec4 original_color = texture2D(u_image, v_texCoord);\
                 original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));\

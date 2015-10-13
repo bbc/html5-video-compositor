@@ -74,14 +74,20 @@ class Effect {
             this.vertexShaderSrc = "\
                 uniform float progress;\
                 uniform float duration;\
+                uniform vec2 source_resolution;\
+                uniform vec2 output_resolution;\
                 attribute vec2 a_position;\
                 attribute vec2 a_texCoord;\
                 varying vec2 v_texCoord;\
                 varying float v_progress;\
                 varying float v_duration;\
+                varying vec2 v_source_resolution;\
+                varying vec2 v_output_resolution;\
                 void main() {\
                     v_progress = progress;\
                     v_duration = duration;\
+                    v_source_resolution = source_resolution;\
+                    v_output_resolution = output_resolution;\
                     gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
                     v_texCoord = a_texCoord;\
                 }";
@@ -89,14 +95,16 @@ class Effect {
         this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;
         if (this.fragmentShaderSrc === undefined){
             this.fragmentShaderSrc = "\
-                precision mediump float;\
-                uniform sampler2D u_image;\
-                varying vec2 v_texCoord;\
-                varying float v_progress;\
-                varying float v_duration;\
-                void main(){\
-                    gl_FragColor = texture2D(u_image, v_texCoord);\
-                }";
+            precision mediump float;\
+            uniform sampler2D u_image;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
+            void main(){\
+                gl_FragColor = texture2D(u_image, v_texCoord);\
+            }";
         }
 
         this.parameters = playlistEffectObject.parameters;

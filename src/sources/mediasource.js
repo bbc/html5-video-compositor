@@ -27,6 +27,8 @@ class MediaSource {
         this.element = undefined;
         this.src = undefined;
         this.texture = undefined;
+        this.width = undefined;
+        this.height = undefined;
         this.mediaSourceListeners = [];
 
         this.disposeOfElementOnDestroy = false;
@@ -160,6 +162,20 @@ class MediaSource {
             if (parameterLoctation !== -1){
                 if (typeof renderParameters[key] === "number"){
                     this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+                }
+                else if( Object.prototype.toString.call(renderParameters[key]) === '[object Array]'){
+                    let array = renderParameters[key];
+                    if(array.length === 1){
+                        this.gl.uniform1fv(parameterLoctation, array);
+                    } else if(array.length === 2){
+                        this.gl.uniform2fv(parameterLoctation, array);
+                    } else if(array.length === 3){
+                        this.gl.uniform3fv(parameterLoctation, array);
+                    } else if(array.length === 4){
+                        this.gl.uniform4fv(parameterLoctation, array);
+                    } else{
+                        console.debug("Shader parameter", key, "is too long and array:", array);
+                    }
                 }
                 else{
                     //Is a texture

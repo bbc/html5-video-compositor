@@ -22,6 +22,8 @@ class CanvasSource extends MediaSource{
             this.seek(0);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
             this.ready = true;
+            this.width = this.element.width;
+            this.height = this.element.height;
             this.onready(this);
             return;
         }
