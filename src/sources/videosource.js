@@ -23,6 +23,9 @@ class VideoSource extends MediaSource{
             this._volume = properties.volume;
         }
     }
+    /**
+    * Set the VideoSource playing.
+    */
     play(){
         super.play();
         let _this = this;
@@ -40,6 +43,10 @@ class VideoSource extends MediaSource{
 
         playVideo();
     }
+    /**
+    * Seek the VideoSource to an appropriate point for the passed time.
+    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    */
     seek(time){
         super.seek();
         let _this = this;
@@ -62,10 +69,16 @@ class VideoSource extends MediaSource{
 
         seekVideo();  
     }
+    /**
+    * Pause the VideoSource if it is playing.
+    */
     pause(){
         super.pause();
         this.element.pause();
     }
+    /**
+    * Set the VideoSource loading, when it's ready isReady() will return true.
+    */
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
 
@@ -104,9 +117,15 @@ class VideoSource extends MediaSource{
 
 
     }
+    /**
+    * Render the VideoSource to the WebGL context passed into the constructor.
+    */
     render(program, renderParameters, textures){
         super.render(program, renderParameters, textures);
     }
+    /**
+    * Clean up the VideoSource for detruction.
+    */
     destroy(){
         this.element.pause();
         if (this.disposeOfElementOnDestroy){

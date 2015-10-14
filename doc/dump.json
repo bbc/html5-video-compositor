@@ -3207,7 +3207,7 @@
     "access": null,
     "description": null,
     "lineNumber": 2,
-    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\n\nfunction eventOneTime(element, type, callback){\n    let handleEvent = function(e){\n        e.target.removeEventListener(e.type, handleEvent);\n        return callback(e);\n    };\n\n    element.addEventListener(type, handleEvent, false);         \n}\n\nclass VideoSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.sourceStart = 0;\n        this._volume = 1.0;\n        if (properties.sourceStart !== undefined){\n            this.sourceStart = properties.sourceStart;\n        }\n        if (properties.volume !== undefined){\n            this._volume = properties.volume;\n        }\n    }\n    play(){\n        super.play();\n        let _this = this;\n\n        let playVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                _this.element.play();\n            } else {\n                console.debug(\"Can't play video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", playVideo);\n            }\n        };\n\n        playVideo();\n    }\n    seek(time){\n        super.seek();\n        let _this = this;\n\n        let seekVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){\n                    _this.element.currentTime = _this.sourceStart;\n                } else {\n                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;\n                }\n            } else {\n                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.\n                console.debug(\"Can't seek video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", seekVideo);\n            }\n        };\n\n        seekVideo();  \n    }\n    pause(){\n        super.pause();\n        this.element.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n\n        if (super.load()){\n            //this.element.currentTime = this.sourceStart;\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.videoWidth;\n            this.height = this.element.videoHeight;\n            this.onready(this);\n            return;\n        }\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement('video');            \n        //construct a fragement URL to cut the required segment from the source video\n        this.element.src = this.src;\n        this.element.volume = this._volume;\n        this.element.preload = \"auto\";\n        this.element.load();\n        let _this = this;\n        this.element.addEventListener('loadeddata', function() {\n            _this.element.currentTime = _this.sourceStart;\n            _this.seek(0);\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.width = _this.element.videoWidth;\n            _this.height = _this.element.videoHeight;\n            _this.onready(_this);\n        }, false);\n        /*this.element.addEventListener('seeked', function(){\n            console.log(\"SEEKED\");\n            _this.ready = true;\n            _this.onready(_this);\n        })*/\n\n\n    }\n    render(program, renderParameters, textures){\n        super.render(program, renderParameters, textures);\n    }\n    destroy(){\n        this.element.pause();\n        if (this.disposeOfElementOnDestroy){\n            this.element.src = \"\";\n            this.element.removeAttribute(\"src\");    \n        }\n        super.destroy();\n    }\n}\n\nexport default VideoSource;"
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\n\nfunction eventOneTime(element, type, callback){\n    let handleEvent = function(e){\n        e.target.removeEventListener(e.type, handleEvent);\n        return callback(e);\n    };\n\n    element.addEventListener(type, handleEvent, false);         \n}\n\nclass VideoSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.sourceStart = 0;\n        this._volume = 1.0;\n        if (properties.sourceStart !== undefined){\n            this.sourceStart = properties.sourceStart;\n        }\n        if (properties.volume !== undefined){\n            this._volume = properties.volume;\n        }\n    }\n    /**\n    * Set the VideoSource playing.\n    */\n    play(){\n        super.play();\n        let _this = this;\n\n        let playVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                _this.element.play();\n            } else {\n                console.debug(\"Can't play video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", playVideo);\n            }\n        };\n\n        playVideo();\n    }\n    /**\n    * Seek the VideoSource to an appropriate point for the passed time.\n    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.\n    */\n    seek(time){\n        super.seek();\n        let _this = this;\n\n        let seekVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){\n                    _this.element.currentTime = _this.sourceStart;\n                } else {\n                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;\n                }\n            } else {\n                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.\n                console.debug(\"Can't seek video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", seekVideo);\n            }\n        };\n\n        seekVideo();  \n    }\n    /**\n    * Pause the VideoSource if it is playing.\n    */\n    pause(){\n        super.pause();\n        this.element.pause();\n    }\n    /**\n    * Set the VideoSource loading, when it's ready isReady() will return true.\n    */\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n\n        if (super.load()){\n            //this.element.currentTime = this.sourceStart;\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.videoWidth;\n            this.height = this.element.videoHeight;\n            this.onready(this);\n            return;\n        }\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement('video');            \n        //construct a fragement URL to cut the required segment from the source video\n        this.element.src = this.src;\n        this.element.volume = this._volume;\n        this.element.preload = \"auto\";\n        this.element.load();\n        let _this = this;\n        this.element.addEventListener('loadeddata', function() {\n            _this.element.currentTime = _this.sourceStart;\n            _this.seek(0);\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.width = _this.element.videoWidth;\n            _this.height = _this.element.videoHeight;\n            _this.onready(_this);\n        }, false);\n        /*this.element.addEventListener('seeked', function(){\n            console.log(\"SEEKED\");\n            _this.ready = true;\n            _this.onready(_this);\n        })*/\n\n\n    }\n    /**\n    * Render the VideoSource to the WebGL context passed into the constructor.\n    */\n    render(program, renderParameters, textures){\n        super.render(program, renderParameters, textures);\n    }\n    /**\n    * Clean up the VideoSource for detruction.\n    */\n    destroy(){\n        this.element.pause();\n        if (this.disposeOfElementOnDestroy){\n            this.element.src = \"\";\n            this.element.removeAttribute(\"src\");    \n        }\n        super.destroy();\n    }\n}\n\nexport default VideoSource;"
   },
   {
     "kind": "function",
@@ -3367,9 +3367,8 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#play",
     "access": null,
-    "description": null,
-    "lineNumber": 26,
-    "undocument": true,
+    "description": "Set the VideoSource playing.",
+    "lineNumber": 29,
     "params": [],
     "generator": false
   },
@@ -3381,15 +3380,18 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#seek",
     "access": null,
-    "description": null,
-    "lineNumber": 43,
-    "undocument": true,
+    "description": "Seek the VideoSource to an appropriate point for the passed time.",
+    "lineNumber": 50,
     "params": [
       {
-        "name": "time",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "seekTime",
+        "description": "The time to seek too, this is the overall time for the whole playlist."
       }
     ],
     "generator": false
@@ -3402,9 +3404,8 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#pause",
     "access": null,
-    "description": null,
-    "lineNumber": 65,
-    "undocument": true,
+    "description": "Pause the VideoSource if it is playing.",
+    "lineNumber": 75,
     "params": [],
     "generator": false
   },
@@ -3416,9 +3417,8 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#load",
     "access": null,
-    "description": null,
-    "lineNumber": 69,
-    "undocument": true,
+    "description": "Set the VideoSource loading, when it's ready isReady() will return true.",
+    "lineNumber": 82,
     "params": [],
     "generator": false
   },
@@ -3431,7 +3431,7 @@
     "longname": "src/sources/videosource.js~VideoSource#ready",
     "access": null,
     "description": null,
-    "lineNumber": 76,
+    "lineNumber": 89,
     "undocument": true,
     "type": {
       "types": [
@@ -3448,7 +3448,7 @@
     "longname": "src/sources/videosource.js~VideoSource#width",
     "access": null,
     "description": null,
-    "lineNumber": 77,
+    "lineNumber": 90,
     "undocument": true,
     "type": {
       "types": [
@@ -3465,7 +3465,7 @@
     "longname": "src/sources/videosource.js~VideoSource#height",
     "access": null,
     "description": null,
-    "lineNumber": 78,
+    "lineNumber": 91,
     "undocument": true,
     "type": {
       "types": [
@@ -3482,7 +3482,7 @@
     "longname": "src/sources/videosource.js~VideoSource#element",
     "access": null,
     "description": null,
-    "lineNumber": 83,
+    "lineNumber": 96,
     "undocument": true,
     "type": {
       "types": [
@@ -3498,9 +3498,8 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#render",
     "access": null,
-    "description": null,
-    "lineNumber": 107,
-    "undocument": true,
+    "description": "Render the VideoSource to the WebGL context passed into the constructor.",
+    "lineNumber": 123,
     "params": [
       {
         "name": "program",
@@ -3531,9 +3530,8 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#destroy",
     "access": null,
-    "description": null,
-    "lineNumber": 110,
-    "undocument": true,
+    "description": "Clean up the VideoSource for detruction.",
+    "lineNumber": 129,
     "params": [],
     "generator": false
   },
@@ -3549,7 +3547,7 @@
     "importPath": "html5-video-compositor/src/sources/videosource.js",
     "importStyle": "videoSource",
     "description": null,
-    "lineNumber": 120,
+    "lineNumber": 139,
     "undocument": true,
     "type": {
       "types": [
