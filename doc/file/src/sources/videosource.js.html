@@ -127,6 +127,8 @@ class VideoSource extends MediaSource{
             this.seek(0);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
             this.ready = true;
+            this.width = this.element.videoWidth;
+            this.height = this.element.videoHeight;
             this.onready(this);
             return;
         }
@@ -143,6 +145,8 @@ class VideoSource extends MediaSource{
             _this.seek(0);
             _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
             _this.ready = true;
+            _this.width = _this.element.videoWidth;
+            _this.height = _this.element.videoHeight;
             _this.onready(_this);
         }, false);
         /*this.element.addEventListener(&apos;seeked&apos;, function(){

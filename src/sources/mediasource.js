@@ -90,6 +90,10 @@ class MediaSource {
         gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
     }
+    
+    /**
+    * Set the MediaSource playing.
+    */
     play(){
         //console.log("Playing", this.id);
         if (this.playing === false){
@@ -99,6 +103,9 @@ class MediaSource {
         }
         this.playing = true;
     }
+    /**
+    * Pause the MediaSource if it is playing.
+    */
     pause(){
         console.debug("Pausing", this.id);
         this.playing = false;
@@ -106,12 +113,19 @@ class MediaSource {
             if(typeof this.mediaSourceListeners[i].pause === 'function')this.mediaSourceListeners[i].pause(this);
         }
     }
+    /**
+    * Seek the MediaSource to an appropriate point for the passed time.
+    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    */
     seek(seekTime){
         //this.currentTime = seekTime;
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].seek === 'function')this.mediaSourceListeners[i].seek(this, seekTime);
         }
     }
+    /**
+    * Check if the MediaSource is ready to start playing.
+    */
     isReady(){
         let listenerReady = true;
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
@@ -124,6 +138,9 @@ class MediaSource {
         if (listenerReady === true && this.ready === true) return true;
         return false;
     }
+    /**
+    * Set the MediaSource loading, when it's ready isReady() will return true.
+    */
     load(){
         console.debug("Loading", this.id);
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
@@ -134,6 +151,9 @@ class MediaSource {
         }
         return false;
     }
+    /**
+    * Clean up the MediaSource for detruction.
+    */
     destroy(){
         console.debug("Destroying", this.id);
         for (let i = 0; i < this.mediaSourceListeners.length; i++) {
@@ -143,6 +163,9 @@ class MediaSource {
             delete this.element;  
         }
     }
+    /**
+    * Render the MediaSource to the WebGL context passed into the constructor.
+    */
     render(program, renderParameters, textures){
         //renders the media source to the WebGL context using the pased program
         let overriddenElement;

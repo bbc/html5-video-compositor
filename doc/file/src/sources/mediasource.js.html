@@ -80,6 +80,8 @@ class MediaSource {
         this.element = undefined;
         this.src = undefined;
         this.texture = undefined;
+        this.width = undefined;
+        this.height = undefined;
         this.mediaSourceListeners = [];
 
         this.disposeOfElementOnDestroy = false;
@@ -141,6 +143,10 @@ class MediaSource {
         gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
     }
+    
+    /**
+    * Set the MediaSource playing.
+    */
     play(){
         //console.log(&quot;Playing&quot;, this.id);
         if (this.playing === false){
@@ -150,6 +156,9 @@ class MediaSource {
         }
         this.playing = true;
     }
+    /**
+    * Pause the MediaSource if it is playing.
+    */
     pause(){
         console.debug(&quot;Pausing&quot;, this.id);
         this.playing = false;
@@ -157,12 +166,19 @@ class MediaSource {
             if(typeof this.mediaSourceListeners[i].pause === &apos;function&apos;)this.mediaSourceListeners[i].pause(this);
         }
     }
+    /**
+    * Seek the MediaSource to an appropriate point for the passed time.
+    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    */
     seek(seekTime){
         //this.currentTime = seekTime;
         for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
             if(typeof this.mediaSourceListeners[i].seek === &apos;function&apos;)this.mediaSourceListeners[i].seek(this, seekTime);
         }
     }
+    /**
+    * Check if the MediaSource is ready to start playing.
+    */
     isReady(){
         let listenerReady = true;
         for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
@@ -175,6 +191,9 @@ class MediaSource {
         if (listenerReady === true &amp;&amp; this.ready === true) return true;
         return false;
     }
+    /**
+    * Set the MediaSource loading, when it&apos;s ready isReady() will return true.
+    */
     load(){
         console.debug(&quot;Loading&quot;, this.id);
         for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
@@ -185,6 +204,9 @@ class MediaSource {
         }
         return false;
     }
+    /**
+    * Clean up the MediaSource for detruction.
+    */
     destroy(){
         console.debug(&quot;Destroying&quot;, this.id);
         for (let i = 0; i &lt; this.mediaSourceListeners.length; i++) {
@@ -194,6 +216,9 @@ class MediaSource {
             delete this.element;  
         }
     }
+    /**
+    * Render the MediaSource to the WebGL context passed into the constructor.
+    */
     render(program, renderParameters, textures){
         //renders the media source to the WebGL context using the pased program
         let overriddenElement;
@@ -213,6 +238,20 @@ class MediaSource {
             if (parameterLoctation !== -1){
                 if (typeof renderParameters[key] === &quot;number&quot;){
                     this.gl.uniform1f(parameterLoctation, renderParameters[key]);
+                }
+                else if( Object.prototype.toString.call(renderParameters[key]) === &apos;[object Array]&apos;){
+                    let array = renderParameters[key];
+                    if(array.length === 1){
+                        this.gl.uniform1fv(parameterLoctation, array);
+                    } else if(array.length === 2){
+                        this.gl.uniform2fv(parameterLoctation, array);
+                    } else if(array.length === 3){
+                        this.gl.uniform3fv(parameterLoctation, array);
+                    } else if(array.length === 4){
+                        this.gl.uniform4fv(parameterLoctation, array);
+                    } else{
+                        console.debug(&quot;Shader parameter&quot;, key, &quot;is too long and array:&quot;, array);
+                    }
                 }
                 else{
                     //Is a texture

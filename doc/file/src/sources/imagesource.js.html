@@ -74,9 +74,11 @@ class ImageSource extends MediaSource{
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
             this.ready = true;
             // Upload the image into the texture.
+            this.width = this.element.width;
+            this.height = this.element.height;
             this.onready(this);
-            return
-        };
+            return;
+        }
 
         //otherwise begin the loading process for this mediaSource
         this.element = new Image();
@@ -85,7 +87,9 @@ class ImageSource extends MediaSource{
             _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
             _this.ready = true;
             _this.onready(_this);
-        }
+            _this.width = _this.element.width;
+            _this.height = _this.element.height;
+        };
         this.element.src = this.src;
     }
     render(program,  renderParameters, textures){

@@ -595,13 +595,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
@@ -762,6 +762,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/sources/imagesource.js~imagesource#height",
+    "class/src/sources/imagesource.js~ImageSource.html#instance-member-height",
+    "src/sources/imagesource.js~ImageSource#height",
+    "member"
+  ],
+  [
     "src/sources/imagesource.js~imagesource#load",
     "class/src/sources/imagesource.js~ImageSource.html#instance-method-load",
     "src/sources/imagesource.js~ImageSource#load",
@@ -796,6 +802,12 @@ window.esdocSearchIndex = [
     "class/src/sources/imagesource.js~ImageSource.html#instance-method-seek",
     "src/sources/imagesource.js~ImageSource#seek",
     "method"
+  ],
+  [
+    "src/sources/imagesource.js~imagesource#width",
+    "class/src/sources/imagesource.js~ImageSource.html#instance-member-width",
+    "src/sources/imagesource.js~ImageSource#width",
+    "member"
   ],
   [
     "src/sources/mediasource.js",
@@ -837,6 +849,12 @@ window.esdocSearchIndex = [
     "src/sources/mediasource.js~mediasource#gl",
     "class/src/sources/mediasource.js~MediaSource.html#instance-member-gl",
     "src/sources/mediasource.js~MediaSource#gl",
+    "member"
+  ],
+  [
+    "src/sources/mediasource.js~mediasource#height",
+    "class/src/sources/mediasource.js~MediaSource.html#instance-member-height",
+    "src/sources/mediasource.js~MediaSource#height",
     "member"
   ],
   [
@@ -924,6 +942,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/sources/mediasource.js~mediasource#width",
+    "class/src/sources/mediasource.js~MediaSource.html#instance-member-width",
+    "src/sources/mediasource.js~MediaSource#width",
+    "member"
+  ],
+  [
     "src/sources/videosource.js",
     "file/src/sources/videosource.js.html",
     "src/sources/videosource.js",
@@ -945,6 +969,12 @@ window.esdocSearchIndex = [
     "src/sources/videosource.js~videosource#element",
     "class/src/sources/videosource.js~VideoSource.html#instance-member-element",
     "src/sources/videosource.js~VideoSource#element",
+    "member"
+  ],
+  [
+    "src/sources/videosource.js~videosource#height",
+    "class/src/sources/videosource.js~VideoSource.html#instance-member-height",
+    "src/sources/videosource.js~VideoSource#height",
     "member"
   ],
   [
@@ -987,6 +1017,12 @@ window.esdocSearchIndex = [
     "src/sources/videosource.js~videosource#sourcestart",
     "class/src/sources/videosource.js~VideoSource.html#instance-member-sourceStart",
     "src/sources/videosource.js~VideoSource#sourceStart",
+    "member"
+  ],
+  [
+    "src/sources/videosource.js~videosource#width",
+    "class/src/sources/videosource.js~VideoSource.html#instance-member-width",
+    "src/sources/videosource.js~VideoSource#width",
     "member"
   ]
 ]

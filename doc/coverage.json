@@ -1,7 +1,7 @@
 {
-  "coverage": "15.53%",
-  "expectCount": 103,
-  "actualCount": 16,
+  "coverage": "21.1%",
+  "expectCount": 109,
+  "actualCount": 23,
   "files": {
     "src/audiomanager.js": {
       "expectCount": 10,
@@ -24,15 +24,15 @@
       "actualCount": 0,
       "undocumentLines": [
         4,
-        43,
+        45,
         5,
-        31,
+        33,
         8,
         19,
         16,
         10,
         24,
-        38,
+        40,
         13,
         7
       ]
@@ -43,14 +43,14 @@
       "undocumentLines": [
         69,
         70,
-        133,
-        89,
+        141,
+        95,
         71,
-        113,
-        102,
-        119,
-        118,
-        123,
+        121,
+        110,
+        127,
+        126,
+        131,
         72
       ]
     },
@@ -69,46 +69,43 @@
       ]
     },
     "src/sources/imagesource.js": {
-      "expectCount": 10,
+      "expectCount": 12,
       "actualCount": 0,
       "undocumentLines": [
         4,
         5,
-        29,
-        43,
+        31,
+        25,
+        47,
         17,
         14,
         8,
         22,
-        38,
-        11
+        42,
+        11,
+        24
       ]
     },
     "src/sources/mediasource.js": {
-      "expectCount": 22,
-      "actualCount": 1,
+      "expectCount": 24,
+      "actualCount": 8,
       "undocumentLines": [
         3,
-        135,
-        32,
+        34,
         23,
         27,
         21,
+        31,
         22,
-        113,
-        125,
-        188,
-        30,
-        184,
-        100,
-        91,
+        227,
+        32,
+        223,
         25,
         26,
-        144,
-        107,
         28,
         24,
-        29
+        29,
+        30
       ]
     },
     "src/main.js": {
@@ -117,25 +114,27 @@
       "undocumentLines": [
         30,
         60,
-        1216
+        1299
       ]
     },
     "src/sources/videosource.js": {
-      "expectCount": 12,
+      "expectCount": 14,
       "actualCount": 0,
       "undocumentLines": [
         14,
         15,
-        106,
-        81,
+        110,
+        83,
+        78,
         69,
         65,
         26,
         76,
-        103,
+        107,
         43,
         17,
-        116
+        120,
+        77
       ]
     }
   }
