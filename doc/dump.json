@@ -2098,7 +2098,7 @@
     "access": null,
     "description": null,
     "lineNumber": 2,
-    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass CanvasSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.width = properties.width;\n        this.height = properties.height;\n    }\n    play(){\n        super.play();\n    }\n    seek(time){\n        super.seek(time);\n    }\n    pause(){\n        super.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.width;\n            this.height = this.element.height;\n            this.onready(this);\n            return;\n        }\n\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement(\"canvas\");\n        this.element.width = this.width;\n        this.element.height = this.height;\n        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n        this.ready = true;\n        this.onready(this);\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default CanvasSource;"
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass CanvasSource extends MediaSource{\n    /**\n    * Canvas playback source. Inherits from MediaSource \n    *\n    * A CanvasSource is the manifestation of a mediaSourceReference from a playlist object which has type \"canvas\". \n    * \n    * A CanvasSource exists for a period slightly before a CanvasSource is to play in order to give it time to preload and\n    * is destroyed as soon as the CanvasSource has finished playing.\n    *\n    * @param {Object} properties - An object with the following attributes: id, duration, start, and element. \n    * Where src is the URL of a video, or element is a DOM Video element.\n    * \n    * @param {WebGLContext} gl - a webGl context to render too.\n    */\n    constructor(properties, gl){\n        super(properties, gl);\n        this.width = properties.width;\n        this.height = properties.height;\n    }\n    /**\n    * Set the CanvasSource playing.\n    */\n    play(){\n        super.play();\n    }\n    /**\n    * Seek to playlist time and do something appropriate with this CavnasSource. This can effect shaders applied to this \n    * canvas and any MediaSourceListeners listening to the Id of this source.\n    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.\n    */\n    seek(time){\n        super.seek(time);\n    }\n    /**\n    * Pause the CanvasSource if it is playing.\n    */\n    pause(){\n        super.pause();\n    }\n    /**\n    * Set the CanvasSource loading, when it's ready isReady() will return true.\n    */\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.width;\n            this.height = this.element.height;\n            this.onready(this);\n            return;\n        }\n\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement(\"canvas\");\n        this.element.width = this.width;\n        this.element.height = this.height;\n        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n        this.ready = true;\n        this.onready(this);\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default CanvasSource;"
   },
   {
     "kind": "class",
@@ -2127,21 +2127,28 @@
     "memberof": "src/sources/canvassource.js~CanvasSource",
     "longname": "src/sources/canvassource.js~CanvasSource#constructor",
     "access": null,
-    "description": null,
-    "lineNumber": 5,
-    "undocument": true,
+    "description": "Canvas playback source. Inherits from MediaSource \n\nA CanvasSource is the manifestation of a mediaSourceReference from a playlist object which has type \"canvas\". \n\nA CanvasSource exists for a period slightly before a CanvasSource is to play in order to give it time to preload and\nis destroyed as soon as the CanvasSource has finished playing.",
+    "lineNumber": 18,
     "params": [
       {
-        "name": "properties",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "properties",
+        "description": "An object with the following attributes: id, duration, start, and element. \nWhere src is the URL of a video, or element is a DOM Video element."
       },
       {
-        "name": "gl",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "WebGLContext"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "gl",
+        "description": "a webGl context to render too."
       }
     ],
     "generator": false
@@ -2155,7 +2162,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#width",
     "access": null,
     "description": null,
-    "lineNumber": 7,
+    "lineNumber": 20,
     "undocument": true,
     "type": {
       "types": [
@@ -2172,7 +2179,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#height",
     "access": null,
     "description": null,
-    "lineNumber": 8,
+    "lineNumber": 21,
     "undocument": true,
     "type": {
       "types": [
@@ -2188,9 +2195,8 @@
     "memberof": "src/sources/canvassource.js~CanvasSource",
     "longname": "src/sources/canvassource.js~CanvasSource#play",
     "access": null,
-    "description": null,
-    "lineNumber": 10,
-    "undocument": true,
+    "description": "Set the CanvasSource playing.",
+    "lineNumber": 26,
     "params": [],
     "generator": false
   },
@@ -2202,15 +2208,18 @@
     "memberof": "src/sources/canvassource.js~CanvasSource",
     "longname": "src/sources/canvassource.js~CanvasSource#seek",
     "access": null,
-    "description": null,
-    "lineNumber": 13,
-    "undocument": true,
+    "description": "Seek to playlist time and do something appropriate with this CavnasSource. This can effect shaders applied to this \ncanvas and any MediaSourceListeners listening to the Id of this source.",
+    "lineNumber": 34,
     "params": [
       {
-        "name": "time",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "seekTime",
+        "description": "The time to seek too, this is the overall time for the whole playlist."
       }
     ],
     "generator": false
@@ -2223,9 +2232,8 @@
     "memberof": "src/sources/canvassource.js~CanvasSource",
     "longname": "src/sources/canvassource.js~CanvasSource#pause",
     "access": null,
-    "description": null,
-    "lineNumber": 16,
-    "undocument": true,
+    "description": "Pause the CanvasSource if it is playing.",
+    "lineNumber": 40,
     "params": [],
     "generator": false
   },
@@ -2237,9 +2245,8 @@
     "memberof": "src/sources/canvassource.js~CanvasSource",
     "longname": "src/sources/canvassource.js~CanvasSource#load",
     "access": null,
-    "description": null,
-    "lineNumber": 19,
-    "undocument": true,
+    "description": "Set the CanvasSource loading, when it's ready isReady() will return true.",
+    "lineNumber": 46,
     "params": [],
     "generator": false
   },
@@ -2252,7 +2259,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#ready",
     "access": null,
     "description": null,
-    "lineNumber": 24,
+    "lineNumber": 51,
     "undocument": true,
     "type": {
       "types": [
@@ -2269,7 +2276,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#width",
     "access": null,
     "description": null,
-    "lineNumber": 25,
+    "lineNumber": 52,
     "undocument": true,
     "type": {
       "types": [
@@ -2286,7 +2293,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#height",
     "access": null,
     "description": null,
-    "lineNumber": 26,
+    "lineNumber": 53,
     "undocument": true,
     "type": {
       "types": [
@@ -2303,7 +2310,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#element",
     "access": null,
     "description": null,
-    "lineNumber": 33,
+    "lineNumber": 60,
     "undocument": true,
     "type": {
       "types": [
@@ -2320,7 +2327,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#ready",
     "access": null,
     "description": null,
-    "lineNumber": 37,
+    "lineNumber": 64,
     "undocument": true,
     "type": {
       "types": [
@@ -2337,7 +2344,7 @@
     "longname": "src/sources/canvassource.js~CanvasSource#render",
     "access": null,
     "description": null,
-    "lineNumber": 40,
+    "lineNumber": 67,
     "undocument": true,
     "params": [
       {
@@ -2373,7 +2380,7 @@
     "importPath": "html5-video-compositor/src/sources/canvassource.js",
     "importStyle": "canvasSource",
     "description": null,
-    "lineNumber": 45,
+    "lineNumber": 72,
     "undocument": true,
     "type": {
       "types": [
@@ -2391,7 +2398,7 @@
     "access": null,
     "description": null,
     "lineNumber": 2,
-    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass ImageSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n    }\n    play(){\n        super.play();\n    }\n    seek(time){\n        super.seek(time);\n    }\n    pause(){\n        super.pause();\n    }\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            // Upload the image into the texture.\n            this.width = this.element.width;\n            this.height = this.element.height;\n            this.onready(this);\n            return;\n        }\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = new Image();\n        let _this = this;\n        this.element.onload = function(){\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.onready(_this);\n            _this.width = _this.element.width;\n            _this.height = _this.element.height;\n        };\n        this.element.src = this.src;\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default ImageSource;"
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\nclass ImageSource extends MediaSource{\n    /**\n    * Image playback source. Inherits from MediaSource \n    *\n    * A ImageSource is the manifestation of a mediaSourceReference from a playlist object which has type \"image\". \n    * \n    * A ImageSource exists for a period slightly before a ImageSource is to play in order to give it time to preload and\n    * is destroyed as soon as the ImageSource has finished playing.\n    *\n    * @param {Object} properties - An object with the following attributes: id, duration, start, and src or element. \n    * Where src is the URL of a video, or element is a DOM Video element.\n    * \n    * @param {WebGLContext} gl - a webGl context to render too.\n    */\n    constructor(properties, gl){\n        super(properties, gl);\n    }\n    /**\n    * Set the ImageSource playing.\n    */\n    play(){\n        super.play();\n    }\n    /**\n    * Seek to playlist time and do something appropriate with this ImageSource. This has little effect on the image as it's \n    * static but can affect any effect shaders applied to this image and any MediaSourceListeners listening to the Id of \n    * this source.\n    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.\n    */\n    seek(time){\n        super.seek(time);\n    }\n    /**\n    * Pause the ImageSource if it is playing.\n    */\n    pause(){\n        super.pause();\n    }\n    /**\n    * Set the ImageSource loading, when it's ready isReady() will return true.\n    */\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n        if (super.load()){\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            // Upload the image into the texture.\n            this.width = this.element.width;\n            this.height = this.element.height;\n            this.onready(this);\n            return;\n        }\n\n        //otherwise begin the loading process for this mediaSource\n        this.element = new Image();\n        let _this = this;\n        this.element.onload = function(){\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.onready(_this);\n            _this.width = _this.element.width;\n            _this.height = _this.element.height;\n        };\n        this.element.src = this.src;\n    }\n    render(program,  renderParameters, textures){\n        super.render(program,  renderParameters, textures);\n    }\n}\n\nexport default ImageSource;"
   },
   {
     "kind": "class",
@@ -2420,21 +2427,28 @@
     "memberof": "src/sources/imagesource.js~ImageSource",
     "longname": "src/sources/imagesource.js~ImageSource#constructor",
     "access": null,
-    "description": null,
-    "lineNumber": 5,
-    "undocument": true,
+    "description": "Image playback source. Inherits from MediaSource \n\nA ImageSource is the manifestation of a mediaSourceReference from a playlist object which has type \"image\". \n\nA ImageSource exists for a period slightly before a ImageSource is to play in order to give it time to preload and\nis destroyed as soon as the ImageSource has finished playing.",
+    "lineNumber": 18,
     "params": [
       {
-        "name": "properties",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "properties",
+        "description": "An object with the following attributes: id, duration, start, and src or element. \nWhere src is the URL of a video, or element is a DOM Video element."
       },
       {
-        "name": "gl",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "WebGLContext"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "gl",
+        "description": "a webGl context to render too."
       }
     ],
     "generator": false
@@ -2447,9 +2461,8 @@
     "memberof": "src/sources/imagesource.js~ImageSource",
     "longname": "src/sources/imagesource.js~ImageSource#play",
     "access": null,
-    "description": null,
-    "lineNumber": 8,
-    "undocument": true,
+    "description": "Set the ImageSource playing.",
+    "lineNumber": 24,
     "params": [],
     "generator": false
   },
@@ -2461,15 +2474,18 @@
     "memberof": "src/sources/imagesource.js~ImageSource",
     "longname": "src/sources/imagesource.js~ImageSource#seek",
     "access": null,
-    "description": null,
-    "lineNumber": 11,
-    "undocument": true,
+    "description": "Seek to playlist time and do something appropriate with this ImageSource. This has little effect on the image as it's \nstatic but can affect any effect shaders applied to this image and any MediaSourceListeners listening to the Id of \nthis source.",
+    "lineNumber": 33,
     "params": [
       {
-        "name": "time",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "number"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "seekTime",
+        "description": "The time to seek too, this is the overall time for the whole playlist."
       }
     ],
     "generator": false
@@ -2482,9 +2498,8 @@
     "memberof": "src/sources/imagesource.js~ImageSource",
     "longname": "src/sources/imagesource.js~ImageSource#pause",
     "access": null,
-    "description": null,
-    "lineNumber": 14,
-    "undocument": true,
+    "description": "Pause the ImageSource if it is playing.",
+    "lineNumber": 39,
     "params": [],
     "generator": false
   },
@@ -2496,9 +2511,8 @@
     "memberof": "src/sources/imagesource.js~ImageSource",
     "longname": "src/sources/imagesource.js~ImageSource#load",
     "access": null,
-    "description": null,
-    "lineNumber": 17,
-    "undocument": true,
+    "description": "Set the ImageSource loading, when it's ready isReady() will return true.",
+    "lineNumber": 45,
     "params": [],
     "generator": false
   },
@@ -2511,7 +2525,7 @@
     "longname": "src/sources/imagesource.js~ImageSource#ready",
     "access": null,
     "description": null,
-    "lineNumber": 22,
+    "lineNumber": 50,
     "undocument": true,
     "type": {
       "types": [
@@ -2528,7 +2542,7 @@
     "longname": "src/sources/imagesource.js~ImageSource#width",
     "access": null,
     "description": null,
-    "lineNumber": 24,
+    "lineNumber": 52,
     "undocument": true,
     "type": {
       "types": [
@@ -2545,7 +2559,7 @@
     "longname": "src/sources/imagesource.js~ImageSource#height",
     "access": null,
     "description": null,
-    "lineNumber": 25,
+    "lineNumber": 53,
     "undocument": true,
     "type": {
       "types": [
@@ -2562,7 +2576,7 @@
     "longname": "src/sources/imagesource.js~ImageSource#element",
     "access": null,
     "description": null,
-    "lineNumber": 31,
+    "lineNumber": 59,
     "undocument": true,
     "type": {
       "types": [
@@ -2579,7 +2593,7 @@
     "longname": "src/sources/imagesource.js~ImageSource#render",
     "access": null,
     "description": null,
-    "lineNumber": 42,
+    "lineNumber": 70,
     "undocument": true,
     "params": [
       {
@@ -2615,7 +2629,7 @@
     "importPath": "html5-video-compositor/src/sources/imagesource.js",
     "importStyle": "imageSource",
     "description": null,
-    "lineNumber": 47,
+    "lineNumber": 75,
     "undocument": true,
     "type": {
       "types": [
@@ -3207,7 +3221,7 @@
     "access": null,
     "description": null,
     "lineNumber": 2,
-    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\n\nfunction eventOneTime(element, type, callback){\n    let handleEvent = function(e){\n        e.target.removeEventListener(e.type, handleEvent);\n        return callback(e);\n    };\n\n    element.addEventListener(type, handleEvent, false);         \n}\n\nclass VideoSource extends MediaSource{\n    constructor(properties, gl){\n        super(properties, gl);\n        this.sourceStart = 0;\n        this._volume = 1.0;\n        if (properties.sourceStart !== undefined){\n            this.sourceStart = properties.sourceStart;\n        }\n        if (properties.volume !== undefined){\n            this._volume = properties.volume;\n        }\n    }\n    /**\n    * Set the VideoSource playing.\n    */\n    play(){\n        super.play();\n        let _this = this;\n\n        let playVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                _this.element.play();\n            } else {\n                console.debug(\"Can't play video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", playVideo);\n            }\n        };\n\n        playVideo();\n    }\n    /**\n    * Seek the VideoSource to an appropriate point for the passed time.\n    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.\n    */\n    seek(time){\n        super.seek();\n        let _this = this;\n\n        let seekVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){\n                    _this.element.currentTime = _this.sourceStart;\n                } else {\n                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;\n                }\n            } else {\n                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.\n                console.debug(\"Can't seek video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", seekVideo);\n            }\n        };\n\n        seekVideo();  \n    }\n    /**\n    * Pause the VideoSource if it is playing.\n    */\n    pause(){\n        super.pause();\n        this.element.pause();\n    }\n    /**\n    * Set the VideoSource loading, when it's ready isReady() will return true.\n    */\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n\n        if (super.load()){\n            //this.element.currentTime = this.sourceStart;\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.videoWidth;\n            this.height = this.element.videoHeight;\n            this.onready(this);\n            return;\n        }\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement('video');            \n        //construct a fragement URL to cut the required segment from the source video\n        this.element.src = this.src;\n        this.element.volume = this._volume;\n        this.element.preload = \"auto\";\n        this.element.load();\n        let _this = this;\n        this.element.addEventListener('loadeddata', function() {\n            _this.element.currentTime = _this.sourceStart;\n            _this.seek(0);\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.width = _this.element.videoWidth;\n            _this.height = _this.element.videoHeight;\n            _this.onready(_this);\n        }, false);\n        /*this.element.addEventListener('seeked', function(){\n            console.log(\"SEEKED\");\n            _this.ready = true;\n            _this.onready(_this);\n        })*/\n\n\n    }\n    /**\n    * Render the VideoSource to the WebGL context passed into the constructor.\n    */\n    render(program, renderParameters, textures){\n        super.render(program, renderParameters, textures);\n    }\n    /**\n    * Clean up the VideoSource for detruction.\n    */\n    destroy(){\n        this.element.pause();\n        if (this.disposeOfElementOnDestroy){\n            this.element.src = \"\";\n            this.element.removeAttribute(\"src\");    \n        }\n        super.destroy();\n    }\n}\n\nexport default VideoSource;"
+    "content": "//Matthew Shotton, R&D User Experince,© BBC 2015\nimport MediaSource from \"./mediasource\";\n\n\nfunction eventOneTime(element, type, callback){\n    let handleEvent = function(e){\n        e.target.removeEventListener(e.type, handleEvent);\n        return callback(e);\n    };\n\n    element.addEventListener(type, handleEvent, false);         \n}\n\n\n\nclass VideoSource extends MediaSource{\n    /**\n    * Video playback source. Inherits from MediaSource \n    *\n    * A VideoSource is the manifestation of a mediaSourceReference from a playlist object which has type \"video\". \n    * \n    * A VideoSource exists for a period slightly before a VideoSource is to play in order to give it time to preload and\n    * is destroyed as soon as the VideoSource has finished playing. You can define an offset into the original video to \n    * start playing by passing in a sourceStart value in the properties.\n    *\n    * @param {Object} properties - An object with the following attributes: id, duration, start, sourceStart, and src or element. \n    * Where src is the URL of a video, or element is a DOM Video element.\n    * \n    * @param {WebGLContext} gl - a webGl context to render too.\n    */\n    constructor(properties, gl){\n        super(properties, gl);\n        this.sourceStart = 0;\n        this._volume = 1.0;\n        if (properties.sourceStart !== undefined){\n            this.sourceStart = properties.sourceStart;\n        }\n        if (properties.volume !== undefined){\n            this._volume = properties.volume;\n        }\n    }\n    /**\n    * Set the VideoSource playing.\n    */\n    play(){\n        super.play();\n        let _this = this;\n\n        let playVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                _this.element.play();\n            } else {\n                console.debug(\"Can't play video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", playVideo);\n            }\n        };\n\n        playVideo();\n    }\n    /**\n    * Seek the VideoSource to an appropriate point for the passed time.\n    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.\n    */\n    seek(time){\n        super.seek();\n        let _this = this;\n\n        let seekVideo = function(){\n            if (_this.element.readyState > 3){\n                _this.ready = true;\n                if ((time - _this.start) < 0 || time >(_this.start+_this.duration)){\n                    _this.element.currentTime = _this.sourceStart;\n                } else {\n                    _this.element.currentTime = (time - _this.start) + _this.sourceStart;\n                }\n            } else {\n                //If the element isn't ready to seek create a one-time event which seeks the element once it is ready.\n                console.debug(\"Can't seek video due to readyState\");\n                _this.ready = false;\n                eventOneTime(_this.element, \"canplay\", seekVideo);\n            }\n        };\n\n        seekVideo();  \n    }\n    /**\n    * Pause the VideoSource if it is playing.\n    */\n    pause(){\n        super.pause();\n        this.element.pause();\n    }\n    /**\n    * Set the VideoSource loading, when it's ready isReady() will return true.\n    */\n    load(){\n        //check if we're using an already instatiated element, if so don't do anything.\n\n        if (super.load()){\n            //this.element.currentTime = this.sourceStart;\n            this.seek(0);\n            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);\n            this.ready = true;\n            this.width = this.element.videoWidth;\n            this.height = this.element.videoHeight;\n            this.onready(this);\n            return;\n        }\n        //otherwise begin the loading process for this mediaSource\n        this.element = document.createElement('video');            \n        //construct a fragement URL to cut the required segment from the source video\n        this.element.src = this.src;\n        this.element.volume = this._volume;\n        this.element.preload = \"auto\";\n        this.element.load();\n        let _this = this;\n        this.element.addEventListener('loadeddata', function() {\n            _this.element.currentTime = _this.sourceStart;\n            _this.seek(0);\n            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);\n            _this.ready = true;\n            _this.width = _this.element.videoWidth;\n            _this.height = _this.element.videoHeight;\n            _this.onready(_this);\n        }, false);\n        /*this.element.addEventListener('seeked', function(){\n            console.log(\"SEEKED\");\n            _this.ready = true;\n            _this.onready(_this);\n        })*/\n\n\n    }\n    /**\n    * Render the VideoSource to the WebGL context passed into the constructor.\n    */\n    render(program, renderParameters, textures){\n        super.render(program, renderParameters, textures);\n    }\n    /**\n    * Clean up the VideoSource for detruction.\n    */\n    destroy(){\n        this.element.pause();\n        if (this.disposeOfElementOnDestroy){\n            this.element.src = \"\";\n            this.element.removeAttribute(\"src\");    \n        }\n        super.destroy();\n    }\n}\n\nexport default VideoSource;"
   },
   {
     "kind": "function",
@@ -3257,7 +3271,7 @@
     "importPath": "html5-video-compositor/src/sources/videosource.js",
     "importStyle": "VideoSource",
     "description": null,
-    "lineNumber": 14,
+    "lineNumber": 16,
     "undocument": true,
     "interface": false,
     "extends": [
@@ -3272,21 +3286,28 @@
     "memberof": "src/sources/videosource.js~VideoSource",
     "longname": "src/sources/videosource.js~VideoSource#constructor",
     "access": null,
-    "description": null,
-    "lineNumber": 15,
-    "undocument": true,
+    "description": "Video playback source. Inherits from MediaSource \n\nA VideoSource is the manifestation of a mediaSourceReference from a playlist object which has type \"video\". \n\nA VideoSource exists for a period slightly before a VideoSource is to play in order to give it time to preload and\nis destroyed as soon as the VideoSource has finished playing. You can define an offset into the original video to \nstart playing by passing in a sourceStart value in the properties.",
+    "lineNumber": 31,
     "params": [
       {
-        "name": "properties",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "Object"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "properties",
+        "description": "An object with the following attributes: id, duration, start, sourceStart, and src or element. \nWhere src is the URL of a video, or element is a DOM Video element."
       },
       {
-        "name": "gl",
+        "nullable": null,
         "types": [
-          "*"
-        ]
+          "WebGLContext"
+        ],
+        "spread": false,
+        "optional": false,
+        "name": "gl",
+        "description": "a webGl context to render too."
       }
     ],
     "generator": false
@@ -3300,7 +3321,7 @@
     "longname": "src/sources/videosource.js~VideoSource#sourceStart",
     "access": null,
     "description": null,
-    "lineNumber": 17,
+    "lineNumber": 33,
     "undocument": true,
     "type": {
       "types": [
@@ -3317,7 +3338,7 @@
     "longname": "src/sources/videosource.js~VideoSource#_volume",
     "access": null,
     "description": null,
-    "lineNumber": 18,
+    "lineNumber": 34,
     "undocument": true,
     "type": {
       "types": [
@@ -3334,7 +3355,7 @@
     "longname": "src/sources/videosource.js~VideoSource#sourceStart",
     "access": null,
     "description": null,
-    "lineNumber": 20,
+    "lineNumber": 36,
     "undocument": true,
     "type": {
       "types": [
@@ -3351,7 +3372,7 @@
     "longname": "src/sources/videosource.js~VideoSource#_volume",
     "access": null,
     "description": null,
-    "lineNumber": 23,
+    "lineNumber": 39,
     "undocument": true,
     "type": {
       "types": [
@@ -3368,7 +3389,7 @@
     "longname": "src/sources/videosource.js~VideoSource#play",
     "access": null,
     "description": "Set the VideoSource playing.",
-    "lineNumber": 29,
+    "lineNumber": 45,
     "params": [],
     "generator": false
   },
@@ -3381,7 +3402,7 @@
     "longname": "src/sources/videosource.js~VideoSource#seek",
     "access": null,
     "description": "Seek the VideoSource to an appropriate point for the passed time.",
-    "lineNumber": 50,
+    "lineNumber": 66,
     "params": [
       {
         "nullable": null,
@@ -3405,7 +3426,7 @@
     "longname": "src/sources/videosource.js~VideoSource#pause",
     "access": null,
     "description": "Pause the VideoSource if it is playing.",
-    "lineNumber": 75,
+    "lineNumber": 91,
     "params": [],
     "generator": false
   },
@@ -3418,7 +3439,7 @@
     "longname": "src/sources/videosource.js~VideoSource#load",
     "access": null,
     "description": "Set the VideoSource loading, when it's ready isReady() will return true.",
-    "lineNumber": 82,
+    "lineNumber": 98,
     "params": [],
     "generator": false
   },
@@ -3431,7 +3452,7 @@
     "longname": "src/sources/videosource.js~VideoSource#ready",
     "access": null,
     "description": null,
-    "lineNumber": 89,
+    "lineNumber": 105,
     "undocument": true,
     "type": {
       "types": [
@@ -3448,7 +3469,7 @@
     "longname": "src/sources/videosource.js~VideoSource#width",
     "access": null,
     "description": null,
-    "lineNumber": 90,
+    "lineNumber": 106,
     "undocument": true,
     "type": {
       "types": [
@@ -3465,7 +3486,7 @@
     "longname": "src/sources/videosource.js~VideoSource#height",
     "access": null,
     "description": null,
-    "lineNumber": 91,
+    "lineNumber": 107,
     "undocument": true,
     "type": {
       "types": [
@@ -3482,7 +3503,7 @@
     "longname": "src/sources/videosource.js~VideoSource#element",
     "access": null,
     "description": null,
-    "lineNumber": 96,
+    "lineNumber": 112,
     "undocument": true,
     "type": {
       "types": [
@@ -3499,7 +3520,7 @@
     "longname": "src/sources/videosource.js~VideoSource#render",
     "access": null,
     "description": "Render the VideoSource to the WebGL context passed into the constructor.",
-    "lineNumber": 123,
+    "lineNumber": 139,
     "params": [
       {
         "name": "program",
@@ -3531,7 +3552,7 @@
     "longname": "src/sources/videosource.js~VideoSource#destroy",
     "access": null,
     "description": "Clean up the VideoSource for detruction.",
-    "lineNumber": 129,
+    "lineNumber": 145,
     "params": [],
     "generator": false
   },
@@ -3547,7 +3568,7 @@
     "importPath": "html5-video-compositor/src/sources/videosource.js",
     "importStyle": "videoSource",
     "description": null,
-    "lineNumber": 139,
+    "lineNumber": 155,
     "undocument": true,
     "type": {
       "types": [

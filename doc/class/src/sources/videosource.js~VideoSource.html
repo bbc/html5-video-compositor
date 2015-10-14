@@ -51,13 +51,13 @@
 </nav>
 
 <div class="content" data-ice="content"><div class="header-notice">
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import VideoSource from &apos;<span><a href="file/src/sources/videosource.js.html#lineNumber14">html5-video-compositor/src/sources/videosource.js</a></span>&apos;</code></pre></div>
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import VideoSource from &apos;<span><a href="file/src/sources/videosource.js.html#lineNumber16">html5-video-compositor/src/sources/videosource.js</a></span>&apos;</code></pre></div>
   <span data-ice="access">public</span>
   <span data-ice="kind">class</span>
   
   
   
-  <span data-ice="source">| <span><a href="file/src/sources/videosource.js.html#lineNumber14">source</a></span></span>
+  <span data-ice="source">| <span><a href="file/src/sources/videosource.js.html#lineNumber16">source</a></span></span>
 </div>
 
 <div class="self-detail detail">
@@ -109,13 +109,13 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(properties: <span>*</span>, gl: <span>*</span>)</span>
+           <span data-ice="name"><span><a href="class/src/sources/videosource.js~VideoSource.html#instance-constructor-constructor">constructor</a></span></span><span data-ice="signature">(properties: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>, gl: <span>WebGLContext</span>)</span>
         </p>
       </div>
       <div>
         
         
-        
+        <div data-ice="description">Video playback source.</div>
       </div>
     </td>
     <td>
@@ -429,18 +429,23 @@
     
     
     
-    <span data-ice="name">constructor</span><span data-ice="signature">(properties: <span>*</span>, gl: <span>*</span>)</span>
+    <span data-ice="name">constructor</span><span data-ice="signature">(properties: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>, gl: <span>WebGLContext</span>)</span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber15">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber31">source</a></span></span>
     </span>
   </h3>
 
   
   
   
-  
+  <div data-ice="description"><p>Video playback source. Inherits from MediaSource </p>
+<p>A VideoSource is the manifestation of a mediaSourceReference from a playlist object which has type &quot;video&quot;. </p>
+<p>A VideoSource exists for a period slightly before a VideoSource is to play in order to give it time to preload and
+is destroyed as soon as the VideoSource has finished playing. You can define an offset into the original video to 
+start playing by passing in a sourceStart value in the properties.</p>
+</div>
 
   
 
@@ -454,15 +459,18 @@
     
     <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">properties</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>An object with the following attributes: id, duration, start, sourceStart, and src or element. 
+Where src is the URL of a video, or element is a DOM Video element.</p>
+</td>
     </tr>
 <tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">gl</td>
-      <td data-ice="type"><span>*</span></td>
+      <td data-ice="type"><span>WebGLContext</span></td>
       <td data-ice="appendix"></td>
-      <td data-ice="description"></td>
+      <td data-ice="description"><p>a webGl context to render too.</p>
+</td>
     </tr>
 </tbody>
   </table>
@@ -498,7 +506,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber96">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber112">source</a></span></span>
     </span>
   </h3>
 
@@ -538,7 +546,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber91">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber107">source</a></span></span>
     </span>
   </h3>
 
@@ -578,7 +586,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber89">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber105">source</a></span></span>
     </span>
   </h3>
 
@@ -618,7 +626,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber17">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber33">source</a></span></span>
     </span>
   </h3>
 
@@ -658,7 +666,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber90">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber106">source</a></span></span>
     </span>
   </h3>
 
@@ -701,7 +709,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber129">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber145">source</a></span></span>
     </span>
   </h3>
 
@@ -742,7 +750,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber82">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber98">source</a></span></span>
     </span>
   </h3>
 
@@ -783,7 +791,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber75">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber91">source</a></span></span>
     </span>
   </h3>
 
@@ -824,7 +832,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber29">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber45">source</a></span></span>
     </span>
   </h3>
 
@@ -865,7 +873,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber123">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber139">source</a></span></span>
     </span>
   </h3>
 
@@ -934,7 +942,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber50">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/sources/videosource.js.html#lineNumber66">source</a></span></span>
     </span>
   </h3>
 

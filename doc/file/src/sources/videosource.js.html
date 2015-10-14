@@ -64,7 +64,23 @@ function eventOneTime(element, type, callback){
     element.addEventListener(type, handleEvent, false);         
 }
 
+
+
 class VideoSource extends MediaSource{
+    /**
+    * Video playback source. Inherits from MediaSource 
+    *
+    * A VideoSource is the manifestation of a mediaSourceReference from a playlist object which has type &quot;video&quot;. 
+    * 
+    * A VideoSource exists for a period slightly before a VideoSource is to play in order to give it time to preload and
+    * is destroyed as soon as the VideoSource has finished playing. You can define an offset into the original video to 
+    * start playing by passing in a sourceStart value in the properties.
+    *
+    * @param {Object} properties - An object with the following attributes: id, duration, start, sourceStart, and src or element. 
+    * Where src is the URL of a video, or element is a DOM Video element.
+    * 
+    * @param {WebGLContext} gl - a webGl context to render too.
+    */
     constructor(properties, gl){
         super(properties, gl);
         this.sourceStart = 0;

@@ -2,18 +2,46 @@
 import MediaSource from "./mediasource";
 
 class ImageSource extends MediaSource{
+    /**
+    * Image playback source. Inherits from MediaSource 
+    *
+    * A ImageSource is the manifestation of a mediaSourceReference from a playlist object which has type "image". 
+    * 
+    * A ImageSource exists for a period slightly before a ImageSource is to play in order to give it time to preload and
+    * is destroyed as soon as the ImageSource has finished playing.
+    *
+    * @param {Object} properties - An object with the following attributes: id, duration, start, and src or element. 
+    * Where src is the URL of a video, or element is a DOM Video element.
+    * 
+    * @param {WebGLContext} gl - a webGl context to render too.
+    */
     constructor(properties, gl){
         super(properties, gl);
     }
+    /**
+    * Set the ImageSource playing.
+    */
     play(){
         super.play();
     }
+    /**
+    * Seek to playlist time and do something appropriate with this ImageSource. This has little effect on the image as it's 
+    * static but can affect any effect shaders applied to this image and any MediaSourceListeners listening to the Id of 
+    * this source.
+    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    */
     seek(time){
         super.seek(time);
     }
+    /**
+    * Pause the ImageSource if it is playing.
+    */
     pause(){
         super.pause();
     }
+    /**
+    * Set the ImageSource loading, when it's ready isReady() will return true.
+    */
     load(){
         //check if we're using an already instatiated element, if so don't do anything.
         if (super.load()){
