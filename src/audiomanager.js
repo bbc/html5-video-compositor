@@ -24,15 +24,18 @@ function getTrackIndexsForId(id, tracks){
 class AudioManager {
     constructor(audioCtx){
         this.audioCtx = audioCtx;
-        if (this.audioCtx === undefined){
-            this.audioCtx = new AudioContext();
-        }
         this.tracks = [];
         this.audioNodes = new Map();
         this.audioOutputNodes = [];
     }
         
     createAudioNodeFromTrack(track){
+        if (this.audioCtx === undefined){
+            // There can only be a max of 6 AudioContexts in most browsers, so only instantiate it here rather than in 
+            // constructor as it's genuinley needed. Otherwise having >6 VideoCompositor instances running will break 
+            // the browser.
+            this.audioCtx = new AudioContext();
+        }
         this.tracks.push(track);
         let trackBus = this.audioCtx.createGain();
         this.audioOutputNodes.push(trackBus);
