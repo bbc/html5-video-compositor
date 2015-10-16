@@ -408,6 +408,34 @@ class VideoCompositor {
             this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
         }
     }
+    /**
+    * This method allows you to remove a listener from a specific MediaSource.
+    *
+    * To use this you must pass in an object which has already been registered using registerMediaSourceListener,
+    * @param {String} mediaSourceID - The id of the MediaSource to remove the listener from.
+    * @param {Object} mediaSourceListener - An Object that has been previously passed in via registerMediaSourceListener. 
+    */
+    unregisterMediaSourceListener(mediaSourceID, mediaSourceListener){
+        if (!this._mediaSourceListeners.has(mediaSourceID)){
+            return false;
+        }else{
+            let listenerArray = this._mediaSourceListeners.get(mediaSourceID);
+
+            let index = listenerArray.indexOf(mediaSourceListener);
+            if (index > -1){
+                listenerArray.splice(index, 1);
+            }
+
+            if (this._mediaSources.has(mediaSourceID)){
+                let mediaSourceListnerArray = this._mediaSources.get(mediaSourceID).mediaSourceListeners;
+                index = mediaSourceListnerArray.indexOf(mediaSourceListener);
+                if (index > -1){
+                    mediaSourceListnerArray.splice(index, 1);
+                }
+            }
+            return true;
+        }
+    }
 
     /**
     * Returns the audio context that was either passed into the constructor or created internally.

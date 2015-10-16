@@ -595,13 +595,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
@@ -651,6 +651,12 @@ window.esdocSearchIndex = [
     "src/main.js~videocompositor#removeeventlistener",
     "class/src/main.js~VideoCompositor.html#instance-method-removeEventListener",
     "src/main.js~VideoCompositor#removeEventListener",
+    "method"
+  ],
+  [
+    "src/main.js~videocompositor#unregistermediasourcelistener",
+    "class/src/main.js~VideoCompositor.html#instance-method-unregisterMediaSourceListener",
+    "src/main.js~VideoCompositor#unregisterMediaSourceListener",
     "method"
   ],
   [

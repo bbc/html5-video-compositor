@@ -34,7 +34,7 @@
             // });
 
 
-            /*function MediaSourceListener(){
+            function MediaSourceListener(){
                 this.play = function() {
                     console.log("Listened Play");
                 };
@@ -55,7 +55,8 @@
                 };
             };
 
-            var testListener = new MediaSourceListener();*/
+            var testListener = new MediaSourceListener();
+            var test2Listener = new MediaSourceListener();
 
 
 
@@ -102,13 +103,16 @@
 
 
 
-            //videoCompositor.registerMediaSourceListener("earth", testListener);
+            videoCompositor.registerMediaSourceListener("bg", testListener);
+            videoCompositor.registerMediaSourceListener("bg", test2Listener);
 
 
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             videoCompositor.playlist = playlist;
             //videoCompositor.play();
+
+
 
             var audioCtx = videoCompositor.getAudioContext();
             var videoAudioNode = videoCompositor.getAudioNodeForTrack(playlist.tracks[0]);
@@ -140,6 +144,8 @@
             };
             pauseButton.onclick = function(){
                 videoCompositor.pause();
+                videoCompositor.unregisterMediaSourceListener("bg", testListener);
+
             };
             mst3000Button.onclick = function(){
                 var mst3000Track = [];

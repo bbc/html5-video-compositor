@@ -326,6 +326,37 @@ module.exports =
 	            }
 	        }
 	    }, {
+	        key: "unregisterMediaSourceListener",
+
+	        /**
+	        * This method allows you to remove a listener from a specific MediaSource.
+	        *
+	        * To use this you must pass in an object which has already been registered using registerMediaSourceListener,
+	        * @param {String} mediaSourceID - The id of the MediaSource to remove the listener from.
+	        * @param {Object} mediaSourceListener - An Object that has been previously passed in via registerMediaSourceListener. 
+	        */
+	        value: function unregisterMediaSourceListener(mediaSourceID, mediaSourceListener) {
+	            if (!this._mediaSourceListeners.has(mediaSourceID)) {
+	                return false;
+	            } else {
+	                var listenerArray = this._mediaSourceListeners.get(mediaSourceID);
+
+	                var index = listenerArray.indexOf(mediaSourceListener);
+	                if (index > -1) {
+	                    listenerArray.splice(index, 1);
+	                }
+
+	                if (this._mediaSources.has(mediaSourceID)) {
+	                    var mediaSourceListnerArray = this._mediaSources.get(mediaSourceID).mediaSourceListeners;
+	                    index = mediaSourceListnerArray.indexOf(mediaSourceListener);
+	                    if (index > -1) {
+	                        mediaSourceListnerArray.splice(index, 1);
+	                    }
+	                }
+	                return true;
+	            }
+	        }
+	    }, {
 	        key: "getAudioContext",
 
 	        /**
@@ -2147,6 +2178,12 @@ module.exports =
 	    }, {
 	        key: "getAudioContext",
 	        value: function getAudioContext() {
+	            if (this.audioCtx === undefined) {
+	                // There can only be a max of 6 AudioContexts in most browsers, so only instantiate it here rather than in
+	                // constructor as it's genuinley needed. Otherwise having >6 VideoCompositor instances running will break
+	                // the browser.
+	                this.audioCtx = new AudioContext();
+	            }
 	            return this.audioCtx;
 	        }
 	    }, {

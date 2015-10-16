@@ -518,6 +518,31 @@
       
     </td>
   </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-unregisterMediaSourceListener">unregisterMediaSourceListener</a></span></span><span data-ice="signature">(mediaSourceID: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, mediaSourceListener: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description">This method allows you to remove a listener from a specific MediaSource.</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
 </tbody>
 </table>
 </div>
@@ -538,7 +563,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber746">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber774">source</a></span></span>
     </span>
   </h3>
 
@@ -622,7 +647,7 @@ var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber718">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber746">source</a></span></span>
     </span>
   </h3>
 
@@ -708,7 +733,7 @@ var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber882">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber910">source</a></span></span>
     </span>
   </h3>
 
@@ -794,7 +819,7 @@ VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber787">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber815">source</a></span></span>
     </span>
   </h3>
 
@@ -1328,7 +1353,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber430">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber458">source</a></span></span>
     </span>
   </h3>
 
@@ -1399,7 +1424,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber458">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber486">source</a></span></span>
     </span>
   </h3>
 
@@ -1793,6 +1818,82 @@ videoCompositor.play();
 videoCompositor.removeEventListener(&quot;play&quot;, playingCallback);</code></pre>
     </div>
 </div>
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-method-unregisterMediaSourceListener">
+    <span class="access" data-ice="access">public</span>
+    
+    
+    
+    
+    <span data-ice="name">unregisterMediaSourceListener</span><span data-ice="signature">(mediaSourceID: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, mediaSourceListener: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>): <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber418">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>This method allows you to remove a listener from a specific MediaSource.</p>
+<p>To use this you must pass in an object which has already been registered using registerMediaSourceListener,</p>
+</div>
+
+  
+
+  <div data-ice="properties"><div data-ice="properties">
+  <h4 data-ice="title">Params:</h4>
+  <table class="params">
+    <thead>
+    <tr><td>Name</td><td>Type</td><td>Attribute</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+    
+    <tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">mediaSourceID</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"><p>The id of the MediaSource to remove the listener from.</p>
+</td>
+    </tr>
+<tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">mediaSourceListener</td>
+      <td data-ice="type"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"><p>An Object that has been previously passed in via registerMediaSourceListener.</p>
+</td>
+    </tr>
+</tbody>
+  </table>
+</div>
+</div>
+
+  <div class="return-params" data-ice="returnParams">
+    <h4>Return:</h4>
+    <table>
+      <tr>
+        <td class="return-type" data-ice="returnType"><span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></span></td>
+        
+      </tr>
+    </table>
+    <div data-ice="returnProperties">
+</div>
+  </div>
+
+  
+
+  
+
+  
+
+  
 
   
 
