@@ -637,6 +637,12 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#playlist",
+    "class/src/main.js~VideoCompositor.html#instance-get-playlist",
+    "src/main.js~VideoCompositor#playlist",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#playlist",
     "class/src/main.js~VideoCompositor.html#instance-set-playlist",
     "src/main.js~VideoCompositor#playlist",
     "member"

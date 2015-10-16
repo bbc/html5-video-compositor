@@ -281,7 +281,15 @@ class VideoCompositor {
         });
         this._mediaSources.clear();
     }
-    
+
+    /**
+    * Get the playlist object.
+    * @return {Object} The playlist object
+    */
+    get playlist(){
+        return this._playlist;
+    }
+
     /**
     * Play the playlist. If a pause() has been called previously playback will resume from that point.
     * @example

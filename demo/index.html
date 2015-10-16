@@ -145,6 +145,7 @@
             pauseButton.onclick = function(){
                 videoCompositor.pause();
                 videoCompositor.unregisterMediaSourceListener("bg", testListener);
+                console.log(videoCompositor.playlist);
 
             };
             mst3000Button.onclick = function(){

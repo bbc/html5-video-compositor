@@ -837,6 +837,14 @@ module.exports =
 	                mediaSource.destroy();
 	            });
 	            this._mediaSources.clear();
+	        },
+
+	        /**
+	        * Get the playlist object.
+	        * @return {Object} The playlist object
+	        */
+	        get: function get() {
+	            return this._playlist;
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
