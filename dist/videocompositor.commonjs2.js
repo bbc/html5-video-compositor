@@ -467,33 +467,17 @@ module.exports =
 	                mediaSourceListeners = this._mediaSourceListeners.get(mediaSourceReference.id);
 	            }
 
-	            switch (mediaSourceReference.type) {
-	                case "video":
-	                    var video = new _sourcesVideosourceJs2["default"](mediaSourceReference, this._ctx);
-	                    video.onready = onReadyCallback;
-	                    video.mediaSourceListeners = mediaSourceListeners;
-	                    video.load();
-	                    this._mediaSources.set(mediaSourceReference.id, video);
-	                    break;
-	                case "image":
-	                    var image = new _sourcesImagesourceJs2["default"](mediaSourceReference, this._ctx);
-	                    image.onready = onReadyCallback;
-	                    image.mediaSourceListeners = mediaSourceListeners;
-	                    image.load();
-	                    this._mediaSources.set(mediaSourceReference.id, image);
-	                    break;
-	                case "canvas":
-	                    var canvas = new _sourcesCanvassourceJs2["default"](mediaSourceReference, this._ctx);
-	                    canvas.onready = onReadyCallback;
-	                    canvas.mediaSourceListeners = mediaSourceListeners;
-	                    canvas.load();
-	                    this._mediaSources.set(mediaSourceReference.id, canvas);
-	                    break;
-	                default:
-	                    throw { "error": 5, "msg": "mediaSourceReference " + mediaSourceReference.id + " has unrecognized type " + mediaSourceReference.type, toString: function toString() {
-	                            return this.msg;
-	                        } };
+	            var MediaSourceClass = mediaSourceMapping.get(mediaSourceReference.type);
+	            if (MediaSourceClass === undefined) {
+	                throw { "error": 5, "msg": "mediaSourceReference " + mediaSourceReference.id + " has unrecognized type " + mediaSourceReference.type, toString: function toString() {
+	                        return this.msg;
+	                    } };
 	            }
+	            var mediaSource = new MediaSourceClass(mediaSourceReference, this._ctx);
+	            mediaSource.onready = onReadyCallback;
+	            mediaSource.mediaSourceListeners = mediaSourceListeners;
+	            mediaSource.load();
+	            this._mediaSources.set(mediaSourceReference.id, mediaSource);
 	        }
 	    }, {
 	        key: "_calculateMediaSourcesOverlap",
@@ -646,6 +630,9 @@ module.exports =
 	            for (var i = 0; i < currentlyPlaying.length; i++) {
 	                var mediaSourceID = currentlyPlaying[i].id;
 	                var mediaSource = this._mediaSources.get(mediaSourceID);
+	                //We must update the MediaSource object with any changes made to the MediaSourceReference
+	                //Currently the only parameters we update are start,duration
+
 	                mediaSource.play();
 	                var progress = (this._currentTime - currentlyPlaying[i].start) / currentlyPlaying[i].duration;
 	                //get the base render parameters

@@ -548,31 +548,15 @@ class VideoCompositor {
         }
 
 
-        switch (mediaSourceReference.type){
-            case "video":
-                let video = new VideoSource(mediaSourceReference, this._ctx);
-                video.onready = onReadyCallback;
-                video.mediaSourceListeners = mediaSourceListeners;
-                video.load();
-                this._mediaSources.set(mediaSourceReference.id, video);
-                break;
-            case "image":
-                let image = new ImageSource(mediaSourceReference, this._ctx);
-                image.onready = onReadyCallback;
-                image.mediaSourceListeners = mediaSourceListeners;
-                image.load();
-                this._mediaSources.set(mediaSourceReference.id, image);
-                break;
-            case "canvas":
-                let canvas = new CanvasSource(mediaSourceReference, this._ctx);
-                canvas.onready = onReadyCallback;
-                canvas.mediaSourceListeners = mediaSourceListeners;
-                canvas.load();
-                this._mediaSources.set(mediaSourceReference.id, canvas);
-                break;
-            default:
-                throw {"error":5,"msg":"mediaSourceReference "+mediaSourceReference.id+" has unrecognized type "+mediaSourceReference.type, toString:function(){return this.msg;}};
+        let MediaSourceClass = mediaSourceMapping.get(mediaSourceReference.type);
+        if (MediaSourceClass === undefined){
+            throw {"error":5,"msg":"mediaSourceReference "+mediaSourceReference.id+" has unrecognized type "+mediaSourceReference.type, toString:function(){return this.msg;}};
         }
+        let mediaSource = new MediaSourceClass(mediaSourceReference, this._ctx);
+        mediaSource.onready = onReadyCallback;
+        mediaSource.mediaSourceListeners = mediaSourceListeners;
+        mediaSource.load();
+        this._mediaSources.set(mediaSourceReference.id, mediaSource);
     }
 
     _calculateMediaSourcesOverlap(mediaSources){
@@ -714,6 +698,9 @@ class VideoCompositor {
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
             let mediaSource = this._mediaSources.get(mediaSourceID);
+            //We must update the MediaSource object with any changes made to the MediaSourceReference
+            //Currently the only parameters we update are start,duration
+
             mediaSource.play();
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
             //get the base render parameters
