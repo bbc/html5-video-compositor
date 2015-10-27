@@ -1242,6 +1242,8 @@ VideoCompositor.Effects = {
             uniform sampler2D u_image;\
             varying vec2 v_texCoord;\
             varying float v_progress;\
+            varying float v_yUpperThreshold;\
+            varying float v_yLowerThreshold;\
             void main(){\
                 vec4 pixel = texture2D(u_image, v_texCoord);\
                 float alpha = 1.0;\
@@ -1251,12 +1253,42 @@ VideoCompositor.Effects = {
                 float y =  0.299*r + 0.587*g + 0.114*b;\
                 float u = -0.147*r - 0.289*g + 0.436*b;\
                 float v =  0.615*r - 0.515*g - 0.100*b;\
-                if (y > 0.2 && y < 0.8){\
+                if (y > v_yLowerThreshold && y < v_yUpperThreshold){\
                     alpha = (v+u)*40.0 +2.0;\
                 }\
                 pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
                 gl_FragColor = pixel;\
-            }"
+            }",
+        "vertexShader": "\
+            uniform float progress;\
+            uniform float duration;\
+            uniform float yLowerThreshold;\
+            uniform float yUpperThreshold;\
+            uniform vec2 source_resolution;\
+            uniform vec2 output_resolution;\
+            attribute vec2 a_position;\
+            attribute vec2 a_texCoord;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            varying float v_yLowerThreshold;\
+            varying float v_yUpperThreshold;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
+            void main() {\
+                v_progress = progress;\
+                v_duration = duration;\
+                v_yLowerThreshold = yLowerThreshold;\
+                v_yUpperThreshold = yUpperThreshold;\
+                v_source_resolution = source_resolution;\
+                v_output_resolution = output_resolution;\
+                gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+                v_texCoord = a_texCoord;\
+            }",
+            "defaultParameters":{
+                "yLowerThreshold":0.2,
+                "yUpperThreshold":0.8
+            }
     },
     "FADEINOUT": {
         "fragmentShader":VideoCompositor.FragmentShaders.FADEINOUT,
