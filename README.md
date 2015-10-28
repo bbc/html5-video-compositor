@@ -49,7 +49,7 @@ The [tutorial.md file](https://github.com/bbc/html5-video-compositor/blob/master
 
 [API documentation](https://github.com/bbc/html5-video-compositor/tree/master/doc) is available in the /doc directory of the project.
 
-Note about usage and behaviours is available on the [Wiki](https://github.com/bbc/html5-video-compositor/wiki).
+Notes about usage, behaviors, and other miscellaneous information is available on the [Wiki](https://github.com/bbc/html5-video-compositor/wiki).
 
 
 ## Build
