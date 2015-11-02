@@ -97,6 +97,12 @@ Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming
         };
 ```
 
+Then add a button to control stop playback.
+
+```HTML
+        <button onclick="videocompositor.stop();">Stop</button>
+```
+
 This has put a structure in place which will allow you to control the playback of a VideoCompositor instance. You full index.html file should now look like the following:
 
 ```HTML
@@ -194,7 +200,7 @@ Cut
 
 We can cut together more clips on the playlist. Replace it with the following 
 
-```
+```JavaScript
 var playlist = {
     "tracks":[
         [
@@ -279,40 +285,10 @@ Composite
 ---------
 We're now going to introduce two important concepts, parallel tracks, and effects. To introduce these concepts we're going to need more source material. Download a [suitable image](https://pixabay.com/en/cat-animals-cats-portrait-of-cat-778315/) and place it in the working directory of project with the name "image.jpg". 
 
-The following code shows how to play the image on a parallel track.
+The following playlist shows how to play the image on a parallel track.
 
 
-```
-<!DOCTYPE html>
-<html>
-<head>
-    <title>VideoCompositor Demo</title>
-    <script type="text/javascript" src="videocompositor.js"></script>
-</head>
-<body>
-    <canvas id="vc-cavnas"></canvas>
-    <p>
-        <canvas id="visualization-canvas"></canvas>
-    </p>
-    <p>
-        <button onclick="videocompositor.play();">Play</button>
-        <button onclick="videocompositor.pause();">Pause</button>
-        <button onclick="videocompositor.stop();">Stop</button>
-    </p>
-    <script type="text/javascript">
-    var videocompositor;
-
-    window.onload = function(){
-        var canvas = document.getElementById('vc-cavnas');
-        canvas.width = 640;
-        canvas.height = 360;
-        videocompositor = new VideoCompositor(canvas);
-
-        videocompositor.stop= function(){
-            videocompositor.pause();
-            videocompositor.currentTime = 0;
-        };
-
+```JavaScript
         var playlist = {
             "tracks":[
                 [
@@ -323,23 +299,9 @@ The following code shows how to play the image on a parallel track.
                 [{type:"image", id:"cats", src:"image.jpg", start:0, duration:10}]
             ]
         };
-
-        videocompositor.playlist = playlist;
-
-        //Render a playlist visualization
-        var visCanvas = document.getElementById('visualization-canvas');
-        visCanvas.width = 640;
-        visCanvas.height = 30;
-        VideoCompositor.renderPlaylist(playlist, visCanvas);
-
-    };
-
-    </script>
-</body>
-</html>
 ```
 
-Running the above code will seemingly make no changes. This is because tracks are rendered in order, starting at the highest index track first and rendering the track at index 0 on-top of everything. This means our Shia LeBeouf video will be rendered on-top of the static image.
+Running the above playlist will seemingly make no changes to the rendered output, but you'll see a new track on the playlist visualisation. This is because tracks are rendered in order, starting at the highest index track first and rendering the track at index 0 on-top of everything. This means our Shia LeBeouf video will be rendered on-top of the static image.
 
 Try replacing the playlist object with the following:
 ```
@@ -367,6 +329,77 @@ var playlist = {
 ```
 
 This will apply a greenscreen effect to the Shia LaBeouf videos, causing the green pixels to be transparent allowing the underlying image to show through.
+
+Your full index.html file should now look like the following.
+
+```HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VideoCompositor Demo</title>
+    <script type="text/javascript" src="videocompositor.js"></script>
+</head>
+<body>
+    <canvas id="vc-cavnas"></canvas>
+    <p>
+        <canvas id="visualization-canvas"></canvas>
+    </p>
+    <p>
+        <button onclick="videocompositor.play();">Play</button>
+        <button onclick="videocompositor.pause();">Pause</button>
+        <button onclick="videocompositor.stop();">Stop</button>
+    </p>
+    <script type="text/javascript">
+
+    var videocompositor;
+
+    window.onload = function(){
+        var canvas = document.getElementById('vc-cavnas');
+        canvas.width = 640;
+        canvas.height = 360;
+        videocompositor = new VideoCompositor(canvas);
+
+        videocompositor.stop= function(){
+            videocompositor.pause();
+            videocompositor.currentTime = 0;
+        };
+
+        var playlist = {
+            "tracks":[
+                [
+                    {type:"video", id:"clip-1", src:"introductions-fast.mp4", start:0, duration:4},
+                    {type:"video", id:"clip-2", src:"introductions-fast.mp4", start:4, sourceStart:140, duration:2},
+                    {type:"video", id:"clip-3", src:"introductions-fast.mp4", start:6, sourceStart:1469, duration:4}
+                ],
+                [{type:"image", id:"bg-image", src:"image.jpg", start:0, duration:10}]
+
+            ],
+            "effects":{
+                "greenscreen-effect":{
+                    "inputs":["clip-1","clip-2","clip-3"],
+                    "effect":VideoCompositor.Effects.GREENSCREEN,
+                    "parameters":{
+                        "yLowerThreshold": 0.1,
+                        "yUpperThreshold": 1.0
+                    }
+                }
+            }
+        };
+
+        videocompositor.playlist = playlist;
+
+        //Render a playlist visualization
+        var visCanvas = document.getElementById('visualization-canvas');
+        visCanvas.width = 640;
+        visCanvas.height = 30;
+        VideoCompositor.renderPlaylist(playlist, visCanvas);
+
+    };
+
+    </script>
+</body>
+</html>
+```
 
 
 
