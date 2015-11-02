@@ -77,40 +77,27 @@ Controls
 --------
 By default the VideoCompositor only provides the compositing engine, playback controls must be added manually. 
 
-We'll add some simple controls using button elements to play and pause the playback.
+We'll add some simple controls using button elements to play and pause the playback. Add the following after the <canvas> tag.
 
 ```HTML
-<!DOCTYPE html>
-<html>
-<head>
-    <title>VideoCompositor Demo</title>
-    <script type="text/javascript" src="videocompositor.js"></script>
-</head>
-<body>
-    <canvas id="vc-cavnas"></canvas>
     <p>
         <button onclick="videocompositor.play();">Play</button>
         <button onclick="videocompositor.pause();">Pause</button>
     </p>
-    <script type="text/javascript">
-    
-    var videocompositor;
-    
-    window.onload = function(){
-        var canvas = document.getElementById('vc-cavnas');
-        canvas.width = 640;
-        canvas.height = 360;
-        videocompositor = new VideoCompositor(canvas);
-    };
-    
-    </script>
-</body>
-</html>
 ```
 
 You'll note that there's no stop function for the VideoCompositor. This mirrors the functionality of a HTML5 video where you must combine a pause with a setting of video.currentTime to 0.
 
-Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming-javascript.html) one in to provide the functionality. This is generally considered bad practice, but we'll roll with it for now. 
+Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming-javascript.html) one in to provide the functionality. This is generally considered bad practice, but we'll roll with it for now. Add the following code fragment after the video compositor is initialised.
+
+```JavaScript
+        videocompositor.stop= function(){
+            videocompositor.pause();
+            videocompositor.currentTime = 0;
+        };
+```
+
+This has put a structure in place which will allow you to control the playback of a VideoCompositor instance. You full index.html file should now look like the following:
 
 ```HTML
 <!DOCTYPE html>
@@ -127,9 +114,9 @@ Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming
         <button onclick="videocompositor.stop();">Stop</button>
     </p>
     <script type="text/javascript">
-    
+
     var videocompositor;
-    
+
     window.onload = function(){
         var canvas = document.getElementById('vc-cavnas');
         canvas.width = 640;
@@ -141,13 +128,11 @@ Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming
             videocompositor.currentTime = 0;
         };
     };
-    
+
     </script>
 </body>
 </html>
 ```
-
-This has put a structure in place which will allow you to control the playback of a VideoCompositor instance.
 
 Play
 ----
@@ -270,17 +255,7 @@ It can often be quite difficult to visualize what's happening on a playlist. For
                     {type:"video", id:"clip-2", src:"introductions-fast.mp4", start:4, sourceStart:140, duration:2},
                     {type:"video", id:"clip-3", src:"introductions-fast.mp4", start:6, sourceStart:1469, duration:4}
                 ]
-            ],
-            "effects":{
-                "greenscreen-effect":{
-                    "inputs":["clip-1","clip-2","clip-3"],
-                    "effect":VideoCompositor.Effects.GREENSCREEN,
-                    "parameters":{
-                        "yLowerThreshold": 0.1,
-                        "yUpperThreshold": 1.0
-                    }
-                }
-            }
+            ]
         };
 
         videocompositor.playlist = playlist;
