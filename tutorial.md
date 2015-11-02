@@ -1,8 +1,8 @@
 Tutorial
 ========
 
-1//Ingredients
---------------
+Ingredients
+-----------
 Lets use Shia LaBeouf's performance in [#introductions](https://vimeo.com/125095515) as one of our media sources. Follow the link to Vimeo video, press the download button and copy the link for the SD version into the following command, replacing $DOWNLOADLINK (keep the surrounding quotes).
 
 ```Bash
@@ -54,8 +54,8 @@ Open the index.html file and add the following.
 ```
 
 
-2//Serve
---------
+Serve
+-----
 In order for the VideoCompositor to work correctly it must be served from an asynchronous capable web-server (unfortunately this means "python -m SimpleHTTPServer" won't work). 
 
 A simple web-server can be acquired from the node package manager (npm).
@@ -73,8 +73,8 @@ http-server
 Navigating to [http://localhost:8080](http://localhost:8080) in a web browser should show a blank page with a black rectangle in the top left.
 
 
-3//Controls
------------
+Controls
+--------
 By default the VideoCompositor only provides the compositing engine, playback controls must be added manually. 
 
 We'll add some simple controls using button elements to play and pause the playback.
@@ -149,8 +149,8 @@ Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming
 
 This has put a structure in place which will allow you to control the playback of a VideoCompositor instance.
 
-4//Play
--------
+Play
+----
 We'll now look at actually playing back some content. To do this we set the playlist property of the VideoCompositor instance to a playlist object representing the media we want to play. The following will play the first 4 seconds of the introductions video.
 
 
@@ -204,8 +204,8 @@ The playlist object in the above code is the most basic form of playlist. We hav
 Each of the track arrays is a sequence of objects which represent clips from some source of media, we call these MediaSourceReferences. These must be arranged in the track array in the order in which they are to be played.
 
 
-5//Cut
-------
+Cut
+---
 
 We can cut together more clips on the playlist. Replace it with the following 
 
@@ -227,8 +227,8 @@ It's also worth noting that every MediaSourceReference has a start and duration 
 MediaSourceReferences on the same track should never overlap. For example, you can't have a MediaSourceRefernce with start:0 and duration:4 and one with start:3 and duration:4 on the same track as they would overlap by one second. To have MediaSourceReferences overlapping they must be on separate tracks.
 
 
-6//Visualize
-------------
+Visualize
+---------
 It can often be quite difficult to visualize what's happening on a playlist. Fortunately there is a static method on the VideoCompositor which will render a visual representation of a playlist to a canvas.
 
 
@@ -300,9 +300,9 @@ It can often be quite difficult to visualize what's happening on a playlist. For
 
 This visualization will be useful later on once we start adding more tracks to a playlist.
 
-7//Composite
-------------
-We're now going to introduce two important concepts, parallel tracks, and effects. To introduce these concepts we're going to need more source material. Download a [suitable image](https://www.google.co.uk/search?q=cats&tbm=isch) and place it in the working directory of project with the name "image.jpg". 
+Composite
+---------
+We're now going to introduce two important concepts, parallel tracks, and effects. To introduce these concepts we're going to need more source material. Download a [suitable image](https://pixabay.com/en/cat-animals-cats-portrait-of-cat-778315/) and place it in the working directory of project with the name "image.jpg". 
 
 The following code shows how to play the image on a parallel track.
 
@@ -395,5 +395,5 @@ This will apply a greenscreen effect to the Shia LaBeouf videos, causing the gre
 
 
 
-8//Interact
------------
+Interact
+--------
