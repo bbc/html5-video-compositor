@@ -77,7 +77,7 @@ Controls
 --------
 By default the VideoCompositor only provides the compositing engine, playback controls must be added manually. 
 
-We'll add some simple controls using button elements to play and pause the playback. Add the following after the <canvas> tag.
+We'll add some simple controls using button elements to play and pause the playback. Add the following after the canvas tag.
 
 ```HTML
     <p>
