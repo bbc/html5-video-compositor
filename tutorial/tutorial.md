@@ -190,7 +190,7 @@ We'll now look at actually playing back some content. To do this we set the play
 </html>
 ```
 
-If that has worked successfully you should see Shia telling you "something is happening".
+If that has worked successfully you should see Shia telling you "something is happening" when you press the play button.
 
 The playlist object in the above code is the most basic form of playlist. We have an object with a property called "tracks". This is an array of arrays. The inner arrays are tracks, each of these tracks gets played in parallel. In the above example we only have a single track.
 
@@ -283,6 +283,8 @@ It can often be quite difficult to visualize what's happening on a playlist. For
 ```
 
 This visualization will be useful later on once we start adding more tracks to a playlist.
+
+
 ![Web Page With Visualisation](./4.png?raw=true)
 
 
@@ -309,7 +311,7 @@ The following playlist shows how to play the image on a parallel track.
 Running the above playlist will seemingly make no changes to the rendered output, but you'll see a new track on the playlist visualisation. This is because tracks are rendered in order, starting at the highest index track first and rendering the track at index 0 on-top of everything. This means our Shia LeBeouf video will be rendered on-top of the static image.
 
 Try replacing the playlist object with the following:
-```
+```JavaScript
 var playlist = {
     "tracks":[
         [
@@ -334,6 +336,8 @@ var playlist = {
 ```
 
 This will apply a greenscreen effect to the Shia LaBeouf videos, causing the green pixels to be transparent allowing the underlying image to show through.
+
+![Web Page With Compositing](./5.png?raw=true)
 
 Your full index.html file should now look like the following.
 
@@ -406,7 +410,198 @@ Your full index.html file should now look like the following.
 </html>
 ```
 
-![Web Page With Compositing](./5.png?raw=true)
 
 Interact
 --------
+
+Lets add some interactive graphics behind Shia. To do this we will add a new track to the playlist, but the MediaSourceReference will be a little different. Rather than passing in a source string we'll pass in an already existing canvas element.
+
+First create a new canvas after the buttons, setting it's display style to none:
+```HTML    
+    <p>
+        <canvas id="rainbow-canvas" style="display:none;"></canvas>
+    </p>
+```
+
+Then get a reference to it before the playlist is set and set-up some animations using [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It's important to note we listen for mouse events on the video compositor canvas, then use the co-ordinates from that in the rendering to the rainbow canvas:
+```JavaScript
+        //create an interactive canvas
+        var rainbowCanvas = document.getElementById("rainbow-canvas");
+        var rainbowCtx = rainbowCanvas.getContext("2d");
+        rainbowCanvas.width = 640;
+        rainbowCanvas.height = 360;
+        var start = null;
+        var mouseX = 640/2;
+        var mouseY = 360/2;
+        canvas.addEventListener('mousemove', function(evt) {
+            var rect = canvas.getBoundingClientRect();
+            mouseX = evt.clientX - rect.left;
+            mouseY = evt.clientY - rect.top;
+        }, false);
+        var renderRainbow = function(timestamp){
+            rainbowCtx.globalAlpha = 0.5;
+            rainbowCtx.clearRect(0,0,rainbowCanvas.width, rainbowCanvas.height);
+            if (!start) start = timestamp;
+            var progress = (timestamp - start)/1000;
+            
+            var rainbow = ['#f00000','#00f000','#0000f0','#f000f0','#00f0f0','#f0f000'];
+
+            for (var i = 0; i < rainbow.length; i++) {
+                var color = rainbow[i];
+                var x = Math.sin(progress+i) * rainbowCanvas.width*2 + Math.sin(i*10)*10;
+                var y = Math.cos(progress+i) * rainbowCanvas.width*2 + Math.cos(i*10)*10;    
+                rainbowCtx.lineWidth=20;
+                rainbowCtx.beginPath();
+                rainbowCtx.moveTo(mouseX,mouseY);
+                rainbowCtx.bezierCurveTo(x/3+50,y/3+30,(x/3)*2-50,(y/3)*2-30,640/2,380/2);
+                rainbowCtx.strokeStyle=color;
+                rainbowCtx.lineCap = "round";
+                rainbowCtx.stroke();
+            };
+            window.requestAnimationFrame(renderRainbow);
+        }
+        window.requestAnimationFrame(renderRainbow);
+```
+
+Then add it to a new track on the playlist:
+
+```JavaScript
+        var playlist = {
+            "tracks":[
+                [
+                    {type:"video", id:"clip-1", src:"introductions-fast.mp4", start:0, duration:4},
+                    {type:"video", id:"clip-2", src:"introductions-fast.mp4", start:4, sourceStart:140, duration:2},
+                    {type:"video", id:"clip-3", src:"introductions-fast.mp4", start:6, sourceStart:1469, duration:4}
+                ],
+                [{type:"canvas", id:"rainbow", element:rainbowCanvas, start:0, duration:10}],
+                [{type:"image", id:"bg-image", src:"image.jpg", start:0, duration:10}]
+
+            ],
+            "effects":{
+                "greenscreen-effect":{
+                    "inputs":["clip-1","clip-2","clip-3"],
+                    "effect":VideoCompositor.Effects.GREENSCREEN,
+                    "parameters":{
+                        "yLowerThreshold": 0.1,
+                        "yUpperThreshold": 1.0
+                    }
+                }
+            }
+        };
+```
+
+![Web Page With Interactivity](./6.png?raw=true)
+
+The full code should look like the following:
+
+```HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VideoCompositor Demo</title>
+    <script type="text/javascript" src="videocompositor.js"></script>
+</head>
+<body>
+    <canvas id="vc-cavnas"></canvas>
+    <p>
+        <canvas id="visualization-canvas"></canvas>
+    </p>
+    <p>
+        <button onclick="videocompositor.play();">Play</button>
+        <button onclick="videocompositor.pause();">Pause</button>
+        <button onclick="videocompositor.stop();">Stop</button>
+    </p>
+    <p>
+        <canvas id="rainbow-canvas" style="display:none;"></canvas>
+    </p>
+    <script type="text/javascript">
+
+    var videocompositor;
+
+    window.onload = function(){
+        var canvas = document.getElementById('vc-cavnas');
+        canvas.width = 640;
+        canvas.height = 360;
+        videocompositor = new VideoCompositor(canvas);
+
+        videocompositor.stop= function(){
+            videocompositor.pause();
+            videocompositor.currentTime = 0;
+        };
+
+
+        //create an interactive canvas
+        var rainbowCanvas = document.getElementById("rainbow-canvas");
+        var rainbowCtx = rainbowCanvas.getContext("2d");
+        rainbowCanvas.width = 640;
+        rainbowCanvas.height = 360;
+        var start = null;
+        var mouseX = 640/2;
+        var mouseY = 360/2;
+        canvas.addEventListener('mousemove', function(evt) {
+            var rect = canvas.getBoundingClientRect();
+            mouseX = evt.clientX - rect.left;
+            mouseY = evt.clientY - rect.top;
+        }, false);
+        var renderRainbow = function(timestamp){
+            rainbowCtx.globalAlpha = 0.5;
+            rainbowCtx.clearRect(0,0,rainbowCanvas.width, rainbowCanvas.height);
+            if (!start) start = timestamp;
+            var progress = (timestamp - start)/1000;
+            
+            var rainbow = ['#f00000','#00f000','#0000f0','#f000f0','#00f0f0','#f0f000'];
+
+            for (var i = 0; i < rainbow.length; i++) {
+                var color = rainbow[i];
+                var x = Math.sin(progress+i) * rainbowCanvas.width*2 + Math.sin(i*10)*10;
+                var y = Math.cos(progress+i) * rainbowCanvas.width*2 + Math.cos(i*10)*10;    
+                rainbowCtx.lineWidth=20;
+                rainbowCtx.beginPath();
+                rainbowCtx.moveTo(mouseX,mouseY);
+                rainbowCtx.bezierCurveTo(x/3+50,y/3+30,(x/3)*2-50,(y/3)*2-30,640/2,380/2);
+                rainbowCtx.strokeStyle=color;
+                rainbowCtx.lineCap = "round";
+                rainbowCtx.stroke();
+            };
+            window.requestAnimationFrame(renderRainbow);
+        }
+        window.requestAnimationFrame(renderRainbow);
+
+
+        var playlist = {
+            "tracks":[
+                [
+                    {type:"video", id:"clip-1", src:"introductions-fast.mp4", start:0, duration:4},
+                    {type:"video", id:"clip-2", src:"introductions-fast.mp4", start:4, sourceStart:140, duration:2},
+                    {type:"video", id:"clip-3", src:"introductions-fast.mp4", start:6, sourceStart:1469, duration:4}
+                ],
+                [{type:"canvas", id:"rainbow", element:rainbowCanvas, start:0, duration:10}],
+                [{type:"image", id:"bg-image", src:"image.jpg", start:0, duration:10}]
+
+            ],
+            "effects":{
+                "greenscreen-effect":{
+                    "inputs":["clip-1","clip-2","clip-3"],
+                    "effect":VideoCompositor.Effects.GREENSCREEN,
+                    "parameters":{
+                        "yLowerThreshold": 0.1,
+                        "yUpperThreshold": 1.0
+                    }
+                }
+            }
+        };
+
+        videocompositor.playlist = playlist;
+
+        //Render a playlist visualization
+        var visCanvas = document.getElementById('visualization-canvas');
+        visCanvas.width = 640;
+        visCanvas.height = 30;
+        VideoCompositor.renderPlaylist(playlist, visCanvas);
+    };
+
+    </script>
+</body>
+</html>
+```
+
