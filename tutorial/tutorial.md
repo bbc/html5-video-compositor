@@ -72,6 +72,7 @@ http-server
 
 Navigating to [http://localhost:8080](http://localhost:8080) in a web browser should show a blank page with a black rectangle in the top left.
 
+![Web Page](./1.png?raw=true)
 
 Controls
 --------
