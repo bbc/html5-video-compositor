@@ -45,7 +45,7 @@ avconv -i input.mp4 -tune fastdecode -strict experimental output.mp4
 
 ## Documentation
 
-The [tutorial.md file](https://github.com/bbc/html5-video-compositor/blob/master/tutorial/tutorial.md) in the root of the project gives a walkthrough of using the library to sequence clips and perform simple effects.
+The [tutorial.md file](https://github.com/bbc/html5-video-compositor/blob/master/tutorial/tutorial.md) in the tutorial directory of the project gives a walk-through of using the library to sequence clips and perform simple effects.
 
 [API documentation](https://github.com/bbc/html5-video-compositor/tree/master/doc) is available in the /doc directory of the project.
 

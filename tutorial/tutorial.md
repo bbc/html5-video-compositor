@@ -9,7 +9,7 @@ Lets use Shia LaBeouf's performance in [#introductions](https://vimeo.com/125095
 wget -O introductions.mp4 '$DOWNLOADLINK'
 ```
 
-The VideoCompositor works best on videos which have been encoded with a fast decode profile. You can run the following command to trans-code the video.
+The VideoCompositor works best on videos which have been encoded with a fast decode profile. You can run the following command to transcode the video.
 
 ```Bash
 avconv -i introductions.mp4 -tune fastdecode -strict experimental introductions-fast.mp4
