@@ -196,7 +196,7 @@ The playlist object in the above code is the most basic form of playlist. We hav
 
 Each of the track arrays is a sequence of objects which represent clips from some source of media, we call these MediaSourceReferences. These must be arranged in the track array in the order in which they are to be played.
 
-![Web Page With Playing](./2.png?raw=true)
+![Web Page With Playing](./3.png?raw=true)
 
 Cut
 ---
@@ -219,8 +219,6 @@ We now have more MediaSourceReferences on the same track. Of note is the additio
 It's also worth noting that every MediaSourceReference has a start and duration property. The start property is the time that clip should start playing when the playlist is played, the duration is how long to play it for.
 
 MediaSourceReferences on the same track should never overlap. For example, you can't have a MediaSourceRefernce with start:0 and duration:4 and one with start:3 and duration:4 on the same track as they would overlap by one second. To have MediaSourceReferences overlapping they must be on separate tracks.
-
-![Web Page With Cuts](./3.png?raw=true)
 
 
 Visualize
@@ -285,7 +283,7 @@ It can often be quite difficult to visualize what's happening on a playlist. For
 ```
 
 This visualization will be useful later on once we start adding more tracks to a playlist.
-![Web Page With Visualisation](./3.png?raw=true)
+![Web Page With Visualisation](./4.png?raw=true)
 
 
 Composite
@@ -408,7 +406,7 @@ Your full index.html file should now look like the following.
 </html>
 ```
 
-![Web Page With Compositing](./3.png?raw=true)
+![Web Page With Compositing](./5.png?raw=true)
 
 Interact
 --------
