@@ -422,8 +422,11 @@ First create a new canvas after the buttons, setting it's display style to none:
         <canvas id="rainbow-canvas" style="display:none;"></canvas>
     </p>
 ```
+The reason the canvas is set to display style none is because when we pass a DOM element rather than a src string to the video compositor it will render both in the page as a DOM element and via the video compositor. So we want to hide the DOM element and have it only displayed via the video compositor.
 
-Then get a reference to it before the playlist is set and set-up some animations using [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It's important to note we listen for mouse events on the video compositor canvas, then use the co-ordinates from that in the rendering to the rainbow canvas:
+It's also worth noting that when adding DOM elements to a playlist rather than a src string it is up to you to manage the lifetime of the DOM element. If it's resource intensive and you only want it to exist in the browser for the duration of time it's being displayed by the video compositor you can attach a listener object to the MediaSourceReference's id using the VideoCompositor.registerMediaSourceListener function which will provide callbacks for when the MediaSource needs to be loaded,played,rendered, & destroyed.
+
+Next we get a reference to the new canvas before the playlist is set and set-up some animations using [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It's important to note we listen for mouse events on the video compositor canvas, then use the co-ordinates from that in the rendering to the rainbow canvas:
 ```JavaScript
         //create an interactive canvas
         var rainbowCanvas = document.getElementById("rainbow-canvas");
