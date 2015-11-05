@@ -91,6 +91,9 @@ class VideoCompositor {
         }
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
 
+        //clean up any nodes in the audioManager
+        this._audioManger.clearAudioNodeCache();
+
         //clean-up any currently playing mediaSources
         this._mediaSources.forEach(function(mediaSource){
             mediaSource.destroy();
@@ -685,7 +688,7 @@ class VideoCompositor {
         this._effectManager.updateEffects(this._playlist.effects);
 
         //Update the audio
-        this._audioManger.update(this._mediaSources);
+        this._audioManger.update(this._mediaSources, currentlyPlaying);
 
         //Play mediaSources on the currently playing queue.
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last

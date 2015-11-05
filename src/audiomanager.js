@@ -52,13 +52,32 @@ class AudioManager {
         return this.audioCtx;
     }
 
-    update(mediaSources){
+    removeFromCacheById(id){
+        let node = this.audioNodes.get(id);
+        node.disconnect();
+        this.audioNodes.delete(id);
+    }
+
+    clearAudioNodeCache(){
+        for (let id of this.audioNodes.keys()){
+            this.removeFromCacheById(id);
+        }
+    }
+
+    update(mediaSources, currentlyPlaying){
+        let currentlyPlayingIds = [];
+        for (let i = 0; i < currentlyPlaying.length; i++) {
+            let mediaSourceRef = currentlyPlaying[i];
+            currentlyPlayingIds.push(mediaSourceRef.id);
+        }
+
         if (mediaSources === undefined) return;
         for (let id of mediaSources.keys()) {
             let mediaSource = mediaSources.get(id);
             let trackIndexs = getTrackIndexsForId(id, this.tracks);
-            if (trackIndexs.length ===0) continue; //No mappings for this id
-            
+            if (trackIndexs.length ===0){
+                continue; //No mappings for this id
+            }    
             if (!this.audioNodes.has(id)){
                 //if an AudioNode for this id does not exist, create it.
                 let audioNode;
@@ -74,6 +93,7 @@ class AudioManager {
                     let trackIndex = trackIndexs[i];
                     audioNode.connect(this.audioOutputNodes[trackIndex]);
                 }
+            }else {
             }
         }
         //TODO add test to make sure all id's for audio nodes stored in this.audioNodes exist in the current mediaSources, otherwise delete them.

@@ -618,7 +618,7 @@ module.exports =
 	            this._effectManager.updateEffects(this._playlist.effects);
 
 	            //Update the audio
-	            this._audioManger.update(this._mediaSources);
+	            this._audioManger.update(this._mediaSources, currentlyPlaying);
 
 	            //Play mediaSources on the currently playing queue.
 	            currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
@@ -687,6 +687,9 @@ module.exports =
 	            var toPlay = _getPlaylistPlayingStatusAtTime32[0];
 	            var currentlyPlaying = _getPlaylistPlayingStatusAtTime32[1];
 	            var finishedPlaying = _getPlaylistPlayingStatusAtTime32[2];
+
+	            //clean up any nodes in the audioManager
+	            this._audioManger.clearAudioNodeCache();
 
 	            //clean-up any currently playing mediaSources
 	            this._mediaSources.forEach(function (mediaSource) {
@@ -2187,21 +2190,63 @@ module.exports =
 	            return this.audioCtx;
 	        }
 	    }, {
-	        key: "update",
-	        value: function update(mediaSources) {
-	            if (mediaSources === undefined) return;
+	        key: "removeFromCacheById",
+	        value: function removeFromCacheById(id) {
+	            var node = this.audioNodes.get(id);
+	            node.disconnect();
+	            this.audioNodes["delete"](id);
+	        }
+	    }, {
+	        key: "clearAudioNodeCache",
+	        value: function clearAudioNodeCache() {
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
 	            var _iteratorError = undefined;
 
 	            try {
-	                for (var _iterator = mediaSources.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                for (var _iterator = this.audioNodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var id = _step.value;
+
+	                    this.removeFromCacheById(id);
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }, {
+	        key: "update",
+	        value: function update(mediaSources, currentlyPlaying) {
+	            var currentlyPlayingIds = [];
+	            for (var i = 0; i < currentlyPlaying.length; i++) {
+	                var mediaSourceRef = currentlyPlaying[i];
+	                currentlyPlayingIds.push(mediaSourceRef.id);
+	            }
+
+	            if (mediaSources === undefined) return;
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
+
+	            try {
+	                for (var _iterator2 = mediaSources.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var id = _step2.value;
 
 	                    var mediaSource = mediaSources.get(id);
 	                    var trackIndexs = getTrackIndexsForId(id, this.tracks);
-	                    if (trackIndexs.length === 0) continue; //No mappings for this id
-
+	                    if (trackIndexs.length === 0) {
+	                        continue; //No mappings for this id
+	                    }
 	                    if (!this.audioNodes.has(id)) {
 	                        //if an AudioNode for this id does not exist, create it.
 	                        var audioNode = undefined;
@@ -2217,20 +2262,20 @@ module.exports =
 	                            var trackIndex = trackIndexs[i];
 	                            audioNode.connect(this.audioOutputNodes[trackIndex]);
 	                        }
-	                    }
+	                    } else {}
 	                }
 	                //TODO add test to make sure all id's for audio nodes stored in this.audioNodes exist in the current mediaSources, otherwise delete them.
 	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
 	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
+	                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                        _iterator2["return"]();
 	                    }
 	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
 	                    }
 	                }
 	            }
