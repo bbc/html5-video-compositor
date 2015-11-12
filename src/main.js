@@ -230,6 +230,7 @@ class VideoCompositor {
             mediaSource.destroy();
         });
         this._mediaSources.clear();
+        this.currentTime = this._currentTime;
     }
 
     /**

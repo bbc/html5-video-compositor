@@ -847,6 +847,7 @@ module.exports =
 	                mediaSource.destroy();
 	            });
 	            this._mediaSources.clear();
+	            this.currentTime = this._currentTime;
 	        },
 
 	        /**
