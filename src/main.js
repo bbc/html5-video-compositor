@@ -57,10 +57,46 @@ class VideoCompositor {
         this._audioManger = new AudioManager(audioCtx);
 
         this._currentTime = 0;
+        this._playbackRate = 1.0;
         this.duration = 0;
         registerUpdateable(this);
     }
     
+    
+    /* Sets the playback rate of the video compositor. Msut be greater than 0.
+    * @example
+    * 
+    * var playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"}]
+    *   ]
+    * }
+    * var canvas = document.getElementById('canvas');
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = playlist;
+    * videoCompositor.playbackRate = 2.0; //Play at double speed
+    * videoCompositor.play();
+    */
+    set playbackRate(playbackRate){
+        if (typeof playbackRate === 'string' || playbackRate instanceof String){
+            playbackRate = parseFloat(playbackRate);
+        }
+        if (playbackRate < 0) playbackRate = 0;
+        this._playbackRate = playbackRate;
+    }
+
+    /*
+    * Gets the playback rate.
+    *
+    * @example
+    * var canvas = document.getElementById('canvas');
+    * var videoCompositor = new VideoCompositor(canvas);
+    * console.log(videoCompositor. playbackRate); // will print 1.0.
+    */
+    get playbackRate(){
+        return this._playbackRate;
+    }
+
     /**
     * Sets the current time through the playlist.
     *
@@ -726,7 +762,7 @@ class VideoCompositor {
             mediaSource.play();
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
             //get the base render parameters
-            let renderParameters = {"progress":progress, "duration":mediaSource.duration, "source_resolution":[mediaSource.width,mediaSource.height], "output_resolution":[this._canvas.width, this._canvas.height]};
+            let renderParameters = {"playback_rate": this._playbackRate ,"progress":progress, "duration":mediaSource.duration, "source_resolution":[mediaSource.width,mediaSource.height], "output_resolution":[this._canvas.width, this._canvas.height]};
             //find the effect associated with the current mediasource
             let effect = this._effectManager.getEffectForInputId(mediaSourceID);
             //merge the base parameters with any custom ones
@@ -737,7 +773,7 @@ class VideoCompositor {
             mediaSource.render(effect.program, renderParameters, effect.textures);
 
         }
-        this._currentTime += dt;
+        this._currentTime += dt * this._playbackRate;
     }
 
     /**

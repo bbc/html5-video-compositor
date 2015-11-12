@@ -190,6 +190,7 @@ class VideoSource extends MediaSource{
     * Render the VideoSource to the WebGL context passed into the constructor.
     */
     render(program, renderParameters, textures){
+        this.element.playbackRate = renderParameters[&quot;playback_rate&quot;];
         super.render(program, renderParameters, textures);
     }
     /**

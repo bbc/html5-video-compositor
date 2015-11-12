@@ -648,14 +648,26 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
-    "src/main.js~videocompositor#playlist",
-    "class/src/main.js~VideoCompositor.html#instance-set-playlist",
-    "src/main.js~VideoCompositor#playlist",
+    "src/main.js~videocompositor#playbackrate",
+    "class/src/main.js~VideoCompositor.html#instance-get-playbackRate",
+    "src/main.js~VideoCompositor#playbackRate",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#playbackrate",
+    "class/src/main.js~VideoCompositor.html#instance-set-playbackRate",
+    "src/main.js~VideoCompositor#playbackRate",
     "member"
   ],
   [
     "src/main.js~videocompositor#playlist",
     "class/src/main.js~VideoCompositor.html#instance-get-playlist",
+    "src/main.js~VideoCompositor#playlist",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#playlist",
+    "class/src/main.js~VideoCompositor.html#instance-set-playlist",
     "src/main.js~VideoCompositor#playlist",
     "member"
   ],

@@ -54,9 +54,9 @@
                 "tracks":[
                     [
                         //{type:"video", start:0, sourceStart:45, duration:4, src:"assets/transition.mp4", id:"greenscreen video", "volume":1.0}, 
-                        {type:"video", sourceStart:4, start:0, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
-                        {type:"video", start:6, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
-                        {type:"video", start:12, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
+                        {type:"video", sourceStart:4, start:0, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":0.2}, 
+                        {type:"video", start:6, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":0.2},
+                        {type:"video", start:12, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":0.2}
                         ],
                     //[{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
                     //[{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
@@ -85,7 +85,7 @@
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             videoCompositor.playlist = playlist;
-            videoCompositor.preload();
+            //videoCompositor.preload();
             //videoCompositor.play();
             //videoCompositor.pause();
             //setTimeout(function(){videoCompositor.pause();}, 300);
@@ -107,6 +107,7 @@
             var mst3000Button = document.getElementById("mst3000-button");
             playButton.onclick = function(){
                 videoCompositor.play();
+                videoCompositor.playbackRate = 2.0;
             };
             pauseButton.onclick = function(){
                 videoCompositor.pause();
