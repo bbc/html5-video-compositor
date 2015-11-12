@@ -504,6 +504,31 @@
     <td>
       <div>
         <p>
+           <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-preload">preload</a></span></span><span data-ice="signature">()</span>
+        </p>
+      </div>
+      <div>
+        
+        
+        <div data-ice="description">Starts the underlying video/image elements pre-loading.</div>
+      </div>
+    </td>
+    <td>
+      
+      
+    </td>
+  </tr>
+<tr data-ice="target">
+    <td>
+      <span class="access" data-ice="access">public</span>
+      
+      
+      
+      <span class="override" data-ice="override"></span>
+    </td>
+    <td>
+      <div>
+        <p>
            <span data-ice="name"><span><a href="class/src/main.js~VideoCompositor.html#instance-method-registerMediaSourceListener">registerMediaSourceListener</a></span></span><span data-ice="signature">(mediaSourceID: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String</a></span>, mediaSourceListener: <span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a></span>)</span>
         </p>
       </div>
@@ -588,7 +613,7 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber782">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber790">source</a></span></span>
     </span>
   </h3>
 
@@ -672,7 +697,7 @@ var playilstDuration = VideoCompositor.calculateTrackDuration(playlist);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber754">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber762">source</a></span></span>
     </span>
   </h3>
 
@@ -758,7 +783,7 @@ var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber918">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber926">source</a></span></span>
     </span>
   </h3>
 
@@ -844,7 +869,7 @@ VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber823">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber831">source</a></span></span>
     </span>
   </h3>
 
@@ -1061,7 +1086,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber141">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber144">source</a></span></span>
     </span>
   </h3>
 
@@ -1171,7 +1196,7 @@ var time = videoCompositor.currentTime;
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber221">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber224">source</a></span></span>
     </span>
   </h3>
 
@@ -1287,7 +1312,7 @@ var playlist = {
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber236">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber239">source</a></span></span>
     </span>
   </h3>
 
@@ -1342,7 +1367,7 @@ var playlist = {
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber314">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber317">source</a></span></span>
     </span>
   </h3>
 
@@ -1430,7 +1455,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber466">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber469">source</a></span></span>
     </span>
   </h3>
 
@@ -1501,7 +1526,7 @@ var audioCtx = videoCompositor.getAudioContext();
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber494">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber515">source</a></span></span>
     </span>
   </h3>
 
@@ -1591,7 +1616,7 @@ trackGainNode.gain.value = 0.0; // Mute the track</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber279">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber282">source</a></span></span>
     </span>
   </h3>
 
@@ -1650,7 +1675,7 @@ setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber254">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber257">source</a></span></span>
     </span>
   </h3>
 
@@ -1697,6 +1722,61 @@ videoCompositor.play();</code></pre>
   
 </div>
 <div class="detail" data-ice="detail">
+  <h3 data-ice="anchor" id="instance-method-preload">
+    <span class="access" data-ice="access">public</span>
+    
+    
+    
+    
+    <span data-ice="name">preload</span><span data-ice="signature">()</span>
+    <span class="right-info">
+      
+      
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber485">source</a></span></span>
+    </span>
+  </h3>
+
+  
+  
+  
+  <div data-ice="description"><p>Starts the underlying video/image elements pre-loading. Behavior is not guaranteed and depends on how the browser treats video pre-loading under the hood.</p>
+</div>
+
+  
+
+  <div data-ice="properties">
+</div>
+
+  
+
+  
+
+  
+
+  
+
+  <div data-ice="example">
+    <h4>Example:</h4>
+    
+  <div class="example-doc" data-ice="exampleDoc">
+      <div class="example-caption" data-ice="exampleCaption">Start a playlist pre-loading so it starts playing quicker</div>
+      <pre class="prettyprint source-code"><code data-ice="exampleCode">var videoCompositor = new VideoCompositor(canvas);
+videoCompositor.playlist = {
+  tracks:[
+      [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;}]
+  ]
+}
+videoCompositor.preload();
+//now when play is called is should start quicker.</code></pre>
+    </div>
+</div>
+
+  
+
+  
+  
+</div>
+<div class="detail" data-ice="detail">
   <h3 data-ice="anchor" id="instance-method-registerMediaSourceListener">
     <span class="access" data-ice="access">public</span>
     
@@ -1707,7 +1787,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber412">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber415">source</a></span></span>
     </span>
   </h3>
 
@@ -1815,7 +1895,7 @@ videoCompositor.play();</code></pre>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber350">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber353">source</a></span></span>
     </span>
   </h3>
 
@@ -1912,7 +1992,7 @@ videoCompositor.removeEventListener(&quot;play&quot;, playingCallback);</code></
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber426">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/main.js.html#lineNumber429">source</a></span></span>
     </span>
   </h3>
 

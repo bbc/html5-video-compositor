@@ -381,6 +381,26 @@ module.exports =
 	            return this._audioManger.getAudioContext();
 	        }
 	    }, {
+	        key: "preload",
+
+	        /**
+	        * Starts the underlying video/image elements pre-loading. Behavior is not guaranteed and depends on how the browser treats video pre-loading under the hood.
+	        * @example <caption>Start a playlist pre-loading so it starts playing quicker</caption>
+	        * var videoCompositor = new VideoCompositor(canvas);
+	        * videoCompositor.playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"}]
+	        *   ]
+	        * }
+	        * videoCompositor.preload();
+	        * //now when play is called is should start quicker.
+	        */
+	        value: function preload() {
+	            this._playing = true;
+	            this._update(0.0);
+	            this._playing = false;
+	        }
+	    }, {
 	        key: "getAudioNodeForTrack",
 
 	        /**

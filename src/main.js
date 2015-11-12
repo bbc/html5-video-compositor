@@ -471,6 +471,24 @@ class VideoCompositor {
     }
     
     /**
+    * Starts the underlying video/image elements pre-loading. Behavior is not guaranteed and depends on how the browser treats video pre-loading under the hood.
+    * @example <caption>Start a playlist pre-loading so it starts playing quicker</caption>
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = {
+    *   tracks:[
+    *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"}]
+    *   ]
+    * }
+    * videoCompositor.preload();
+    * //now when play is called is should start quicker.
+    */
+    preload(){
+        this._playing = true;
+        this._update(0.0);
+        this._playing = false;
+    }
+
+    /**
     * Gets an audio bus for the given playlist track.
     *
     * In some instances you may want to feed the audio output of the media sources from a given track into a web audio API context. This function provides a mechanism for acquiring an audio GainNode which represents a "bus" of a given track.

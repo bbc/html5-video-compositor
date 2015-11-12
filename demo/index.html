@@ -6,57 +6,34 @@
 <body>
     <script type="text/javascript" src="../dist/videocompositor.js"></script>
     <script type="text/javascript" src="./lib/three.min.js"></script>
-    <!--<script src="http://www.webglearth.com/v2/api.js"></script>-->
     <script type="text/javascript">
         var earth = undefined;
         window.onload = function () {
-
-
-            // var options = {atmosphere: true, center: [0, 0], zoom: 0};
-            // var earthDiv = document.getElementById("earth_div");
-            // earth = new WE.map('earth_div', options);
-            // earth.setZoom(5.4);
-            // WE.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg', {
-            //     subdomains: '1234',
-            //     attribution: 'Tiles Courtesy of MapQuest'
-            // }).addTo(earth);
-            // earth.canvas.width = 1280;
-            // earth.canvas.height = 720;
-            // earthDiv.removeChild(earth.canvas);
-            // var prevEarthTime = null;
-            // requestAnimationFrame(function spinEarth(earthTime){
-            //     var pos = earth.getPosition();
-            //     var elapsed =0.001;
-            //     if (prevEarthTime) elapsed =  earthTime - prevEarthTime;
-            //     prevEarthTime = earthTime;
-            //     earth.setCenter([pos[0],pos[1]+0.1*(elapsed/30)]);
-            //     requestAnimationFrame(spinEarth);
-            // });
-
+    
+            var timeText = document.getElementById('current-time');
 
             function MediaSourceListener(){
                 this.play = function() {
-                    console.log("Listened Play");
+                    //console.log("Listened Play");
                 };
                 this.pause = function() {
-                    console.log("Listened Pause");
+                    //console.log("Listened Pause");
                 };
                 this.seek = function(time) {
-                    console.log("Listened Seek", time);
+                    //console.log("Listened Seek", time);
                 };
                 this.load = function() {
-                    console.log("Listened Load");
+                    //console.log("Listened Load");
                 };
                 this.destroy = function(){
-                    console.log("Listened Destroy");
+                    //console.log("Listened Destroy");
                 };
                 this.render = function() {
-
+                    timeText.innerHTML = "videoCompositor.currentTime = " + videoCompositor.currentTime;
                 };
             };
 
             var testListener = new MediaSourceListener();
-            var test2Listener = new MediaSourceListener();
 
 
 
@@ -77,13 +54,13 @@
                 "tracks":[
                     [
                         //{type:"video", start:0, sourceStart:45, duration:4, src:"assets/transition.mp4", id:"greenscreen video", "volume":1.0}, 
-                        {type:"video", sourceStart:4, start:4, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
-                        {type:"video", start:10, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
-                        {type:"video", start:18, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
+                        {type:"video", sourceStart:4, start:0, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video1", "volume":1.0}, 
+                        {type:"video", start:6, sourceStart:27, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video2", "volume":1.0},
+                        {type:"video", start:12, sourceStart:127, duration:4, src:"assets/wtf_greenscreen_fast.mp4", id:"greenscreen video3", "volume":1.0}
                         ],
                     //[{type:"image", start:0, duration:15, src:"assets/weather-plate.png", id:"6"}],
                     //[{type:"canvas", start:0, duration:15, element:earth.canvas, id:"earth"}],
-                    [{type:"image", start:0, duration:15, src:"assets/image3.jpg", id:"bg"}]
+                    [{type:"image", start:0, duration:16, src:"assets/image3.jpg", id:"bg"}]
 
                 ],
                 "effects":{
@@ -102,35 +79,24 @@
             };
 
 
-
             videoCompositor.registerMediaSourceListener("bg", testListener);
-            videoCompositor.registerMediaSourceListener("bg", test2Listener);
 
 
             var duration = VideoCompositor.calculatePlaylistDuration(playlist);
             console.log("Playlist Duration", duration);
             videoCompositor.playlist = playlist;
+            videoCompositor.preload();
             //videoCompositor.play();
-
-
-
-            var audioCtx = videoCompositor.getAudioContext();
-            var videoAudioNode = videoCompositor.getAudioNodeForTrack(playlist.tracks[0]);
-            var delayNode = audioCtx.createDelay();
-            delayNode.delayTime.value = 0.5;
-            videoAudioNode.gain.value = 0.2;
-            videoAudioNode.connect(delayNode);
-            videoAudioNode.connect(audioCtx.destination);
-            delayNode.connect(audioCtx.destination);
-
-
+            //videoCompositor.pause();
+            //setTimeout(function(){videoCompositor.pause();}, 300);
+            
 
             videoCompositor.addEventListener("seek", function(data){
-                console.log("Current Time",data);
+                //console.log("Current Time",data);
             }, false);
             
             videoCompositor.addEventListener("ended", function(data){
-                console.log("Playlist Ended",data);
+                //console.log("Playlist Ended",data);
             }, false);
 
             /*
@@ -145,7 +111,7 @@
             pauseButton.onclick = function(){
                 videoCompositor.pause();
                 videoCompositor.unregisterMediaSourceListener("bg", testListener);
-                console.log(videoCompositor.playlist);
+                //console.log(videoCompositor.playlist);
 
             };
             mst3000Button.onclick = function(){
@@ -187,6 +153,8 @@
     <canvas id="player-canvas"></canvas>
     <br>
     <canvas id="visualisation-canvas"></canvas>
+    <br>
+    <p id="current-time"></p>
     <br>
     <button id="play-button">Play</button>
     <button id="pause-button">Pause</button>

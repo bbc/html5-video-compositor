@@ -444,6 +444,12 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/audiomanager.js~audiomanager#clearaudionodecache",
+    "class/src/audiomanager.js~AudioManager.html#instance-method-clearAudioNodeCache",
+    "src/audiomanager.js~AudioManager#clearAudioNodeCache",
+    "method"
+  ],
+  [
     "src/audiomanager.js~audiomanager#constructor",
     "class/src/audiomanager.js~AudioManager.html#instance-constructor-constructor",
     "src/audiomanager.js~AudioManager#constructor",
@@ -459,6 +465,12 @@ window.esdocSearchIndex = [
     "src/audiomanager.js~audiomanager#getaudiocontext",
     "class/src/audiomanager.js~AudioManager.html#instance-method-getAudioContext",
     "src/audiomanager.js~AudioManager#getAudioContext",
+    "method"
+  ],
+  [
+    "src/audiomanager.js~audiomanager#removefromcachebyid",
+    "class/src/audiomanager.js~AudioManager.html#instance-method-removeFromCacheById",
+    "src/audiomanager.js~AudioManager#removeFromCacheById",
     "method"
   ],
   [
@@ -637,15 +649,21 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#playlist",
-    "class/src/main.js~VideoCompositor.html#instance-get-playlist",
+    "class/src/main.js~VideoCompositor.html#instance-set-playlist",
     "src/main.js~VideoCompositor#playlist",
     "member"
   ],
   [
     "src/main.js~videocompositor#playlist",
-    "class/src/main.js~VideoCompositor.html#instance-set-playlist",
+    "class/src/main.js~VideoCompositor.html#instance-get-playlist",
     "src/main.js~VideoCompositor#playlist",
     "member"
+  ],
+  [
+    "src/main.js~videocompositor#preload",
+    "class/src/main.js~VideoCompositor.html#instance-method-preload",
+    "src/main.js~VideoCompositor#preload",
+    "method"
   ],
   [
     "src/main.js~videocompositor#registermediasourcelistener",

@@ -144,6 +144,9 @@ class VideoCompositor {
         }
         let [toPlay, currentlyPlaying, finishedPlaying] = this._getPlaylistPlayingStatusAtTime(this._playlist, currentTime);
 
+        //clean up any nodes in the audioManager
+        this._audioManger.clearAudioNodeCache();
+
         //clean-up any currently playing mediaSources
         this._mediaSources.forEach(function(mediaSource){
             mediaSource.destroy();
@@ -521,6 +524,24 @@ class VideoCompositor {
     }
     
     /**
+    * Starts the underlying video/image elements pre-loading. Behavior is not guaranteed and depends on how the browser treats video pre-loading under the hood.
+    * @example &lt;caption&gt;Start a playlist pre-loading so it starts playing quicker&lt;/caption&gt;
+    * var videoCompositor = new VideoCompositor(canvas);
+    * videoCompositor.playlist = {
+    *   tracks:[
+    *       [{type:&quot;video&quot;, start:0, duration:4, src:&quot;video1.mp4&quot;, id:&quot;video1&quot;}]
+    *   ]
+    * }
+    * videoCompositor.preload();
+    * //now when play is called is should start quicker.
+    */
+    preload(){
+        this._playing = true;
+        this._update(0.0);
+        this._playing = false;
+    }
+
+    /**
     * Gets an audio bus for the given playlist track.
     *
     * In some instances you may want to feed the audio output of the media sources from a given track into a web audio API context. This function provides a mechanism for acquiring an audio GainNode which represents a &quot;bus&quot; of a given track.
@@ -601,31 +622,15 @@ class VideoCompositor {
         }
 
 
-        switch (mediaSourceReference.type){
-            case &quot;video&quot;:
-                let video = new VideoSource(mediaSourceReference, this._ctx);
-                video.onready = onReadyCallback;
-                video.mediaSourceListeners = mediaSourceListeners;
-                video.load();
-                this._mediaSources.set(mediaSourceReference.id, video);
-                break;
-            case &quot;image&quot;:
-                let image = new ImageSource(mediaSourceReference, this._ctx);
-                image.onready = onReadyCallback;
-                image.mediaSourceListeners = mediaSourceListeners;
-                image.load();
-                this._mediaSources.set(mediaSourceReference.id, image);
-                break;
-            case &quot;canvas&quot;:
-                let canvas = new CanvasSource(mediaSourceReference, this._ctx);
-                canvas.onready = onReadyCallback;
-                canvas.mediaSourceListeners = mediaSourceListeners;
-                canvas.load();
-                this._mediaSources.set(mediaSourceReference.id, canvas);
-                break;
-            default:
-                throw {&quot;error&quot;:5,&quot;msg&quot;:&quot;mediaSourceReference &quot;+mediaSourceReference.id+&quot; has unrecognized type &quot;+mediaSourceReference.type, toString:function(){return this.msg;}};
+        let MediaSourceClass = mediaSourceMapping.get(mediaSourceReference.type);
+        if (MediaSourceClass === undefined){
+            throw {&quot;error&quot;:5,&quot;msg&quot;:&quot;mediaSourceReference &quot;+mediaSourceReference.id+&quot; has unrecognized type &quot;+mediaSourceReference.type, toString:function(){return this.msg;}};
         }
+        let mediaSource = new MediaSourceClass(mediaSourceReference, this._ctx);
+        mediaSource.onready = onReadyCallback;
+        mediaSource.mediaSourceListeners = mediaSourceListeners;
+        mediaSource.load();
+        this._mediaSources.set(mediaSourceReference.id, mediaSource);
     }
 
     _calculateMediaSourcesOverlap(mediaSources){
@@ -754,7 +759,7 @@ class VideoCompositor {
         this._effectManager.updateEffects(this._playlist.effects);
 
         //Update the audio
-        this._audioManger.update(this._mediaSources);
+        this._audioManger.update(this._mediaSources, currentlyPlaying);
 
         //Play mediaSources on the currently playing queue.
         currentlyPlaying.reverse(); //reverse the currently playing queue so track 0 renders last
@@ -767,6 +772,9 @@ class VideoCompositor {
         for (let i = 0; i &lt; currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
             let mediaSource = this._mediaSources.get(mediaSourceID);
+            //We must update the MediaSource object with any changes made to the MediaSourceReference
+            //Currently the only parameters we update are start,duration
+
             mediaSource.play();
             let progress = ((this._currentTime - currentlyPlaying[i].start)) / (currentlyPlaying[i].duration);
             //get the base render parameters
@@ -1308,6 +1316,8 @@ VideoCompositor.Effects = {
             uniform sampler2D u_image;\
             varying vec2 v_texCoord;\
             varying float v_progress;\
+            varying float v_yUpperThreshold;\
+            varying float v_yLowerThreshold;\
             void main(){\
                 vec4 pixel = texture2D(u_image, v_texCoord);\
                 float alpha = 1.0;\
@@ -1317,12 +1327,42 @@ VideoCompositor.Effects = {
                 float y =  0.299*r + 0.587*g + 0.114*b;\
                 float u = -0.147*r - 0.289*g + 0.436*b;\
                 float v =  0.615*r - 0.515*g - 0.100*b;\
-                if (y &gt; 0.2 &amp;&amp; y &lt; 0.8){\
+                if (y &gt; v_yLowerThreshold &amp;&amp; y &lt; v_yUpperThreshold){\
                     alpha = (v+u)*40.0 +2.0;\
                 }\
                 pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
                 gl_FragColor = pixel;\
-            }&quot;
+            }&quot;,
+        &quot;vertexShader&quot;: &quot;\
+            uniform float progress;\
+            uniform float duration;\
+            uniform float yLowerThreshold;\
+            uniform float yUpperThreshold;\
+            uniform vec2 source_resolution;\
+            uniform vec2 output_resolution;\
+            attribute vec2 a_position;\
+            attribute vec2 a_texCoord;\
+            varying vec2 v_texCoord;\
+            varying float v_progress;\
+            varying float v_duration;\
+            varying float v_yLowerThreshold;\
+            varying float v_yUpperThreshold;\
+            varying vec2 v_source_resolution;\
+            varying vec2 v_output_resolution;\
+            void main() {\
+                v_progress = progress;\
+                v_duration = duration;\
+                v_yLowerThreshold = yLowerThreshold;\
+                v_yUpperThreshold = yUpperThreshold;\
+                v_source_resolution = source_resolution;\
+                v_output_resolution = output_resolution;\
+                gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+                v_texCoord = a_texCoord;\
+            }&quot;,
+            &quot;defaultParameters&quot;:{
+                &quot;yLowerThreshold&quot;:0.2,
+                &quot;yUpperThreshold&quot;:0.8
+            }
     },
     &quot;FADEINOUT&quot;: {
         &quot;fragmentShader&quot;:VideoCompositor.FragmentShaders.FADEINOUT,
