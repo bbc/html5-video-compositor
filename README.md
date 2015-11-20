@@ -29,11 +29,18 @@ A shader based video composition engine for the browser.
 ```
 
 
-
 ## Introduction
 This is an experimental video composition engine which can play edit decision lists in the browser. Content can be dynamically appended to the EDL as it's playing to create interactive and responsive content.
 
 In video editing terms an EDL defines the points at which to cut and assemble video sources. VideoCompositor uses a simple JSON based EDL to describe how to cut and assemble HTML5 video sources, images, and WebGL contexts, it also provides a framework for performing shader based compositing operations (i.e cross-fades, green-screen).
+
+
+## Limitations
+
+* Effects are limited to one shader per track ... stay tuned for updates on this.
+* (Probably) won't work on mobile.
+* Cant' change the properties of MediaSourceReferences dynamically.
+
 
 ## Video Encoding
 You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
