@@ -40,7 +40,7 @@ In video editing terms an EDL defines the points at which to cut and assemble vi
 * Effects are limited to one shader per track ... stay tuned for updates on this.
 * (Probably) won't work on mobile.
 * Cant' change the properties of MediaSourceReferences dynamically.
-
+* Videos must be encoded correctly.
 
 ## Video Encoding
 You will probably only see acceptable video performance if you encode videos with some kind of "fast decode" option. Using the avconv tool this can be done with the following command.
