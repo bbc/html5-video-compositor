@@ -131,17 +131,29 @@ class VideoCompositor {
         this._audioManger.clearAudioNodeCache();
 
         //clean-up any currently playing mediaSources
+        let _this = this;
         this._mediaSources.forEach(function(mediaSource){
-            mediaSource.destroy();
+            let shouldDestory = false;
+            
+            //check if the media source matches one in the new currently playing or list.
+            for (let i = 0; i < finishedPlaying.length; i++) {
+                if (mediaSource.id === finishedPlaying[i].id){
+                    shouldDestory = true;
+                }
+            }
+                
+            if (shouldDestory){
+                _this._mediaSources.delete(mediaSource.id); 
+                mediaSource.destroy();
+            }
         });
-        this._mediaSources.clear();
+        //this._mediaSources.clear();
 
         //Load mediaSources
         for (let i = 0; i < currentlyPlaying.length; i++) {
             let mediaSourceID = currentlyPlaying[i].id;
             //If the media source isn't loaded then we start loading it.
             if (this._mediaSources.has(mediaSourceID) === false){
-                
                 this._loadMediaSource(currentlyPlaying[i], function(mediaSource){
                     mediaSource.seek(currentTime);
                 });
