@@ -1145,122 +1145,131 @@ module.exports =
 	                ctx.fillRect(currentTime * pixelsPerSecond, 0, 1, h);
 	            }
 	        }
+	    }, {
+	        key: "VertexShaders",
+	        get: function get() {
+	            return {
+	                DEFAULT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
+	                OFFSETSCALEINOUT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float inTime;                uniform float outTime;                uniform float scaleX;                uniform float scaleY;                uniform float offsetX;                uniform float offsetY;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_inTime = inTime;                    v_outTime = outTime;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
+	                INOUT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float inTime;                uniform float outTime;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_inTime = inTime;                    v_outTime = outTime;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
+	                OFFSETSCALE: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float scaleX;                uniform float scaleY;                uniform float offsetX;                uniform float offsetY;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);                    v_texCoord = a_texCoord;                }"
+	            };
+	        }
+	    }, {
+	        key: "FragmentShaders",
+	        get: function get() {
+	            return {
+	                DEFAULT: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        gl_FragColor = texture2D(u_image, v_texCoord);                    }",
+	                PRESERVEASPECTRATIO: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        float scale = 1.0;                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                        if(output_aspect_ratio > source_aspect_ratio){                            scale = v_output_resolution[1]/v_source_resolution[1];                        } else {                            scale = v_output_resolution[0]/v_source_resolution[0];                        };                        vec2 source_resolution = v_source_resolution * scale;                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                        if (sCord[0] < 0.0 || sCord[0] > source_resolution[0]||sCord[1] < 0.0 || sCord[1] > source_resolution[1]){                            gl_FragColor = vec4(0.0,0.0,0.0,0.0);                        }else{                            gl_FragColor = texture2D(u_image, (sCord/source_resolution));                        }                    }",
+	                PRESERVEASPECTRATIOFILL: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        float scale = 1.0;                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                        if(output_aspect_ratio > source_aspect_ratio){                            scale = v_output_resolution[1]/v_source_resolution[1];                        } else {                            scale = v_output_resolution[0]/v_source_resolution[0];                        };                        vec2 source_resolution = v_source_resolution * scale;                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                        gl_FragColor = texture2D(u_image, (sCord/source_resolution));                    }",
+	                MONOCHROME: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                    pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                    gl_FragColor = pixel;                }",
+	                SEPIA: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                    pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                    gl_FragColor = pixel;                }",
+	                BITCRUNCH: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                    pixel = pixel/vec4(8.0,8.0,8.0,8.0);                    gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                }",
+	                "FADEINOUT": "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    float alpha = 1.0;                    if (v_progress * v_duration < v_inTime){                        alpha = (v_progress * v_duration)/(v_inTime+0.001);                    }                    if ((v_progress * v_duration) > (v_duration - v_outTime)){                        alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);                    }                    gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                }",
+	                "LUTSQAURE64X64": "                    precision mediump float;                    uniform sampler2D u_image;                    uniform sampler2D lut;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        vec4 original_color = texture2D(u_image, v_texCoord);                        original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                        vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                        vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                                float b = floor((original_color[2] * 63.0) + 0.5);                        float b_x = mod(b, 8.0);                        float b_y = floor((b / 8.0) + 0.5);                        vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                        vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                        gl_FragColor = lut_color;                    }"
+	            };
+	        }
+	    }, {
+	        key: "Effects",
+	        get: function get() {
+	            return {
+	                "OFFSETSCALE": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.DEFAULT,
+	                    "vertexShader": VideoCompositor.VertexShaders.OFFSETSCALE,
+	                    "defaultParameters": {
+	                        "scaleX": 1.0,
+	                        "scaleY": 1.0,
+	                        "offsetX": 0.0,
+	                        "offsetY": 0.0
+	                    }
+	                },
+	                "MONOCHROME": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
+	                },
+	                "SEPIA": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.SEPIA
+	                },
+	                "BITCRUNCH": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.BITCRUNCH
+	                },
+	                //Green screen color =  r = 62, g = 178, b = 31
+	                //Normalised         = r = 0.243, g= 0.698, b = 0.122
+	                "GREENSCREENMAD": {
+	                    "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        ;                        alpha = (v+u)*10.0 +2.0;                                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                        gl_FragColor = pixel;                    }"
+	                },
+	                "GREENSCREEN": {
+	                    "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_yUpperThreshold;                    varying float v_yLowerThreshold;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > v_yLowerThreshold && y < v_yUpperThreshold){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }",
+	                    "vertexShader": "                    uniform float progress;                    uniform float duration;                    uniform float yLowerThreshold;                    uniform float yUpperThreshold;                    uniform vec2 source_resolution;                    uniform vec2 output_resolution;                    attribute vec2 a_position;                    attribute vec2 a_texCoord;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying float v_yLowerThreshold;                    varying float v_yUpperThreshold;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main() {                        v_progress = progress;                        v_duration = duration;                        v_yLowerThreshold = yLowerThreshold;                        v_yUpperThreshold = yUpperThreshold;                        v_source_resolution = source_resolution;                        v_output_resolution = output_resolution;                        gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                        v_texCoord = a_texCoord;                    }",
+	                    "defaultParameters": {
+	                        "yLowerThreshold": 0.2,
+	                        "yUpperThreshold": 0.8
+	                    }
+	                },
+	                "FADEINOUT": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 1.0,
+	                        "outTime": 1.0
+	                    }
+	                },
+	                "FADEINOUT1SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 1.0,
+	                        "outTime": 1.0
+	                    }
+	                },
+	                "FADEINOUT2SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 2.0,
+	                        "outTime": 2.0
+	                    }
+	                },
+	                "FADEIN1SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 1.0,
+	                        "outTime": 0.0
+	                    }
+	                },
+	                "FADEIN2SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 2.0,
+	                        "outTime": 0.0
+	                    }
+	                },
+	                "FADEOUT1SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 0.0,
+	                        "outTime": 1.0
+	                    }
+	                },
+	                "FADEOUT2SEC": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
+	                    "vertexShader": VideoCompositor.VertexShaders.INOUT,
+	                    "defaultParameters": {
+	                        "inTime": 0.0,
+	                        "outTime": 2.0
+	                    }
+	                },
+	                "LUTSQAURE64X64": {
+	                    "fragmentShader": VideoCompositor.FragmentShaders.LUTSQAURE64X64
+	                }
+	            };
+	        }
 	    }]);
 
 	    return VideoCompositor;
 	})();
-
-	VideoCompositor.VertexShaders = {
-	    DEFAULT: "        uniform float progress;        uniform float duration;        uniform vec2 source_resolution;        uniform vec2 output_resolution;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main() {            v_progress = progress;            v_duration = duration;            v_source_resolution = source_resolution;            v_output_resolution = output_resolution;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
-	    OFFSETSCALEINOUT: "        uniform float progress;        uniform float duration;        uniform vec2 source_resolution;        uniform vec2 output_resolution;        uniform float inTime;        uniform float outTime;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            v_source_resolution = source_resolution;            v_output_resolution = output_resolution;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
-	    INOUT: "        uniform float progress;        uniform float duration;        uniform vec2 source_resolution;        uniform vec2 output_resolution;        uniform float inTime;        uniform float outTime;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main() {            v_progress = progress;            v_duration = duration;            v_inTime = inTime;            v_outTime = outTime;            v_source_resolution = source_resolution;            v_output_resolution = output_resolution;            gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);            v_texCoord = a_texCoord;        }",
-	    OFFSETSCALE: "        uniform float progress;        uniform float duration;        uniform vec2 source_resolution;        uniform vec2 output_resolution;        uniform float scaleX;        uniform float scaleY;        uniform float offsetX;        uniform float offsetY;        attribute vec2 a_position;        attribute vec2 a_texCoord;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main() {            v_progress = progress;            v_duration = duration;            v_source_resolution = source_resolution;            v_output_resolution = output_resolution;            gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);            v_texCoord = a_texCoord;        }"
-	};
-
-	VideoCompositor.FragmentShaders = {
-	    DEFAULT: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }",
-	    PRESERVEASPECTRATIO: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main(){                float scale = 1.0;                float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                if(output_aspect_ratio > source_aspect_ratio){                    scale = v_output_resolution[1]/v_source_resolution[1];                } else {                    scale = v_output_resolution[0]/v_source_resolution[0];                };                vec2 source_resolution = v_source_resolution * scale;                vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                if (sCord[0] < 0.0 || sCord[0] > source_resolution[0]||sCord[1] < 0.0 || sCord[1] > source_resolution[1]){                    gl_FragColor = vec4(0.0,0.0,0.0,0.0);                }else{                    gl_FragColor = texture2D(u_image, (sCord/source_resolution));                }            }",
-	    PRESERVEASPECTRATIOFILL: "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main(){                float scale = 1.0;                float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                if(output_aspect_ratio > source_aspect_ratio){                    scale = v_output_resolution[1]/v_source_resolution[1];                } else {                    scale = v_output_resolution[0]/v_source_resolution[0];                };                vec2 source_resolution = v_source_resolution * scale;                vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                gl_FragColor = texture2D(u_image, (sCord/source_resolution));            }",
-	    MONOCHROME: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);            gl_FragColor = pixel;        }",
-	    SEPIA: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;            pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);            gl_FragColor = pixel;        }",
-	    BITCRUNCH: "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main(){            vec4 pixel = texture2D(u_image, v_texCoord);            pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));            pixel = pixel/vec4(8.0,8.0,8.0,8.0);            gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);        }",
-	    "FADEINOUT": "        precision mediump float;        uniform sampler2D u_image;        varying vec2 v_texCoord;        varying float v_progress;        varying float v_duration;        varying float v_inTime;        varying float v_outTime;        varying vec2 v_source_resolution;        varying vec2 v_output_resolution;        void main(){            float alpha = 1.0;            if (v_progress * v_duration < v_inTime){                alpha = (v_progress * v_duration)/(v_inTime+0.001);            }            if ((v_progress * v_duration) > (v_duration - v_outTime)){                alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);            }            gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);        }",
-	    "LUTSQAURE64X64": "            precision mediump float;            uniform sampler2D u_image;            uniform sampler2D lut;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main(){                vec4 original_color = texture2D(u_image, v_texCoord);                original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                float b = floor((original_color[2] * 63.0) + 0.5);                float b_x = mod(b, 8.0);                float b_y = floor((b / 8.0) + 0.5);                vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                gl_FragColor = lut_color;            }"
-	};
-
-	VideoCompositor.Effects = {
-	    "OFFSETSCALE": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.DEFAULT,
-	        "vertexShader": VideoCompositor.VertexShaders.OFFSETSCALE,
-	        "defaultParameters": {
-	            "scaleX": 1.0,
-	            "scaleY": 1.0,
-	            "offsetX": 0.0,
-	            "offsetY": 0.0
-	        }
-	    },
-	    "MONOCHROME": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.MONOCHROME
-	    },
-	    "SEPIA": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.SEPIA
-	    },
-	    "BITCRUNCH": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.BITCRUNCH
-	    },
-	    //Green screen color =  r = 62, g = 178, b = 31
-	    //Normalised         = r = 0.243, g= 0.698, b = 0.122
-	    "GREENSCREENMAD": {
-	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                ;                alpha = (v+u)*10.0 +2.0;                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                pixel = pixel/vec4(2.0,2.0,2.0,2.0);                pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                gl_FragColor = pixel;            }"
-	    },
-	    "GREENSCREEN": {
-	        "fragmentShader": "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_yUpperThreshold;            varying float v_yLowerThreshold;            void main(){                vec4 pixel = texture2D(u_image, v_texCoord);                float alpha = 1.0;                float r = pixel[0];                float g = pixel[1];                float b = pixel[2];                float y =  0.299*r + 0.587*g + 0.114*b;                float u = -0.147*r - 0.289*g + 0.436*b;                float v =  0.615*r - 0.515*g - 0.100*b;                if (y > v_yLowerThreshold && y < v_yUpperThreshold){                    alpha = (v+u)*40.0 +2.0;                }                pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                gl_FragColor = pixel;            }",
-	        "vertexShader": "            uniform float progress;            uniform float duration;            uniform float yLowerThreshold;            uniform float yUpperThreshold;            uniform vec2 source_resolution;            uniform vec2 output_resolution;            attribute vec2 a_position;            attribute vec2 a_texCoord;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying float v_yLowerThreshold;            varying float v_yUpperThreshold;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main() {                v_progress = progress;                v_duration = duration;                v_yLowerThreshold = yLowerThreshold;                v_yUpperThreshold = yUpperThreshold;                v_source_resolution = source_resolution;                v_output_resolution = output_resolution;                gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                v_texCoord = a_texCoord;            }",
-	        "defaultParameters": {
-	            "yLowerThreshold": 0.2,
-	            "yUpperThreshold": 0.8
-	        }
-	    },
-	    "FADEINOUT": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 1.0,
-	            "outTime": 1.0
-	        }
-	    },
-	    "FADEINOUT1SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 1.0,
-	            "outTime": 1.0
-	        }
-	    },
-	    "FADEINOUT2SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 2.0,
-	            "outTime": 2.0
-	        }
-	    },
-	    "FADEIN1SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 1.0,
-	            "outTime": 0.0
-	        }
-	    },
-	    "FADEIN2SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 2.0,
-	            "outTime": 0.0
-	        }
-	    },
-	    "FADEOUT1SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 0.0,
-	            "outTime": 1.0
-	        }
-	    },
-	    "FADEOUT2SEC": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.FADEINOUT,
-	        "vertexShader": VideoCompositor.VertexShaders.INOUT,
-	        "defaultParameters": {
-	            "inTime": 0.0,
-	            "outTime": 2.0
-	        }
-	    },
-	    "LUTSQAURE64X64": {
-	        "fragmentShader": VideoCompositor.FragmentShaders.LUTSQAURE64X64
-	    }
-	};
 
 	exports["default"] = VideoCompositor;
 	module.exports = exports["default"];
