@@ -13,10 +13,10 @@
     }
   ],
   "scripts":{
-        "build_all":"./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js && node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
+        "build_all":"node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js && node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
         "doc":"node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
-        "build":"./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
-        "dev":"./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
+        "build":"node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
+        "dev":"node ./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
   },
   "dependencies": {},
   "devDependencies": {

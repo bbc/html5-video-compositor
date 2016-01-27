@@ -47,7 +47,9 @@ class VideoCompositor {
         this._ctx = this._canvas.getContext("experimental-webgl", { preserveDrawingBuffer: true, alpha: false });
         this._playing = false;
         this._mediaSources = new Map();
-        this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultaneous AJAX requests available.
+        //this._mediaSourcePreloadNumber = 4; // define how many mediaSources to preload. This is influenced by the number of simultaneous AJAX requests available.
+        this._mediaSourcePreloadLookaheadTime = 10; // define how far into the future to load mediasources.
+        this._mediaSourcePostPlayLifetime = 0; // set how long until after a media source has finished playing to keep it around.
         this._playlist = undefined;
         this._eventMappings = new Map();
         this._mediaSourceListeners = new Map();
@@ -62,8 +64,28 @@ class VideoCompositor {
         registerUpdateable(this);
     }
     
-    
-    /* Sets the playback rate of the video compositor. Msut be greater than 0.
+    /**
+    * Sets how far in the future to look for preloading mediasources.
+    */
+    set preloadTime(time){
+        this._mediaSourcePreloadLookaheadTime = time;
+    }
+    get preloadTime(){
+        return this._mediaSourcePreloadLookaheadTime;
+    }
+
+    /**
+    * Sets how long mediasources will exist for after they have been .
+    */
+    set postPlayTime(time){
+        this._mediaSourcePostPlayLifetime = time;
+    }
+    get postPlayTime(){
+        return this._mediaSourcePostPlayLifetime;
+    }
+
+    /** 
+    * Sets the playback rate of the video compositor. Msut be greater than 0.
     * @example
     * 
     * var playlist = {
@@ -85,7 +107,7 @@ class VideoCompositor {
         this._playbackRate = playbackRate;
     }
 
-    /*
+    /**
     * Gets the playback rate.
     *
     * @example
@@ -714,11 +736,20 @@ class VideoCompositor {
         }
 
 
-        //Preload mediaSources
-        for (let i = 0; i < this._mediaSourcePreloadNumber; i++) {
-            if (i === toPlay.length) break;
-            if (this._mediaSources.has(toPlay[i].id) === false){
-                this._loadMediaSource(toPlay[i]);
+        // //Preload mediaSources
+        // for (let i = 0; i < this._mediaSourcePreloadNumber; i++) {
+        //     if (i === toPlay.length) break;
+        //     if (this._mediaSources.has(toPlay[i].id) === false){
+        //         this._loadMediaSource(toPlay[i]);
+        //     }
+        // }
+
+        for (let i = 0; i < toPlay.length; i++) {
+            //if (i === toPlay.length) break;
+            if (!this._mediaSources.has(toPlay[i].id)){
+                if (toPlay[i].start < this._currentTime + this._mediaSourcePreloadLookaheadTime){
+                    this._loadMediaSource(toPlay[i]);
+                }
             }
         }
 
@@ -727,8 +758,10 @@ class VideoCompositor {
             let mediaSourceReference = finishedPlaying[i];
             if (this._mediaSources.has(mediaSourceReference.id)){
                 let mediaSource = this._mediaSources.get(mediaSourceReference.id);
-                mediaSource.destroy();
-                this._mediaSources.delete(mediaSourceReference.id);
+                if (mediaSource.start + mediaSource.duration < this._currentTime - this._mediaSourcePostPlayLifetime){
+                    mediaSource.destroy();
+                    this._mediaSources.delete(mediaSourceReference.id);
+                }
             }
         }
 

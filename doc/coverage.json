@@ -1,7 +1,7 @@
 {
-  "coverage": "37.06%",
-  "expectCount": 116,
-  "actualCount": 43,
+  "coverage": "38.21%",
+  "expectCount": 123,
+  "actualCount": 47,
   "files": {
     "src/audiomanager.js": {
       "expectCount": 12,
@@ -65,6 +65,20 @@
         17
       ]
     },
+    "src/main.js": {
+      "expectCount": 30,
+      "actualCount": 22,
+      "undocumentLines": [
+        1294,
+        1148,
+        1044,
+        30,
+        63,
+        83,
+        73,
+        1458
+      ]
+    },
     "src/sources/imagesource.js": {
       "expectCount": 12,
       "actualCount": 5,
@@ -98,17 +112,6 @@
         24,
         29,
         30
-      ]
-    },
-    "src/main.js": {
-      "expectCount": 23,
-      "actualCount": 18,
-      "undocumentLines": [
-        30,
-        61,
-        96,
-        80,
-        1412
       ]
     },
     "src/sources/videosource.js": {

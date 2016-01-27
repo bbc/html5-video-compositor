@@ -607,13 +607,13 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
   [
     "src/main.js~videocompositor#currenttime",
-    "class/src/main.js~VideoCompositor.html#instance-set-currentTime",
+    "class/src/main.js~VideoCompositor.html#instance-get-currentTime",
     "src/main.js~VideoCompositor#currentTime",
     "member"
   ],
@@ -649,20 +649,14 @@ window.esdocSearchIndex = [
   ],
   [
     "src/main.js~videocompositor#playbackrate",
-    "class/src/main.js~VideoCompositor.html#instance-get-playbackRate",
-    "src/main.js~VideoCompositor#playbackRate",
-    "member"
-  ],
-  [
-    "src/main.js~videocompositor#playbackrate",
     "class/src/main.js~VideoCompositor.html#instance-set-playbackRate",
     "src/main.js~VideoCompositor#playbackRate",
     "member"
   ],
   [
-    "src/main.js~videocompositor#playlist",
-    "class/src/main.js~VideoCompositor.html#instance-get-playlist",
-    "src/main.js~VideoCompositor#playlist",
+    "src/main.js~videocompositor#playbackrate",
+    "class/src/main.js~VideoCompositor.html#instance-get-playbackRate",
+    "src/main.js~VideoCompositor#playbackRate",
     "member"
   ],
   [
@@ -672,10 +666,40 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
+    "src/main.js~videocompositor#playlist",
+    "class/src/main.js~VideoCompositor.html#instance-get-playlist",
+    "src/main.js~VideoCompositor#playlist",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#postplaytime",
+    "class/src/main.js~VideoCompositor.html#instance-set-postPlayTime",
+    "src/main.js~VideoCompositor#postPlayTime",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#postplaytime",
+    "class/src/main.js~VideoCompositor.html#instance-get-postPlayTime",
+    "src/main.js~VideoCompositor#postPlayTime",
+    "member"
+  ],
+  [
     "src/main.js~videocompositor#preload",
     "class/src/main.js~VideoCompositor.html#instance-method-preload",
     "src/main.js~VideoCompositor#preload",
     "method"
+  ],
+  [
+    "src/main.js~videocompositor#preloadtime",
+    "class/src/main.js~VideoCompositor.html#instance-get-preloadTime",
+    "src/main.js~VideoCompositor#preloadTime",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor#preloadtime",
+    "class/src/main.js~VideoCompositor.html#instance-set-preloadTime",
+    "src/main.js~VideoCompositor#preloadTime",
+    "member"
   ],
   [
     "src/main.js~videocompositor#registermediasourcelistener",
@@ -694,6 +718,24 @@ window.esdocSearchIndex = [
     "class/src/main.js~VideoCompositor.html#instance-method-unregisterMediaSourceListener",
     "src/main.js~VideoCompositor#unregisterMediaSourceListener",
     "method"
+  ],
+  [
+    "src/main.js~videocompositor.effects",
+    "class/src/main.js~VideoCompositor.html#static-get-Effects",
+    "src/main.js~VideoCompositor.Effects",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor.fragmentshaders",
+    "class/src/main.js~VideoCompositor.html#static-get-FragmentShaders",
+    "src/main.js~VideoCompositor.FragmentShaders",
+    "member"
+  ],
+  [
+    "src/main.js~videocompositor.vertexshaders",
+    "class/src/main.js~VideoCompositor.html#static-get-VertexShaders",
+    "src/main.js~VideoCompositor.VertexShaders",
+    "member"
   ],
   [
     "src/main.js~videocompositor.calculateplaylistduration",
