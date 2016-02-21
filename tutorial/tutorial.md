@@ -3,9 +3,11 @@ Tutorial
 
 Ingredients
 -----------
-Let's use Shia LaBeouf's notorious *"just do it!"* performance in #introductions as one of our media sources. Go to [the Vimeo video](https://vimeo.com/125095515), press the download button to bring up the list of download options.
+Let's use Shia LaBeouf's notorious *"just do it!"* video as one of our media sources. Go to [the video on Vimeo](https://vimeo.com/125095515) and press the "download" button to bring up the list of download options.
 
-To download the video, right-click the SD version and choose "save as" (with the file name `introductions.mp4`). Or you could use `wget` on the command line. Copy and paste the SD version link into the following command, replacing $DOWNLOADLINK (keep the surrounding quotes).
+To download the video, right-click the SD version and choose "save as" (with the file name `introductions.mp4`).
+
+Alternatively, uou can use `wget` on the command line. Copy and paste the SD version link into the following command, replacing $DOWNLOADLINK (keeping the surrounding quotes).
 
 ```Bash
 wget -O introductions.mp4 '$DOWNLOADLINK'
@@ -60,7 +62,7 @@ Open the index.html file and add the following.
 
 Serve
 -----
-In order for the VideoCompositor to work correctly it must be served from an asynchronous capable web server (unfortunately this means "python -m SimpleHTTPServer" won't work). 
+In order for the VideoCompositor to work correctly it must be served from an asynchronous capable web server. Unfortunately, this means "python -m SimpleHTTPServer" won't work.
 
 A simple web server can be acquired from the node package manager (npm). If you don't have npm already, you can [install it from nodejs.com](https://docs.npmjs.com/getting-started/installing-node). Then run this on the command line to install `http-server`:
 
@@ -87,10 +89,10 @@ By default the VideoCompositor only provides the compositing engine. Playback co
 We'll add some simple controls using button elements to play and pause the playback. Add the following after the canvas tag.
 
 ```HTML
-    <p>
-        <button onclick="videocompositor.play();">Play</button>
-        <button onclick="videocompositor.pause();">Pause</button>
-    </p>
+<p>
+    <button onclick="videocompositor.play();">Play</button>
+    <button onclick="videocompositor.pause();">Pause</button>
+</p>
 ```
 
 You'll notice that there's no stop function for the VideoCompositor. This mirrors the functionality of a HTML5 video where you must combine a pause with a setting of video.currentTime to 0.
@@ -98,16 +100,16 @@ You'll notice that there's no stop function for the VideoCompositor. This mirror
 Not to worry, we can [duck-punch](http://ericdelabar.com/2008/05/metaprogramming-javascript.html) one in to provide the functionality. This is generally considered bad practice, but we'll roll with it for now. Add the following code fragment after the video compositor is initialised (inside the `window.onload` function).
 
 ```JavaScript
-        videocompositor.stop= function(){
-            videocompositor.pause();
-            videocompositor.currentTime = 0;
-        };
+videocompositor.stop= function(){
+    videocompositor.pause();
+    videocompositor.currentTime = 0;
+};
 ```
 
 Then add a button to control stop playback.
 
 ```HTML
-        <button onclick="videocompositor.stop();">Stop</button>
+<button onclick="videocompositor.stop();">Stop</button>
 ```
 
 This has put a structure in place which will allow you to control the playback of a VideoCompositor instance. You full index.html file should now look like the following:
@@ -204,9 +206,9 @@ The following will play the first 4 seconds of the 'introductions' video. Replac
 </html>
 ```
 
-If that has worked successfully you should see Shia telling you "something is happening" when you press the play button.
+If that has worked successfully, pressing the play button should result in Shia telling you that "something is happening".
 
-The playlist object in the above code is the most basic form of playlist. We have an object with a property called "tracks". This is an array of arrays. The inner arrays are tracks, and each of these tracks gets played in parallel. In the above example we only have a single track.
+The `playlist` object in the above code is the most basic form of playlist. We have an object with a property called `"tracks"`. This is an array of arrays. The inner arrays are tracks, and each of these tracks gets played in parallel. In the above example we only have a single track.
 
 Each of the track arrays is a sequence of objects which represent clips from some source of media. We call these MediaSourceReferences. These must be arranged in the track array in the order in which they are to be played.
 
@@ -540,9 +542,9 @@ Lets add some interactive graphics behind Shia. To do this we will add a new tra
 
 First create a new canvas after the buttons, setting its display style to none:
 ```HTML    
-    <p>
-        <canvas id="rainbow-canvas" style="display:none;"></canvas>
-    </p>
+<p>
+    <canvas id="rainbow-canvas" style="display:none;"></canvas>
+</p>
 ```
 The reason the canvas is set to display style none is because we want to hide the DOM element and have it only displayed via the video compositor. When we pass a DOM element rather than a src string to the video compositor it will render both in the page as a DOM element and via the video compositor.
 
@@ -550,42 +552,42 @@ The reason the canvas is set to display style none is because we want to hide th
 
 Next we will get a reference to the new canvas element before the playlist is set, and set up some animations using [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame). It's important to note that we listen for mouse events on the video compositor canvas, then use the co-ordinates from that in the rendering to the rainbow canvas:
 ```JavaScript
-        //create an interactive canvas
-        var rainbowCanvas = document.getElementById("rainbow-canvas");
-        var rainbowCtx = rainbowCanvas.getContext("2d");
-        rainbowCanvas.width = 640;
-        rainbowCanvas.height = 360;
-        var start = null;
-        var mouseX = 640/2;
-        var mouseY = 360/2;
-        canvas.addEventListener('mousemove', function(evt) {
-            var rect = canvas.getBoundingClientRect();
-            mouseX = evt.clientX - rect.left;
-            mouseY = evt.clientY - rect.top;
-        }, false);
-        var renderRainbow = function(timestamp){
-            rainbowCtx.globalAlpha = 0.5;
-            rainbowCtx.clearRect(0,0,rainbowCanvas.width, rainbowCanvas.height);
-            if (!start) start = timestamp;
-            var progress = (timestamp - start)/1000;
-            
-            var rainbow = ['#f00000','#00f000','#0000f0','#f000f0','#00f0f0','#f0f000'];
+//create an interactive canvas
+var rainbowCanvas = document.getElementById("rainbow-canvas");
+var rainbowCtx = rainbowCanvas.getContext("2d");
+rainbowCanvas.width = 640;
+rainbowCanvas.height = 360;
+var start = null;
+var mouseX = 640/2;
+var mouseY = 360/2;
+canvas.addEventListener('mousemove', function(evt) {
+    var rect = canvas.getBoundingClientRect();
+    mouseX = evt.clientX - rect.left;
+    mouseY = evt.clientY - rect.top;
+}, false);
+var renderRainbow = function(timestamp){
+    rainbowCtx.globalAlpha = 0.5;
+    rainbowCtx.clearRect(0,0,rainbowCanvas.width, rainbowCanvas.height);
+    if (!start) start = timestamp;
+    var progress = (timestamp - start)/1000;
+    
+    var rainbow = ['#f00000','#00f000','#0000f0','#f000f0','#00f0f0','#f0f000'];
 
-            for (var i = 0; i < rainbow.length; i++) {
-                var color = rainbow[i];
-                var x = Math.sin(progress+i) * rainbowCanvas.width*2 + Math.sin(i*10)*10;
-                var y = Math.cos(progress+i) * rainbowCanvas.width*2 + Math.cos(i*10)*10;    
-                rainbowCtx.lineWidth=20;
-                rainbowCtx.beginPath();
-                rainbowCtx.moveTo(mouseX,mouseY);
-                rainbowCtx.bezierCurveTo(x/3+50,y/3+30,(x/3)*2-50,(y/3)*2-30,640/2,380/2);
-                rainbowCtx.strokeStyle=color;
-                rainbowCtx.lineCap = "round";
-                rainbowCtx.stroke();
-            };
-            window.requestAnimationFrame(renderRainbow);
-        }
-        window.requestAnimationFrame(renderRainbow);
+    for (var i = 0; i < rainbow.length; i++) {
+        var color = rainbow[i];
+        var x = Math.sin(progress+i) * rainbowCanvas.width*2 + Math.sin(i*10)*10;
+        var y = Math.cos(progress+i) * rainbowCanvas.width*2 + Math.cos(i*10)*10;    
+        rainbowCtx.lineWidth=20;
+        rainbowCtx.beginPath();
+        rainbowCtx.moveTo(mouseX,mouseY);
+        rainbowCtx.bezierCurveTo(x/3+50,y/3+30,(x/3)*2-50,(y/3)*2-30,640/2,380/2);
+        rainbowCtx.strokeStyle=color;
+        rainbowCtx.lineCap = "round";
+        rainbowCtx.stroke();
+    };
+    window.requestAnimationFrame(renderRainbow);
+}
+window.requestAnimationFrame(renderRainbow);
 ```
 
 Don't worry if you don't understand what the above code does -- you'll see what it generates in a moment.
@@ -650,9 +652,11 @@ var playlist = {
 };
 ```
 
+Now press play and try moving your mouse over the video player. You should see a psychedelic interactive background behind Shia. Cool, huh?
+
 ![Web Page With Interactivity](./6.png?raw=true)
 
-The full code should look like the following:
+The final code should look like the following:
 
 ```HTML
 <!DOCTYPE html>
@@ -798,4 +802,4 @@ The full code should look like the following:
 </html>
 ```
 
-Now press play and try moving your mouse over the video player.
+Thanks for reading! You can find out more about how to use HTML5 Video Compositor on the [GitHub wiki](https://github.com/bbc/html5-video-compositor/wiki).
