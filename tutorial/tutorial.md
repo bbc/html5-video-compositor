@@ -112,7 +112,7 @@ Then add a button to control stop playback.
 <button onclick="videocompositor.stop();">Stop</button>
 ```
 
-This has put a structure in place which will allow you to control the playback of a VideoCompositor instance. You full index.html file should now look like the following:
+This has put a structure in place which will allow you to control the playback of a VideoCompositor instance. Your full index.html file should now look like the following:
 
 ```HTML
 <!DOCTYPE html>
@@ -538,7 +538,7 @@ Your full index.html file should now look like the following.
 Interact
 --------
 
-Lets add some interactive graphics behind Shia. To do this we will add a new track to the playlist, but the MediaSourceReference will be a little different. Rather than passing in a source string, we'll pass in an already existing HTML5 canvas element.
+Let's add some interactive graphics behind Shia. To do this we will add a new track to the playlist, but the MediaSourceReference will be a little different. Rather than passing in a source string, we'll pass in an already existing HTML5 canvas element.
 
 First create a new canvas after the buttons, setting its display style to none:
 ```HTML    
