@@ -1,7 +1,19 @@
 {
   "name": "html5-video-compositor",
-  "version": "0.0.1",
+  "version": "  0.9.1",
   "description": "A HTML5 based video composition engine",
+  "keywords": ["html5", "video", "video composition", "webgl"],
+  "bugs": {
+    "url": "https://github.com/bbc/html5-video-compositor/issues"
+    },
+  "license": {
+    "license":"Apache-2.0"
+  },
+  "browser":"./dist/videocompositor.commonjs2.js",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/bbc/html5-video-compositor"
+  },
   "contributors": [
     {
       "name": "Matthew Shotton",
@@ -19,6 +31,7 @@
         "dev":"node ./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
   },
   "dependencies": {},
+  "browserDependencies":{},
   "devDependencies": {
     "babel-core": "^5.6.5",
     "babel-loader": "^5.1.4",
