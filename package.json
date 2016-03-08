@@ -9,7 +9,7 @@
   "license": {
     "license":"Apache-2.0"
   },
-  "browser":"./dist/videocompositor.commonjs2.js",
+  "browser":"./src/main.js",
   "repository" : {
     "type" : "git",
     "url" : "https://github.com/bbc/html5-video-compositor"
