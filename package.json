@@ -1,6 +1,6 @@
 {
   "name": "html5-video-compositor",
-  "version": "  0.9.1",
+  "version": "  0.9.2",
   "description": "A HTML5 based video composition engine",
   "keywords": ["html5", "video", "video composition", "webgl"],
   "bugs": {
