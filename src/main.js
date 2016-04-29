@@ -163,7 +163,10 @@ class VideoCompositor {
                     shouldDestory = true;
                 }
             }
-                
+            
+            //check it the media source has already been played a littlebit
+            if (mediaSource.playing === true) shouldDestory = true;
+            
             if (shouldDestory){
                 _this._mediaSources.delete(mediaSource.id); 
                 mediaSource.destroy();
