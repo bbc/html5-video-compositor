@@ -1,4 +1,7 @@
 # HTML5-Video-Compositor
+
+**Note: For new projects please consider using the (VideoContext)[https://github.com/bbc/videocontext], a new and improved library from BBC R&D which overcomes some of the limitations of the html5-video-compositor.**
+
 A shader based video composition engine for the browser.
 
 ```HTML
