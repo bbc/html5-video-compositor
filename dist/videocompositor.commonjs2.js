@@ -53,11 +53,11 @@ module.exports =
 	    value: true
 	});
 
+	var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; })();
+
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-	function _slicedToArray(arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -140,6 +140,10 @@ module.exports =
 	        registerUpdateable(this);
 	    }
 
+	    /**
+	    * Sets how far in the future to look for preloading mediasources.
+	    */
+
 	    _createClass(VideoCompositor, [{
 	        key: "play",
 
@@ -161,11 +165,9 @@ module.exports =
 	            this._playing = true;
 	            this._ctx.clearColor(0.0, 0.0, 0.0, 1.0);
 	            this._ctx.clear(this._ctx.COLOR_BUFFER_BIT | this._ctx.DEPTH_BUFFER_BIT);
-	            var playEvent = new CustomEvent("play", { detail: { data: this._currentTime, instance: this } });
+	            var playEvent = new CustomEvent('play', { detail: { data: this._currentTime, instance: this } });
 	            this._canvas.dispatchEvent(playEvent);
 	        }
-	    }, {
-	        key: "pause",
 
 	        /**
 	        * Pause playback of the playlist. Call play() to resume playing.
@@ -184,16 +186,16 @@ module.exports =
 	        * setTimeout(videoCompositor.pause, 3000); //pause after 3 seconds
 	        *
 	        */
+	    }, {
+	        key: "pause",
 	        value: function pause() {
 	            this._playing = false;
 	            this._mediaSources.forEach(function (mediaSource) {
 	                mediaSource.pause();
 	            });
-	            var pauseEvent = new CustomEvent("pause", { detail: { data: this._currentTime, instance: this } });
+	            var pauseEvent = new CustomEvent('pause', { detail: { data: this._currentTime, instance: this } });
 	            this._canvas.dispatchEvent(pauseEvent);
 	        }
-	    }, {
-	        key: "addEventListener",
 
 	        /**
 	        * This adds event listeners to the video compositor. Events directed at the underlying canvas are transparently 
@@ -221,6 +223,8 @@ module.exports =
 	        * 
 	        *
 	        */
+	    }, {
+	        key: "addEventListener",
 	        value: function addEventListener(type, func) {
 	            //Pass through any event listeners through to the underlying canvas rendering element
 	            //Catch any events and handle with a custom events dispatcher so things
@@ -231,8 +235,6 @@ module.exports =
 	            }
 	            this._canvas.addEventListener(type, this._dispatchEvents, false);
 	        }
-	    }, {
-	        key: "removeEventListener",
 
 	        /**
 	        * This removes event listeners from the video compositor that were added using addEventListener. 
@@ -258,6 +260,8 @@ module.exports =
 	        * videoCompositor.removeEventListener("play", playingCallback);
 	        *
 	        */
+	    }, {
+	        key: "removeEventListener",
 	        value: function removeEventListener(type, func) {
 	            if (this._eventMappings.has(type)) {
 	                var listenerArray = this._eventMappings.get(type);
@@ -269,8 +273,6 @@ module.exports =
 	            }
 	            return false;
 	        }
-	    }, {
-	        key: "registerMediaSourceListener",
 
 	        /**
 	        * This method allows you to create a listeners for events on a specific MediaSource.
@@ -321,6 +323,8 @@ module.exports =
 	        * videoCompositor.play();
 	        *
 	        */
+	    }, {
+	        key: "registerMediaSourceListener",
 	        value: function registerMediaSourceListener(mediaSourceID, mediaSourceListener) {
 	            if (this._mediaSourceListeners.has(mediaSourceID)) {
 	                this._mediaSourceListeners.get(mediaSourceID).push(mediaSourceListener);
@@ -328,8 +332,6 @@ module.exports =
 	                this._mediaSourceListeners.set(mediaSourceID, [mediaSourceListener]);
 	            }
 	        }
-	    }, {
-	        key: "unregisterMediaSourceListener",
 
 	        /**
 	        * This method allows you to remove a listener from a specific MediaSource.
@@ -338,6 +340,8 @@ module.exports =
 	        * @param {String} mediaSourceID - The id of the MediaSource to remove the listener from.
 	        * @param {Object} mediaSourceListener - An Object that has been previously passed in via registerMediaSourceListener. 
 	        */
+	    }, {
+	        key: "unregisterMediaSourceListener",
 	        value: function unregisterMediaSourceListener(mediaSourceID, mediaSourceListener) {
 	            if (!this._mediaSourceListeners.has(mediaSourceID)) {
 	                return false;
@@ -359,8 +363,6 @@ module.exports =
 	                return true;
 	            }
 	        }
-	    }, {
-	        key: "getAudioContext",
 
 	        /**
 	        * Returns the audio context that was either passed into the constructor or created internally.
@@ -380,11 +382,11 @@ module.exports =
 	        *
 	        * @return {AudioContext} The audio context used to create any nodes required by calls to getAudioNodeForTrack
 	        */
+	    }, {
+	        key: "getAudioContext",
 	        value: function getAudioContext() {
 	            return this._audioManger.getAudioContext();
 	        }
-	    }, {
-	        key: "preload",
 
 	        /**
 	        * Starts the underlying video/image elements pre-loading. Behavior is not guaranteed and depends on how the browser treats video pre-loading under the hood.
@@ -398,13 +400,13 @@ module.exports =
 	        * videoCompositor.preload();
 	        * //now when play is called is should start quicker.
 	        */
+	    }, {
+	        key: "preload",
 	        value: function preload() {
 	            this._playing = true;
 	            this._update(0.0);
 	            this._playing = false;
 	        }
-	    }, {
-	        key: "getAudioNodeForTrack",
 
 	        /**
 	        * Gets an audio bus for the given playlist track.
@@ -430,6 +432,8 @@ module.exports =
 	        * @param {Array} track - this is track which consist of an array object of MediaSourceReferences (typically a track from a playlist object).
 	        * @return {GainNode} this is a web audio GainNode which has the output of any audio producing media sources from the passed track played out of it.
 	        */
+	    }, {
+	        key: "getAudioNodeForTrack",
 	        value: function getAudioNodeForTrack(track) {
 	            var audioNode = this._audioManger.createAudioNodeFromTrack(track);
 	            return audioNode;
@@ -595,7 +599,7 @@ module.exports =
 	            //Check if we've finished playing and then stop
 	            if (toPlay.length === 0 && currentlyPlaying.length === 0) {
 	                this.pause();
-	                var endedEvent = new CustomEvent("ended", { detail: { data: this.currentTime, instance: this } });
+	                var endedEvent = new CustomEvent('ended', { detail: { data: this.currentTime, instance: this } });
 	                this.currentTime = 0;
 	                this._canvas.dispatchEvent(endedEvent);
 	                return;
@@ -682,32 +686,47 @@ module.exports =
 	            }
 	            this._currentTime += dt * this._playbackRate;
 	        }
-	    }, {
-	        key: "preloadTime",
 
 	        /**
-	        * Sets how far in the future to look for preloading mediasources.
+	        * Calculate the duration of the passed playlist track.
+	        *
+	        * Will return the time that the last media source in the track stops playing.
+	        * @param {Array} track - this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).
+	        * @return {number} The duration in seconds of the given track.
+	        * @example
+	        * var playlist = {
+	        *   tracks:[
+	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
+	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
+	        *   ]
+	        * }
+	        * var track0Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[0]);
+	        * var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
+	        * //track0Duration === 8
+	        * //track1Duration === 10
+	        *
+	        * @todo Beacuse media source reference are stored in order this could implemented be far quicker.
 	        */
+	    }, {
+	        key: "preloadTime",
 	        set: function set(time) {
 	            this._mediaSourcePreloadLookaheadTime = time;
 	        },
 	        get: function get() {
 	            return this._mediaSourcePreloadLookaheadTime;
 	        }
-	    }, {
-	        key: "postPlayTime",
 
 	        /**
 	        * Sets how long mediasources will exist for after they have been .
 	        */
+	    }, {
+	        key: "postPlayTime",
 	        set: function set(time) {
 	            this._mediaSourcePostPlayLifetime = time;
 	        },
 	        get: function get() {
 	            return this._mediaSourcePostPlayLifetime;
 	        }
-	    }, {
-	        key: "playbackRate",
 
 	        /** 
 	        * Sets the playback rate of the video compositor. Msut be greater than 0.
@@ -724,8 +743,10 @@ module.exports =
 	        * videoCompositor.playbackRate = 2.0; //Play at double speed
 	        * videoCompositor.play();
 	        */
+	    }, {
+	        key: "playbackRate",
 	        set: function set(playbackRate) {
-	            if (typeof playbackRate === "string" || playbackRate instanceof String) {
+	            if (typeof playbackRate === 'string' || playbackRate instanceof String) {
 	                playbackRate = parseFloat(playbackRate);
 	            }
 	            if (playbackRate < 0) playbackRate = 0;
@@ -743,8 +764,6 @@ module.exports =
 	        get: function get() {
 	            return this._playbackRate;
 	        }
-	    }, {
-	        key: "currentTime",
 
 	        /**
 	        * Sets the current time through the playlist.
@@ -765,8 +784,10 @@ module.exports =
 	        * videoCompositor.currentTime = 3; //Skip three seconds in.
 	        * videoCompositor.play();
 	        */
+	    }, {
+	        key: "currentTime",
 	        set: function set(currentTime) {
-	            if (typeof currentTime === "string" || currentTime instanceof String) {
+	            if (typeof currentTime === 'string' || currentTime instanceof String) {
 	                currentTime = parseFloat(currentTime);
 	            }
 
@@ -798,6 +819,9 @@ module.exports =
 	                    }
 	                }
 
+	                //check it the media source has already been played a littlebit
+	                if (mediaSource.playing === true) shouldDestory = true;
+
 	                if (shouldDestory) {
 	                    _this._mediaSources["delete"](mediaSource.id);
 	                    mediaSource.destroy();
@@ -820,7 +844,7 @@ module.exports =
 	            }
 
 	            this._currentTime = currentTime;
-	            var seekEvent = new CustomEvent("seek", { detail: { data: currentTime, instance: this } });
+	            var seekEvent = new CustomEvent('seek', { detail: { data: currentTime, instance: this } });
 	            this._canvas.dispatchEvent(seekEvent);
 	        },
 
@@ -846,8 +870,6 @@ module.exports =
 	        get: function get() {
 	            return this._currentTime;
 	        }
-	    }, {
-	        key: "playlist",
 
 	        /**
 	        * Set the playlist object to be played.
@@ -925,6 +947,8 @@ module.exports =
 	        *   }
 	        * }
 	        */
+	    }, {
+	        key: "playlist",
 	        set: function set(playlist) {
 	            VideoCompositor.validatePlaylist(playlist);
 	            this.duration = VideoCompositor.calculatePlaylistDuration(playlist);
@@ -946,27 +970,6 @@ module.exports =
 	        }
 	    }], [{
 	        key: "calculateTrackDuration",
-
-	        /**
-	        * Calculate the duration of the passed playlist track.
-	        *
-	        * Will return the time that the last media source in the track stops playing.
-	        * @param {Array} track - this is track which consists of an array object of MediaSourceReferences (typically a track from a playlist object).
-	        * @return {number} The duration in seconds of the given track.
-	        * @example
-	        * var playlist = {
-	        *   tracks:[
-	        *       [{type:"video", start:0, duration:4, src:"video1.mp4", id:"video1"},{type:"video", start:4, duration:4, src:"video2.mp4", id:"video2"}],
-	        *       [{type:"video", start:6, duration:4, src:"video3.mp4", id:"video3"}]
-	        *   ]
-	        * }
-	        * var track0Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[0]);
-	        * var track1Duration = VideoCompositor.calculateTrackDuration(playlist.tracks[1]);
-	        * //track0Duration === 8
-	        * //track1Duration === 10
-	        *
-	        * @todo Beacuse media source reference are stored in order this could implemented be far quicker.
-	        */
 	        value: function calculateTrackDuration(track) {
 	            var maxPlayheadPosition = 0;
 	            for (var j = 0; j < track.length; j++) {
@@ -977,8 +980,6 @@ module.exports =
 	            }
 	            return maxPlayheadPosition;
 	        }
-	    }, {
-	        key: "calculatePlaylistDuration",
 
 	        /**
 	        * Calculate the duration of the passed playlist.
@@ -997,6 +998,8 @@ module.exports =
 	        * //playlistDuration === 10
 	        *
 	        */
+	    }, {
+	        key: "calculatePlaylistDuration",
 	        value: function calculatePlaylistDuration(playlist) {
 	            var maxTrackDuration = 0;
 
@@ -1010,8 +1013,6 @@ module.exports =
 
 	            return maxTrackDuration;
 	        }
-	    }, {
-	        key: "validatePlaylist",
 
 	        /**
 	        * Validate that the playlist is correct and playable.
@@ -1039,6 +1040,8 @@ module.exports =
 	        *
 	        * @todo Better coverage of possible errors in a playlist.
 	        */
+	    }, {
+	        key: "validatePlaylist",
 	        value: function validatePlaylist(playlist) {
 	            /*     
 	            This function validates a passed playlist, making sure it matches a 
@@ -1126,8 +1129,6 @@ module.exports =
 	                }
 	            }
 	        }
-	    }, {
-	        key: "renderPlaylist",
 
 	        /**
 	        * Render a graphical representation of a playlist to a canvas.
@@ -1149,8 +1150,10 @@ module.exports =
 	        * VideoCompositor.renderPlaylist(playlist, visualisationCanvas, 0);
 	        *
 	        */
+	    }, {
+	        key: "renderPlaylist",
 	        value: function renderPlaylist(playlist, canvas, currentTime) {
-	            var ctx = canvas.getContext("2d");
+	            var ctx = canvas.getContext('2d');
 	            var w = canvas.width;
 	            var h = canvas.height;
 	            var trackHeight = h / playlist.tracks.length;
@@ -1187,24 +1190,252 @@ module.exports =
 	        key: "VertexShaders",
 	        get: function get() {
 	            return {
-	                DEFAULT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
-	                OFFSETSCALEINOUT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float inTime;                uniform float outTime;                uniform float scaleX;                uniform float scaleY;                uniform float offsetX;                uniform float offsetY;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_inTime = inTime;                    v_outTime = outTime;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
-	                INOUT: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float inTime;                uniform float outTime;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_inTime = inTime;                    v_outTime = outTime;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }",
-	                OFFSETSCALE: "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                uniform float scaleX;                uniform float scaleY;                uniform float offsetX;                uniform float offsetY;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);                    v_texCoord = a_texCoord;                }"
+	                DEFAULT: "\
+	                uniform float progress;\
+	                uniform float duration;\
+	                uniform vec2 source_resolution;\
+	                uniform vec2 output_resolution;\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main() {\
+	                    v_progress = progress;\
+	                    v_duration = duration;\
+	                    v_source_resolution = source_resolution;\
+	                    v_output_resolution = output_resolution;\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }",
+	                OFFSETSCALEINOUT: "\
+	                uniform float progress;\
+	                uniform float duration;\
+	                uniform vec2 source_resolution;\
+	                uniform vec2 output_resolution;\
+	                uniform float inTime;\
+	                uniform float outTime;\
+	                uniform float scaleX;\
+	                uniform float scaleY;\
+	                uniform float offsetX;\
+	                uniform float offsetY;\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying float v_inTime;\
+	                varying float v_outTime;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main() {\
+	                    v_progress = progress;\
+	                    v_duration = duration;\
+	                    v_inTime = inTime;\
+	                    v_outTime = outTime;\
+	                    v_source_resolution = source_resolution;\
+	                    v_output_resolution = output_resolution;\
+	                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }",
+	                INOUT: "\
+	                uniform float progress;\
+	                uniform float duration;\
+	                uniform vec2 source_resolution;\
+	                uniform vec2 output_resolution;\
+	                uniform float inTime;\
+	                uniform float outTime;\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying float v_inTime;\
+	                varying float v_outTime;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main() {\
+	                    v_progress = progress;\
+	                    v_duration = duration;\
+	                    v_inTime = inTime;\
+	                    v_outTime = outTime;\
+	                    v_source_resolution = source_resolution;\
+	                    v_output_resolution = output_resolution;\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }",
+	                OFFSETSCALE: "\
+	                uniform float progress;\
+	                uniform float duration;\
+	                uniform vec2 source_resolution;\
+	                uniform vec2 output_resolution;\
+	                uniform float scaleX;\
+	                uniform float scaleY;\
+	                uniform float offsetX;\
+	                uniform float offsetY;\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main() {\
+	                    v_progress = progress;\
+	                    v_duration = duration;\
+	                    v_source_resolution = source_resolution;\
+	                    v_output_resolution = output_resolution;\
+	                    gl_Position = vec4(vec2(2.0*scaleX,2.0*scaleY)*a_position-vec2(1.0+offsetX, 1.0+offsetY), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }"
 	            };
 	        }
 	    }, {
 	        key: "FragmentShaders",
 	        get: function get() {
 	            return {
-	                DEFAULT: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        gl_FragColor = texture2D(u_image, v_texCoord);                    }",
-	                PRESERVEASPECTRATIO: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        float scale = 1.0;                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                        if(output_aspect_ratio > source_aspect_ratio){                            scale = v_output_resolution[1]/v_source_resolution[1];                        } else {                            scale = v_output_resolution[0]/v_source_resolution[0];                        };                        vec2 source_resolution = v_source_resolution * scale;                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                        if (sCord[0] < 0.0 || sCord[0] > source_resolution[0]||sCord[1] < 0.0 || sCord[1] > source_resolution[1]){                            gl_FragColor = vec4(0.0,0.0,0.0,0.0);                        }else{                            gl_FragColor = texture2D(u_image, (sCord/source_resolution));                        }                    }",
-	                PRESERVEASPECTRATIOFILL: "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        float scale = 1.0;                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];                        if(output_aspect_ratio > source_aspect_ratio){                            scale = v_output_resolution[1]/v_source_resolution[1];                        } else {                            scale = v_output_resolution[0]/v_source_resolution[0];                        };                        vec2 source_resolution = v_source_resolution * scale;                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));                        gl_FragColor = texture2D(u_image, (sCord/source_resolution));                    }",
-	                MONOCHROME: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                    pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);                    gl_FragColor = pixel;                }",
-	                SEPIA: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;                    pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);                    gl_FragColor = pixel;                }",
-	                BITCRUNCH: "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    vec4 pixel = texture2D(u_image, v_texCoord);                    pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));                    pixel = pixel/vec4(8.0,8.0,8.0,8.0);                    gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);                }",
-	                "FADEINOUT": "                precision mediump float;                uniform sampler2D u_image;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying float v_inTime;                varying float v_outTime;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main(){                    float alpha = 1.0;                    if (v_progress * v_duration < v_inTime){                        alpha = (v_progress * v_duration)/(v_inTime+0.001);                    }                    if ((v_progress * v_duration) > (v_duration - v_outTime)){                        alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);                    }                    gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);                }",
-	                "LUTSQAURE64X64": "                    precision mediump float;                    uniform sampler2D u_image;                    uniform sampler2D lut;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main(){                        vec4 original_color = texture2D(u_image, v_texCoord);                        original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));                        vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);                        vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));                                                float b = floor((original_color[2] * 63.0) + 0.5);                        float b_x = mod(b, 8.0);                        float b_y = floor((b / 8.0) + 0.5);                        vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);                        vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));                        gl_FragColor = lut_color;                    }"
+	                DEFAULT: "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_duration;\
+	                    varying vec2 v_source_resolution;\
+	                    varying vec2 v_output_resolution;\
+	                    void main(){\
+	                        gl_FragColor = texture2D(u_image, v_texCoord);\
+	                    }",
+	                PRESERVEASPECTRATIO: "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_duration;\
+	                    varying vec2 v_source_resolution;\
+	                    varying vec2 v_output_resolution;\
+	                    void main(){\
+	                        float scale = 1.0;\
+	                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];\
+	                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];\
+	                        if(output_aspect_ratio > source_aspect_ratio){\
+	                            scale = v_output_resolution[1]/v_source_resolution[1];\
+	                        } else {\
+	                            scale = v_output_resolution[0]/v_source_resolution[0];\
+	                        };\
+	                        vec2 source_resolution = v_source_resolution * scale;\
+	                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);\
+	                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));\
+	                        if (sCord[0] < 0.0 || sCord[0] > source_resolution[0]||sCord[1] < 0.0 || sCord[1] > source_resolution[1]){\
+	                            gl_FragColor = vec4(0.0,0.0,0.0,0.0);\
+	                        }else{\
+	                            gl_FragColor = texture2D(u_image, (sCord/source_resolution));\
+	                        }\
+	                    }",
+	                PRESERVEASPECTRATIOFILL: "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_duration;\
+	                    varying vec2 v_source_resolution;\
+	                    varying vec2 v_output_resolution;\
+	                    void main(){\
+	                        float scale = 1.0;\
+	                        float source_aspect_ratio = v_source_resolution[0]/v_source_resolution[1];\
+	                        float output_aspect_ratio = v_output_resolution[0]/v_output_resolution[1];\
+	                        if(output_aspect_ratio > source_aspect_ratio){\
+	                            scale = v_output_resolution[1]/v_source_resolution[1];\
+	                        } else {\
+	                            scale = v_output_resolution[0]/v_source_resolution[0];\
+	                        };\
+	                        vec2 source_resolution = v_source_resolution * scale;\
+	                        vec2 oCord = vec2(v_texCoord[0] * v_output_resolution[0], v_texCoord[1] * v_output_resolution[1]);\
+	                        vec2 sCord = vec2(oCord[0] - (v_output_resolution[0]/2.0 - source_resolution[0]/2.0), oCord[1] - (v_output_resolution[1]/2.0 - source_resolution[1]/2.0));\
+	                        gl_FragColor = texture2D(u_image, (sCord/source_resolution));\
+	                    }",
+	                MONOCHROME: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main(){\
+	                    vec4 pixel = texture2D(u_image, v_texCoord);\
+	                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+	                    pixel = vec4(avg*1.5, avg*1.5, avg*1.5, pixel[3]);\
+	                    gl_FragColor = pixel;\
+	                }",
+	                SEPIA: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main(){\
+	                    vec4 pixel = texture2D(u_image, v_texCoord);\
+	                    float avg = (pixel[0]*0.2125 + pixel[1]*0.7154 + pixel[2]*0.0721)/3.0;\
+	                    pixel = vec4(avg*2.0, avg*1.6, avg, pixel[3]);\
+	                    gl_FragColor = pixel;\
+	                }",
+	                BITCRUNCH: "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main(){\
+	                    vec4 pixel = texture2D(u_image, v_texCoord);\
+	                    pixel = floor(pixel*vec4(8.0,8.0,8.0,8.0));\
+	                    pixel = pixel/vec4(8.0,8.0,8.0,8.0);\
+	                    gl_FragColor = pixel*vec4(1.0,1.0,1.0,1.0);\
+	                }",
+	                "FADEINOUT": "\
+	                precision mediump float;\
+	                uniform sampler2D u_image;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying float v_inTime;\
+	                varying float v_outTime;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main(){\
+	                    float alpha = 1.0;\
+	                    if (v_progress * v_duration < v_inTime){\
+	                        alpha = (v_progress * v_duration)/(v_inTime+0.001);\
+	                    }\
+	                    if ((v_progress * v_duration) > (v_duration - v_outTime)){\
+	                        alpha = (v_outTime - ((v_progress * v_duration) - (v_duration - v_outTime)))/(v_outTime+0.001);\
+	                    }\
+	                    gl_FragColor = texture2D(u_image, v_texCoord) * vec4(1.0,1.0,1.0,alpha);\
+	                }",
+	                "LUTSQAURE64X64": "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    uniform sampler2D lut;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_duration;\
+	                    varying vec2 v_source_resolution;\
+	                    varying vec2 v_output_resolution;\
+	                    void main(){\
+	                        vec4 original_color = texture2D(u_image, v_texCoord);\
+	                        original_color = clamp(original_color, vec4(0.01,0.01,0.01,0.01), vec4(0.99,0.99,0.99,0.99));\
+	                        vec2 red_offset = vec2(original_color[0]/8.0 ,0.0);\
+	                        vec2 green_offset = vec2(0.0,(1.0/8.0)-(original_color[1]/8.0));\
+	                        \
+	                        float b = floor((original_color[2] * 63.0) + 0.5);\
+	                        float b_x = mod(b, 8.0);\
+	                        float b_y = floor((b / 8.0) + 0.5);\
+	                        vec2 blue_offset = vec2(b_x/8.0, 1.0 - b_y/8.0);\
+	                        vec4 lut_color = texture2D(lut, (blue_offset + red_offset + green_offset));\
+	                        gl_FragColor = lut_color;\
+	                    }"
 	            };
 	        }
 	    }, {
@@ -1233,11 +1464,78 @@ module.exports =
 	                //Green screen color =  r = 62, g = 178, b = 31
 	                //Normalised         = r = 0.243, g= 0.698, b = 0.122
 	                "GREENSCREENMAD": {
-	                    "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        ;                        alpha = (v+u)*10.0 +2.0;                                                pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);                        gl_FragColor = pixel;                    }"
+	                    "fragmentShader": "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    void main(){\
+	                        vec4 pixel = texture2D(u_image, v_texCoord);\
+	                        float alpha = 1.0;\
+	                        float r = pixel[0];\
+	                        float g = pixel[1];\
+	                        float b = pixel[2];\
+	                        float y =  0.299*r + 0.587*g + 0.114*b;\
+	                        float u = -0.147*r - 0.289*g + 0.436*b;\
+	                        float v =  0.615*r - 0.515*g - 0.100*b;\
+	                        ;\
+	                        alpha = (v+u)*10.0 +2.0;\
+	                        \
+	                        pixel = floor(pixel*vec4(2.0,2.0,2.0,2.0));\
+	                        pixel = pixel/vec4(2.0,2.0,2.0,2.0);\
+	                        pixel = vec4(pixel[2]*2.0, pixel[1]*2.0, pixel[0]*2.0, alpha);\
+	                        gl_FragColor = pixel;\
+	                    }"
 	                },
 	                "GREENSCREEN": {
-	                    "fragmentShader": "                    precision mediump float;                    uniform sampler2D u_image;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_yUpperThreshold;                    varying float v_yLowerThreshold;                    void main(){                        vec4 pixel = texture2D(u_image, v_texCoord);                        float alpha = 1.0;                        float r = pixel[0];                        float g = pixel[1];                        float b = pixel[2];                        float y =  0.299*r + 0.587*g + 0.114*b;                        float u = -0.147*r - 0.289*g + 0.436*b;                        float v =  0.615*r - 0.515*g - 0.100*b;                        if (y > v_yLowerThreshold && y < v_yUpperThreshold){                            alpha = (v+u)*40.0 +2.0;                        }                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);                        gl_FragColor = pixel;                    }",
-	                    "vertexShader": "                    uniform float progress;                    uniform float duration;                    uniform float yLowerThreshold;                    uniform float yUpperThreshold;                    uniform vec2 source_resolution;                    uniform vec2 output_resolution;                    attribute vec2 a_position;                    attribute vec2 a_texCoord;                    varying vec2 v_texCoord;                    varying float v_progress;                    varying float v_duration;                    varying float v_yLowerThreshold;                    varying float v_yUpperThreshold;                    varying vec2 v_source_resolution;                    varying vec2 v_output_resolution;                    void main() {                        v_progress = progress;                        v_duration = duration;                        v_yLowerThreshold = yLowerThreshold;                        v_yUpperThreshold = yUpperThreshold;                        v_source_resolution = source_resolution;                        v_output_resolution = output_resolution;                        gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                        v_texCoord = a_texCoord;                    }",
+	                    "fragmentShader": "\
+	                    precision mediump float;\
+	                    uniform sampler2D u_image;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_yUpperThreshold;\
+	                    varying float v_yLowerThreshold;\
+	                    void main(){\
+	                        vec4 pixel = texture2D(u_image, v_texCoord);\
+	                        float alpha = 1.0;\
+	                        float r = pixel[0];\
+	                        float g = pixel[1];\
+	                        float b = pixel[2];\
+	                        float y =  0.299*r + 0.587*g + 0.114*b;\
+	                        float u = -0.147*r - 0.289*g + 0.436*b;\
+	                        float v =  0.615*r - 0.515*g - 0.100*b;\
+	                        if (y > v_yLowerThreshold && y < v_yUpperThreshold){\
+	                            alpha = (v+u)*40.0 +2.0;\
+	                        }\
+	                        pixel = vec4(pixel[0], pixel[1], pixel[2], alpha);\
+	                        gl_FragColor = pixel;\
+	                    }",
+	                    "vertexShader": "\
+	                    uniform float progress;\
+	                    uniform float duration;\
+	                    uniform float yLowerThreshold;\
+	                    uniform float yUpperThreshold;\
+	                    uniform vec2 source_resolution;\
+	                    uniform vec2 output_resolution;\
+	                    attribute vec2 a_position;\
+	                    attribute vec2 a_texCoord;\
+	                    varying vec2 v_texCoord;\
+	                    varying float v_progress;\
+	                    varying float v_duration;\
+	                    varying float v_yLowerThreshold;\
+	                    varying float v_yUpperThreshold;\
+	                    varying vec2 v_source_resolution;\
+	                    varying vec2 v_output_resolution;\
+	                    void main() {\
+	                        v_progress = progress;\
+	                        v_duration = duration;\
+	                        v_yLowerThreshold = yLowerThreshold;\
+	                        v_yUpperThreshold = yUpperThreshold;\
+	                        v_source_resolution = source_resolution;\
+	                        v_output_resolution = output_resolution;\
+	                        gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                        v_texCoord = a_texCoord;\
+	                    }",
 	                    "defaultParameters": {
 	                        "yLowerThreshold": 0.2,
 	                        "yUpperThreshold": 0.8
@@ -1325,13 +1623,13 @@ module.exports =
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
@@ -1347,6 +1645,8 @@ module.exports =
 	}
 
 	var VideoSource = (function (_MediaSource) {
+	    _inherits(VideoSource, _MediaSource);
+
 	    /**
 	    * Video playback source. Inherits from MediaSource 
 	    *
@@ -1376,14 +1676,12 @@ module.exports =
 	        }
 	    }
 
-	    _inherits(VideoSource, _MediaSource);
+	    /**
+	    * Set the VideoSource playing.
+	    */
 
 	    _createClass(VideoSource, [{
 	        key: "play",
-
-	        /**
-	        * Set the VideoSource playing.
-	        */
 	        value: function play() {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "play", this).call(this);
 	            var _this = this;
@@ -1401,13 +1699,13 @@ module.exports =
 
 	            playVideo();
 	        }
-	    }, {
-	        key: "seek",
 
 	        /**
 	        * Seek the VideoSource to an appropriate point for the passed time.
 	        * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
 	        */
+	    }, {
+	        key: "seek",
 	        value: function seek(time) {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "seek", this).call(this);
 	            var _this = this;
@@ -1430,22 +1728,22 @@ module.exports =
 
 	            seekVideo();
 	        }
-	    }, {
-	        key: "pause",
 
 	        /**
 	        * Pause the VideoSource if it is playing.
 	        */
+	    }, {
+	        key: "pause",
 	        value: function pause() {
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "pause", this).call(this);
 	            this.element.pause();
 	        }
-	    }, {
-	        key: "load",
 
 	        /**
 	        * Set the VideoSource loading, when it's ready isReady() will return true.
 	        */
+	    }, {
+	        key: "load",
 	        value: function load() {
 	            //check if we're using an already instatiated element, if so don't do anything.
 
@@ -1460,14 +1758,15 @@ module.exports =
 	                return;
 	            }
 	            //otherwise begin the loading process for this mediaSource
-	            this.element = document.createElement("video");
+	            this.element = document.createElement('video');
+	            this.element.setAttribute("crossorigin", "anonymous");
 	            //construct a fragement URL to cut the required segment from the source video
 	            this.element.src = this.src;
 	            this.element.volume = this._volume;
 	            this.element.preload = "auto";
 	            this.element.load();
 	            var _this = this;
-	            this.element.addEventListener("loadeddata", function () {
+	            this.element.addEventListener('loadeddata', function () {
 	                _this.element.currentTime = _this.sourceStart;
 	                _this.seek(0);
 	                _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, _this.element);
@@ -1482,22 +1781,22 @@ module.exports =
 	                _this.onready(_this);
 	            })*/
 	        }
-	    }, {
-	        key: "render",
 
 	        /**
 	        * Render the VideoSource to the WebGL context passed into the constructor.
 	        */
+	    }, {
+	        key: "render",
 	        value: function render(program, renderParameters, textures) {
 	            this.element.playbackRate = renderParameters["playback_rate"];
 	            _get(Object.getPrototypeOf(VideoSource.prototype), "render", this).call(this, program, renderParameters, textures);
 	        }
-	    }, {
-	        key: "destroy",
 
 	        /**
 	        * Clean up the VideoSource for detruction.
 	        */
+	    }, {
+	        key: "destroy",
 	        value: function destroy() {
 	            this.element.pause();
 	            if (this.disposeOfElementOnDestroy) {
@@ -1613,12 +1912,12 @@ module.exports =
 	        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 	    }
 
+	    /**
+	    * Set the MediaSource playing.
+	    */
+
 	    _createClass(MediaSource, [{
 	        key: 'play',
-
-	        /**
-	        * Set the MediaSource playing.
-	        */
 	        value: function play() {
 	            //console.log("Playing", this.id);
 	            if (this.playing === false) {
@@ -1628,38 +1927,38 @@ module.exports =
 	            }
 	            this.playing = true;
 	        }
-	    }, {
-	        key: 'pause',
 
 	        /**
 	        * Pause the MediaSource if it is playing.
 	        */
+	    }, {
+	        key: 'pause',
 	        value: function pause() {
-	            console.debug('Pausing', this.id);
+	            console.debug("Pausing", this.id);
 	            this.playing = false;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].pause === 'function') this.mediaSourceListeners[i].pause(this);
 	            }
 	        }
-	    }, {
-	        key: 'seek',
 
 	        /**
 	        * Seek the MediaSource to an appropriate point for the passed time.
 	        * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
 	        */
+	    }, {
+	        key: 'seek',
 	        value: function seek(seekTime) {
 	            //this.currentTime = seekTime;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].seek === 'function') this.mediaSourceListeners[i].seek(this, seekTime);
 	            }
 	        }
-	    }, {
-	        key: 'isReady',
 
 	        /**
 	        * Check if the MediaSource is ready to start playing.
 	        */
+	    }, {
+	        key: 'isReady',
 	        value: function isReady() {
 	            var listenerReady = true;
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
@@ -1672,14 +1971,14 @@ module.exports =
 	            if (listenerReady === true && this.ready === true) return true;
 	            return false;
 	        }
-	    }, {
-	        key: 'load',
 
 	        /**
 	        * Set the MediaSource loading, when it's ready isReady() will return true.
 	        */
+	    }, {
+	        key: 'load',
 	        value: function load() {
-	            console.debug('Loading', this.id);
+	            console.debug("Loading", this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].load === 'function') this.mediaSourceListeners[i].load(this);
 	            }
@@ -1688,14 +1987,14 @@ module.exports =
 	            }
 	            return false;
 	        }
-	    }, {
-	        key: 'destroy',
 
 	        /**
 	        * Clean up the MediaSource for detruction.
 	        */
+	    }, {
+	        key: 'destroy',
 	        value: function destroy() {
-	            console.debug('Destroying', this.id);
+	            console.debug("Destroying", this.id);
 	            for (var i = 0; i < this.mediaSourceListeners.length; i++) {
 	                if (typeof this.mediaSourceListeners[i].destroy === 'function') this.mediaSourceListeners[i].destroy(this);
 	            }
@@ -1703,12 +2002,12 @@ module.exports =
 	                delete this.element;
 	            }
 	        }
-	    }, {
-	        key: 'render',
 
 	        /**
 	        * Render the MediaSource to the WebGL context passed into the constructor.
 	        */
+	    }, {
+	        key: 'render',
 	        value: function render(program, renderParameters, textures) {
 	            //renders the media source to the WebGL context using the pased program
 	            var overriddenElement = undefined;
@@ -1726,7 +2025,7 @@ module.exports =
 	                var key = renderParametersKeys[index];
 	                var parameterLoctation = this.gl.getUniformLocation(program, key);
 	                if (parameterLoctation !== -1) {
-	                    if (typeof renderParameters[key] === 'number') {
+	                    if (typeof renderParameters[key] === "number") {
 	                        this.gl.uniform1f(parameterLoctation, renderParameters[key]);
 	                    } else if (Object.prototype.toString.call(renderParameters[key]) === '[object Array]') {
 	                        var array = renderParameters[key];
@@ -1739,7 +2038,7 @@ module.exports =
 	                        } else if (array.length === 4) {
 	                            this.gl.uniform4fv(parameterLoctation, array);
 	                        } else {
-	                            console.debug('Shader parameter', key, 'is too long and array:', array);
+	                            console.debug("Shader parameter", key, "is too long and array:", array);
 	                        }
 	                    } else {
 	                        //Is a texture
@@ -1751,7 +2050,7 @@ module.exports =
 	            }
 
 	            this.gl.activeTexture(this.gl.TEXTURE0);
-	            var textureLocation = this.gl.getUniformLocation(program, 'u_image');
+	            var textureLocation = this.gl.getUniformLocation(program, "u_image");
 	            this.gl.uniform1i(textureLocation, 0);
 	            this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 	            if (overriddenElement !== undefined) {
@@ -1785,19 +2084,21 @@ module.exports =
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
 	var ImageSource = (function (_MediaSource) {
+	    _inherits(ImageSource, _MediaSource);
+
 	    /**
 	    * Image playback source. Inherits from MediaSource 
 	    *
@@ -1818,19 +2119,15 @@ module.exports =
 	        _get(Object.getPrototypeOf(ImageSource.prototype), "constructor", this).call(this, properties, gl);
 	    }
 
-	    _inherits(ImageSource, _MediaSource);
+	    /**
+	    * Set the ImageSource playing.
+	    */
 
 	    _createClass(ImageSource, [{
 	        key: "play",
-
-	        /**
-	        * Set the ImageSource playing.
-	        */
 	        value: function play() {
 	            _get(Object.getPrototypeOf(ImageSource.prototype), "play", this).call(this);
 	        }
-	    }, {
-	        key: "seek",
 
 	        /**
 	        * Seek to playlist time and do something appropriate with this ImageSource. This has little effect on the image as it's 
@@ -1838,24 +2135,26 @@ module.exports =
 	        * this source.
 	        * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
 	        */
+	    }, {
+	        key: "seek",
 	        value: function seek(time) {
 	            _get(Object.getPrototypeOf(ImageSource.prototype), "seek", this).call(this, time);
 	        }
-	    }, {
-	        key: "pause",
 
 	        /**
 	        * Pause the ImageSource if it is playing.
 	        */
+	    }, {
+	        key: "pause",
 	        value: function pause() {
 	            _get(Object.getPrototypeOf(ImageSource.prototype), "pause", this).call(this);
 	        }
-	    }, {
-	        key: "load",
 
 	        /**
 	        * Set the ImageSource loading, when it's ready isReady() will return true.
 	        */
+	    }, {
+	        key: "load",
 	        value: function load() {
 	            //check if we're using an already instatiated element, if so don't do anything.
 	            if (_get(Object.getPrototypeOf(ImageSource.prototype), "load", this).call(this)) {
@@ -1907,19 +2206,21 @@ module.exports =
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _mediasource = __webpack_require__(2);
 
 	var _mediasource2 = _interopRequireDefault(_mediasource);
 
 	var CanvasSource = (function (_MediaSource) {
+	    _inherits(CanvasSource, _MediaSource);
+
 	    /**
 	    * Canvas playback source. Inherits from MediaSource 
 	    *
@@ -1942,43 +2243,41 @@ module.exports =
 	        this.height = properties.height;
 	    }
 
-	    _inherits(CanvasSource, _MediaSource);
+	    /**
+	    * Set the CanvasSource playing.
+	    */
 
 	    _createClass(CanvasSource, [{
 	        key: "play",
-
-	        /**
-	        * Set the CanvasSource playing.
-	        */
 	        value: function play() {
 	            _get(Object.getPrototypeOf(CanvasSource.prototype), "play", this).call(this);
 	        }
-	    }, {
-	        key: "seek",
 
 	        /**
 	        * Seek to playlist time and do something appropriate with this CavnasSource. This can effect shaders applied to this 
 	        * canvas and any MediaSourceListeners listening to the Id of this source.
 	        * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
 	        */
+	    }, {
+	        key: "seek",
 	        value: function seek(time) {
 	            _get(Object.getPrototypeOf(CanvasSource.prototype), "seek", this).call(this, time);
 	        }
-	    }, {
-	        key: "pause",
 
 	        /**
 	        * Pause the CanvasSource if it is playing.
 	        */
+	    }, {
+	        key: "pause",
 	        value: function pause() {
 	            _get(Object.getPrototypeOf(CanvasSource.prototype), "pause", this).call(this);
 	        }
-	    }, {
-	        key: "load",
 
 	        /**
 	        * Set the CanvasSource loading, when it's ready isReady() will return true.
 	        */
+	    }, {
+	        key: "load",
 	        value: function load() {
 	            //check if we're using an already instatiated element, if so don't do anything.
 	            if (_get(Object.getPrototypeOf(CanvasSource.prototype), "load", this).call(this)) {
@@ -2194,11 +2493,40 @@ module.exports =
 	        this.gl = gl;
 	        this.vertexShaderSrc = playlistEffectObject.effect.vertexShader;
 	        if (this.vertexShaderSrc === undefined) {
-	            this.vertexShaderSrc = "                uniform float progress;                uniform float duration;                uniform vec2 source_resolution;                uniform vec2 output_resolution;                attribute vec2 a_position;                attribute vec2 a_texCoord;                varying vec2 v_texCoord;                varying float v_progress;                varying float v_duration;                varying vec2 v_source_resolution;                varying vec2 v_output_resolution;                void main() {                    v_progress = progress;                    v_duration = duration;                    v_source_resolution = source_resolution;                    v_output_resolution = output_resolution;                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);                    v_texCoord = a_texCoord;                }";
+	            this.vertexShaderSrc = "\
+	                uniform float progress;\
+	                uniform float duration;\
+	                uniform vec2 source_resolution;\
+	                uniform vec2 output_resolution;\
+	                attribute vec2 a_position;\
+	                attribute vec2 a_texCoord;\
+	                varying vec2 v_texCoord;\
+	                varying float v_progress;\
+	                varying float v_duration;\
+	                varying vec2 v_source_resolution;\
+	                varying vec2 v_output_resolution;\
+	                void main() {\
+	                    v_progress = progress;\
+	                    v_duration = duration;\
+	                    v_source_resolution = source_resolution;\
+	                    v_output_resolution = output_resolution;\
+	                    gl_Position = vec4(vec2(2.0,2.0)*a_position-vec2(1.0, 1.0), 0.0, 1.0);\
+	                    v_texCoord = a_texCoord;\
+	                }";
 	        }
 	        this.fragmentShaderSrc = playlistEffectObject.effect.fragmentShader;
 	        if (this.fragmentShaderSrc === undefined) {
-	            this.fragmentShaderSrc = "            precision mediump float;            uniform sampler2D u_image;            varying vec2 v_texCoord;            varying float v_progress;            varying float v_duration;            varying vec2 v_source_resolution;            varying vec2 v_output_resolution;            void main(){                gl_FragColor = texture2D(u_image, v_texCoord);            }";
+	            this.fragmentShaderSrc = "\
+	            precision mediump float;\
+	            uniform sampler2D u_image;\
+	            varying vec2 v_texCoord;\
+	            varying float v_progress;\
+	            varying float v_duration;\
+	            varying vec2 v_source_resolution;\
+	            varying vec2 v_output_resolution;\
+	            void main(){\
+	                gl_FragColor = texture2D(u_image, v_texCoord);\
+	            }";
 	        }
 
 	        this.parameters = playlistEffectObject.parameters;
