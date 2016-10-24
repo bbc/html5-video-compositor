@@ -2,17 +2,22 @@
   "name": "html5-video-compositor",
   "version": "  0.9.3",
   "description": "A HTML5 based video composition engine",
-  "keywords": ["html5", "video", "video composition", "webgl"],
+  "keywords": [
+    "html5",
+    "video",
+    "video composition",
+    "webgl"
+  ],
   "bugs": {
     "url": "https://github.com/bbc/html5-video-compositor/issues"
-    },
-  "license": {
-    "license":"Apache-2.0"
   },
-  "browser":"./src/main.js",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/bbc/html5-video-compositor"
+  "license": {
+    "license": "Apache-2.0"
+  },
+  "browser": "./src/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bbc/html5-video-compositor"
   },
   "contributors": [
     {
@@ -24,19 +29,20 @@
       "email": "max.leonard@bbc.co.uk"
     }
   ],
-  "scripts":{
-        "build_all":"node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js && node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
-        "doc":"node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
-        "build":"node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
-        "dev":"node ./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js"
+  "scripts": {
+    "build_all": "node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js && node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
+    "doc": "node ./node_modules/esdoc/out/src/ESDocCLI.js -c esdoc.json",
+    "build": "node ./node_modules/webpack/bin/webpack.js --optimize-minimize --config webpack.config.js && node ./node_modules/webpack/bin/webpack.js --config webpack.commonjs2.config.js",
+    "dev": "node ./node_modules/webpack/bin/webpack.js --watch --config webpack.config.js & ./node_modules/http-server/bin/http-server"
   },
   "dependencies": {},
-  "browserDependencies":{},
+  "browserDependencies": {},
   "devDependencies": {
     "babel-core": "^5.6.5",
     "babel-loader": "^5.1.4",
+    "esdoc": "^0.3.1",
+    "http-server": "^0.9.0",
     "node-libs-browser": "^0.5.2",
-    "webpack": "^1.9.11",
-    "esdoc": "^0.3.1"
+    "webpack": "^1.9.11"
   }
 }

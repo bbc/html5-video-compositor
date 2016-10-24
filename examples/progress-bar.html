@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Progress Bar Example</title>
+	<script type="text/javascript" src="../dist/videocompositor.js"></script>
+	<script type="text/javascript">
+    	var videocompositor;
+		window.onload = function(){
+			var canvas = document.getElementById('vc-canvas');
+	        canvas.width = 640;
+	        canvas.height = 360;
+	        videocompositor = new VideoCompositor(canvas);
+
+
+			var playlist = {
+	            "tracks":[
+	                [
+	                    {
+	                        type:"video",
+	                        id:"clip-1",
+	                        src:"./introductions-fast.mp4",
+	                        start:0,
+	                        duration:4
+	                    }, {   
+	                        type:"video", 
+	                        id:"clip-2",
+	                        src:"./introductions-fast.mp4",
+	                        start:4,
+	                        sourceStart:140,
+	                         duration:2
+	                    }, {
+	                        type:"video", 
+	                        id:"clip-3",
+	                        src:"./introductions-fast.mp4",
+	                        start:6,
+	                        sourceStart:1469,
+	                        duration:4
+	                    }
+	                ],
+	            ],
+	            "effects":{
+	            }
+	        };
+
+	        videocompositor.playlist = playlist;
+
+
+	        //Initilise the Time Slider
+			var timeSlider = document.getElementById('timeslider');
+			timeSlider.setAttribute("max", videocompositor.duration);
+        	
+        	//update the slider position every 0.5 seconds.
+			setInterval(function(){
+				console.log("Setting");
+				timeSlider.value = videocompositor.currentTime;
+			}, 200);
+
+			timeSlider.onclick = function(){	
+				videocompositor.currentTime = timeSlider.value;
+			}
+		}
+	</script>
+</head>
+<body>
+    <canvas id="vc-canvas"></canvas>
+    <p>
+    	<input id="timeslider" type="range" min="0" step="0.1" style="width:640px"/>
+    </p>
+    <p>
+        <button onclick="videocompositor.play();">Play</button>
+        <button onclick="videocompositor.pause();">Pause</button>
+    </p>
+</body>
+</html>
