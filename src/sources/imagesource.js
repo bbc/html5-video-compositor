@@ -1,19 +1,19 @@
-//Matthew Shotton, R&D User Experince,© BBC 2015
+//Matthew Shotton, R&D User Experience,© BBC 2015
 import MediaSource from "./mediasource";
 
 class ImageSource extends MediaSource{
     /**
     * Image playback source. Inherits from MediaSource 
     *
-    * A ImageSource is the manifestation of a mediaSourceReference from a playlist object which has type "image". 
-    * 
-    * A ImageSource exists for a period slightly before a ImageSource is to play in order to give it time to preload and
+    * An ImageSource is the manifestation of a mediaSourceReference from a playlist object which has type "image".
+    *
+    * An ImageSource exists for a period slightly before an ImageSource is to play in order to give it time to preload and
     * is destroyed as soon as the ImageSource has finished playing.
     *
     * @param {Object} properties - An object with the following attributes: id, duration, start, and src or element. 
     * Where src is the URL of a video, or element is a DOM Video element.
     * 
-    * @param {WebGLContext} gl - a webGl context to render too.
+    * @param {WebGLContext} gl - a webGl context to render to.
     */
     constructor(properties, gl){
         super(properties, gl);
@@ -28,7 +28,7 @@ class ImageSource extends MediaSource{
     * Seek to playlist time and do something appropriate with this ImageSource. This has little effect on the image as it's 
     * static but can affect any effect shaders applied to this image and any MediaSourceListeners listening to the Id of 
     * this source.
-    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    * @param {number} seekTime - The time to seek to, this is the overall time for the whole playlist.
     */
     seek(time){
         super.seek(time);
@@ -43,7 +43,7 @@ class ImageSource extends MediaSource{
     * Set the ImageSource loading, when it's ready isReady() will return true.
     */
     load(){
-        //check if we're using an already instatiated element, if so don't do anything.
+        //check if we're using an already instantiated element, if so don't do anything.
         if (super.load()){
             this.seek(0);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);

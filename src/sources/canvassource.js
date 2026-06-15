@@ -1,4 +1,4 @@
-//Matthew Shotton, R&D User Experince,© BBC 2015
+//Matthew Shotton, R&D User Experience,© BBC 2015
 import MediaSource from "./mediasource";
 
 class CanvasSource extends MediaSource{
@@ -13,7 +13,7 @@ class CanvasSource extends MediaSource{
     * @param {Object} properties - An object with the following attributes: id, duration, start, and element. 
     * Where src is the URL of a video, or element is a DOM Video element.
     * 
-    * @param {WebGLContext} gl - a webGl context to render too.
+    * @param {WebGLContext} gl - a webGl context to render to.
     */
     constructor(properties, gl){
         super(properties, gl);
@@ -27,9 +27,9 @@ class CanvasSource extends MediaSource{
         super.play();
     }
     /**
-    * Seek to playlist time and do something appropriate with this CavnasSource. This can effect shaders applied to this 
+    * Seek to playlist time and do something appropriate with this CanvasSource. This can affect shaders applied to this 
     * canvas and any MediaSourceListeners listening to the Id of this source.
-    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    * @param {number} seekTime - The time to seek to, this is the overall time for the whole playlist.
     */
     seek(time){
         super.seek(time);
@@ -44,7 +44,7 @@ class CanvasSource extends MediaSource{
     * Set the CanvasSource loading, when it's ready isReady() will return true.
     */
     load(){
-        //check if we're using an already instatiated element, if so don't do anything.
+        //check if we're using an already instantiated element, if so don't do anything.
         if (super.load()){
             this.seek(0);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.element);
