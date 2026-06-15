@@ -32,7 +32,7 @@ class AudioManager {
     createAudioNodeFromTrack(track){
         if (this.audioCtx === undefined){
             // There can only be a max of 6 AudioContexts in most browsers, so only instantiate it here rather than in 
-            // constructor as it's genuinley needed. Otherwise having >6 VideoCompositor instances running will break 
+            // constructor as it's genuinely needed. Otherwise having >6 VideoCompositor instances running will break 
             // the browser.
             this.audioCtx = new AudioContext();
         }
@@ -45,7 +45,7 @@ class AudioManager {
     getAudioContext(){
         if (this.audioCtx === undefined){
             // There can only be a max of 6 AudioContexts in most browsers, so only instantiate it here rather than in 
-            // constructor as it's genuinley needed. Otherwise having >6 VideoCompositor instances running will break 
+            // constructor as it's genuinely needed. Otherwise having >6 VideoCompositor instances running will break 
             // the browser.
             this.audioCtx = new AudioContext();
         }

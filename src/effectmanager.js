@@ -18,7 +18,7 @@ class EffectManager {
         if (playlistEffectObjects === undefined) return;
         for (let key in playlistEffectObjects){
             if (this.effects.has(key)){
-                //udpate the effect
+                //update the effect
                 this.effects.get(key).update(playlistEffectObjects[key]);
             } else {
                 //create the effect

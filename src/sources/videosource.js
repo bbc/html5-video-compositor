@@ -1,4 +1,4 @@
-//Matthew Shotton, R&D User Experince,© BBC 2015
+//Matthew Shotton, R&D User Experience,© BBC 2015
 import MediaSource from "./mediasource";
 
 
@@ -26,7 +26,7 @@ class VideoSource extends MediaSource{
     * @param {Object} properties - An object with the following attributes: id, duration, start, sourceStart, and src or element. 
     * Where src is the URL of a video, or element is a DOM Video element.
     * 
-    * @param {WebGLContext} gl - a webGl context to render too.
+    * @param {WebGLContext} gl - a webGl context to render to.
     */
     constructor(properties, gl){
         super(properties, gl);
@@ -61,7 +61,7 @@ class VideoSource extends MediaSource{
     }
     /**
     * Seek the VideoSource to an appropriate point for the passed time.
-    * @param {number} seekTime - The time to seek too, this is the overall time for the whole playlist.
+    * @param {number} seekTime - The time to seek to, this is the overall time for the whole playlist.
     */
     seek(time){
         super.seek();
@@ -96,7 +96,7 @@ class VideoSource extends MediaSource{
     * Set the VideoSource loading, when it's ready isReady() will return true.
     */
     load(){
-        //check if we're using an already instatiated element, if so don't do anything.
+        //check if we're using an already instantiated element, if so don't do anything.
 
         if (super.load()){
             //this.element.currentTime = this.sourceStart;
@@ -111,7 +111,7 @@ class VideoSource extends MediaSource{
         //otherwise begin the loading process for this mediaSource
         this.element = document.createElement('video');     
         this.element.setAttribute("crossorigin", "anonymous");
-        //construct a fragement URL to cut the required segment from the source video
+        //construct a fragment URL to cut the required segment from the source video
         this.element.src = this.src;
         this.element.volume = this._volume;
         this.element.preload = "auto";
@@ -142,7 +142,7 @@ class VideoSource extends MediaSource{
         super.render(program, renderParameters, textures);
     }
     /**
-    * Clean up the VideoSource for detruction.
+    * Clean up the VideoSource for destruction.
     */
     destroy(){
         this.element.pause();
